@@ -6,14 +6,9 @@
 
 import os, sys
 import os.path
-import glob
 
 from distutils.command import build
 from distutils.spawn import spawn, find_executable
-from distutils.dep_util import newer, newer_group
-from distutils.dir_util import copy_tree, remove_tree, mkpath
-from distutils.file_util import copy_file
-from distutils import sysconfig
 
 class build_doc(build.build):
     """Defines the specific procedure to build roundup's documentation."""

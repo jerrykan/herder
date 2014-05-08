@@ -8,7 +8,7 @@ for the columns, but sqlite IGNORES these specifications.
 """
 __docformat__ = 'restructuredtext'
 
-import os, base64, marshal, shutil, time, logging
+import os, shutil, time, logging
 
 from roundup import hyperdb, date, password
 from roundup.backends import rdbms_common

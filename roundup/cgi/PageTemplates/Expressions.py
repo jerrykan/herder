@@ -24,7 +24,7 @@ for Python expressions, string literals, and paths.
 
 import re, sys
 from TALES import Engine, CompilerError, _valid_name, NAME_RE, \
-     Undefined, Default, _parse_expr
+     Undefined, _parse_expr
 
 
 _engine = None

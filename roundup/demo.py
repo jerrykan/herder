@@ -30,7 +30,7 @@ def install_demo(home, backend, template):
 
     """
 
-    from roundup import init, instance, password, backends
+    from roundup import init, instance, password
 
     # set up the config for this tracker
     config = configuration.CoreConfig()

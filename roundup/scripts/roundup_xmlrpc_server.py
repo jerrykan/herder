@@ -19,12 +19,12 @@ if (osp.exists(thisdir + '/__init__.py') and
 # --/
 
 
-import base64, getopt, os, sys, socket, urllib
+import base64, getopt, sys, socket, urllib
 from roundup.xmlrpc import translate
 from roundup.xmlrpc import RoundupInstance
 import roundup.instance
 from roundup.instance import TrackerError
-from roundup.cgi.exceptions import Unauthorised
+from roundup.exceptions import Unauthorised
 from SimpleXMLRPCServer import SimpleXMLRPCServer
 from SimpleXMLRPCServer import SimpleXMLRPCRequestHandler
 

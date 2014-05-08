@@ -20,8 +20,7 @@ messages, string properties and text files possible.
 '''
 __docformat__ = 'restructuredtext'
 
-import os, shutil, re, mimetypes, marshal, zlib, errno
-from roundup.hyperdb import Link, Multilink
+import os, shutil, re, marshal, zlib, errno
 from roundup.backends.indexer_common import Indexer as IndexerBase
 
 class Indexer(IndexerBase):

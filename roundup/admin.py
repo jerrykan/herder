@@ -23,7 +23,7 @@ __docformat__ = 'restructuredtext'
 
 import csv, getopt, getpass, os, re, shutil, sys, UserDict, operator
 
-from roundup import date, hyperdb, roundupdb, init, password, token
+from roundup import date, hyperdb, init, password, token
 from roundup import __version__ as roundup_version
 import roundup.instance
 from roundup.configuration import CoreConfig
@@ -1213,7 +1213,6 @@ Erase it? Y/N: """))
         """
         if len(args) < 1:
             raise UsageError(_('Not enough arguments supplied'))
-        from roundup import hyperdb
 
         if hasattr (csv, 'field_size_limit'):
             csv.field_size_limit(self.db.config.CSV_FIELD_SIZE)

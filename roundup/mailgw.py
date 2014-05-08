@@ -94,7 +94,7 @@ explanatory message given in the exception.
 """
 __docformat__ = 'restructuredtext'
 
-import string, re, os, mimetools, cStringIO, smtplib, socket, binascii, quopri
+import string, re, os, mimetools, cStringIO, socket, binascii, quopri
 import time, random, sys, logging
 import traceback
 import email.utils
@@ -102,7 +102,7 @@ import email.utils
 from anypy.email_ import decode_header
 
 from roundup import configuration, hyperdb, date, password, exceptions
-from roundup.mailer import Mailer, MessageSendError
+from roundup.mailer import Mailer
 from roundup.i18n import _
 from roundup.hyperdb import iter_roles
 
@@ -1346,7 +1346,7 @@ class MailGW:
             cram=0):
         ''' Do an IMAP connection
         '''
-        import getpass, imaplib, socket
+        import getpass, imaplib
         try:
             if not user:
                 user = raw_input('User: ')
@@ -1426,7 +1426,7 @@ class MailGW:
     def _do_pop(self, server, user, password, apop, ssl):
         '''Read a series of messages from the specified POP server.
         '''
-        import getpass, poplib, socket
+        import getpass, poplib
         try:
             if not user:
                 user = raw_input('User: ')

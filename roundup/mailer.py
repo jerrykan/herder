@@ -2,15 +2,12 @@
 """
 __docformat__ = 'restructuredtext'
 
-import time, quopri, os, socket, smtplib, re, sys, traceback, email
-
-from cStringIO import StringIO
+import time, quopri, os, socket, smtplib, sys, traceback
 
 from roundup import __version__
 from roundup.date import get_timezone, Date
 
-from email.utils import formatdate, formataddr, specialsre, escapesre
-from email.message import Message
+from email.utils import formatdate, specialsre, escapesre
 from email.header import Header
 from email.mime.base import MIMEBase
 from email.mime.text import MIMEText

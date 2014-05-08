@@ -20,9 +20,8 @@
 """
 __docformat__ = 'restructuredtext'
 
-import re, os, smtplib, socket, time, random
-import cStringIO, base64, mimetypes
-import os.path
+import time, random
+import mimetypes
 import logging
 from email import Encoders
 from email.parser import FeedParser

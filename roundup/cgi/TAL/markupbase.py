@@ -52,7 +52,6 @@ class ParserBase:
         # deployed," this should only be the document type
         # declaration ("<!DOCTYPE html...>").
         rawdata = self.rawdata
-        import sys
         j = i + 2
         assert rawdata[i:j] == "<!", "unexpected call to parse_declaration"
         if rawdata[j:j+1] in ("-", ""):

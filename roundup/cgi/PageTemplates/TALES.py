@@ -20,7 +20,7 @@
 An implementation of a generic TALES engine
 """
 
-import re, sys
+import re
 from roundup.cgi import ZTUtils
 from weakref import ref
 from MultiMapping import MultiMapping

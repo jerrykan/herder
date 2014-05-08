@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext'
 import sys, os, types, string, keyword, linecache, tokenize, inspect, cgi
 import pydoc, traceback
 
-from roundup.cgi import templating, TranslationService
+from roundup.cgi import TranslationService
 
 def get_translator(i18n=None):
     """Return message translation function (gettext)

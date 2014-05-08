@@ -1,4 +1,4 @@
-import re, cgi, time, random, csv, codecs
+import re, cgi, random, csv, codecs
 from io import BytesIO
 
 from roundup import hyperdb, token, date, password

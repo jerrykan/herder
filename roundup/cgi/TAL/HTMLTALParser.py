@@ -15,8 +15,6 @@
 Parse HTML and compile to TALInterpreter intermediate code.
 """
 
-import sys
-
 from TALGenerator import TALGenerator
 from HTMLParser import HTMLParser, HTMLParseError
 from TALDefs import \

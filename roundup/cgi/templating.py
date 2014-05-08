@@ -20,20 +20,14 @@ todo = """
 __docformat__ = 'restructuredtext'
 
 
-import cgi, urllib, re, os.path, mimetypes, csv
+import cgi, urllib, re, os.path, csv
 import calendar
 import textwrap
 
 from roundup import hyperdb, date, support
-from roundup import i18n
-from roundup.i18n import _
 
 from KeywordsExpr import render_keywords_expression_editor
 
-try:
-    import cPickle as pickle
-except ImportError:
-    import pickle
 try:
     import cStringIO as StringIO
 except ImportError:

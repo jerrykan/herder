@@ -52,13 +52,12 @@ the same name.
 __docformat__ = 'restructuredtext'
 
 # standard python modules
-import sys, os, time, re, errno, weakref, copy, logging, datetime
+import time, re, copy, logging, datetime
 
 # roundup modules
 from roundup import hyperdb, date, password, roundupdb, security, support
 from roundup.hyperdb import String, Password, Date, Interval, Link, \
-    Multilink, DatabaseError, Boolean, Number, Integer, Node
-from roundup.backends import locking
+    Multilink, DatabaseError, Boolean, Number, Integer
 from roundup.i18n import _
 
 

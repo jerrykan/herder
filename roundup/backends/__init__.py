@@ -19,8 +19,6 @@
 '''
 __docformat__ = 'restructuredtext'
 
-import sys
-
 # These names are used to suppress import errors.
 # If get_backend raises an ImportError with appropriate
 # module name, have_backend quietly returns False.

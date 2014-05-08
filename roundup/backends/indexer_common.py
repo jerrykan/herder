@@ -1,5 +1,3 @@
-import re
-
 from roundup import hyperdb
 
 STOPWORDS = [

@@ -6,7 +6,6 @@
 
 import os
 import cgi
-import weakref
 
 import roundup.instance
 from roundup.cgi import TranslationService

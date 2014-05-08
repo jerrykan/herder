@@ -22,7 +22,7 @@ __docformat__ = 'restructuredtext'
 import os, errno, email.parser
 
 
-from roundup import install_util, password
+from roundup import install_util
 from roundup.configuration import CoreConfig
 from roundup.i18n import _
 

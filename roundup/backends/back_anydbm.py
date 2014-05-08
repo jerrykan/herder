@@ -22,7 +22,7 @@ serious bugs, and is not available)
 """
 __docformat__ = 'restructuredtext'
 
-import os, marshal, re, weakref, string, copy, time, shutil, logging
+import os, marshal, re, copy, time, shutil, logging
 
 from roundup.anypy.dbm_ import anydbm, whichdb
 

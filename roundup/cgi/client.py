@@ -3,7 +3,7 @@
 __docformat__ = 'restructuredtext'
 
 import base64, binascii, cgi, codecs, mimetypes, os
-import quopri, random, re, stat, sys, time
+import random, re, stat, sys, time
 import socket, errno
 import email.utils
 from traceback import format_exc
@@ -13,7 +13,7 @@ try:
 except ImportError:
     SysCallError = None
 
-from roundup import roundupdb, date, hyperdb, password
+from roundup import hyperdb
 from roundup.cgi import templating, cgitb, TranslationService
 from roundup.cgi import actions
 from roundup.exceptions import LoginError, Reject, RejectRaw, Unauthorised

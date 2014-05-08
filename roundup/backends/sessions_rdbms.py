@@ -6,7 +6,7 @@ class. It's now also used for One Time Key handling too.
 """
 __docformat__ = 'restructuredtext'
 
-import os, time
+import time
 from cgi import escape
 
 class BasicDatabase:

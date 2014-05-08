@@ -35,7 +35,7 @@ except:
     from psycopg2.extensions import TransactionRollbackError
 import logging
 
-from roundup import hyperdb, date
+from roundup import hyperdb
 from roundup.backends import rdbms_common
 from roundup.backends import sessions_rdbms
 

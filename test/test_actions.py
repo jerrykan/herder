@@ -5,7 +5,8 @@ from roundup import hyperdb
 from roundup.date import Date, Interval
 from roundup.cgi.actions import *
 from roundup.cgi.client import add_message
-from roundup.cgi.exceptions import Redirect, Unauthorised, SeriousError
+from roundup.exceptions import Unauthorised
+from roundup.cgi.exceptions import Redirect, SeriousError
 
 from mocknull import MockNull
 

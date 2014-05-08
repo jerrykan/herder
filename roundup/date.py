@@ -21,7 +21,6 @@ __docformat__ = 'restructuredtext'
 
 import calendar
 import datetime
-import time
 import re
 
 try:

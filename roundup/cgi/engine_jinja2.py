@@ -32,7 +32,6 @@ minimal set (to avoid Roundup state changes from template).
 """
 
 import jinja2
-import gettext
 
 from types import MethodType
 

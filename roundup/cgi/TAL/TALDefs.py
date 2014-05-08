@@ -17,7 +17,7 @@
 Common definitions used by TAL and METAL compilation an transformation.
 """
 
-from types import ListType, TupleType
+from types import TupleType
 
 #from ITALES import ITALESErrorInfo
 

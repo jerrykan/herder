@@ -1,7 +1,6 @@
 
 try:
     # Python 3+
-    from http import cookies as Cookie
     from http.cookies import CookieError, BaseCookie, SimpleCookie
     from http.cookies import _getdate as get_cookie_date
 except:

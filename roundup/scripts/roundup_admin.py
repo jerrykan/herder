@@ -38,7 +38,6 @@ from roundup import version_check
 
 # import the admin tool guts and make it go
 from roundup.admin import AdminTool
-from roundup.i18n import _
 
 def run():
     # time out after a minute if we can

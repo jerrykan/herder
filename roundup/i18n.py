@@ -35,7 +35,6 @@ the dynamic portion of a message really means.
 """
 __docformat__ = 'restructuredtext'
 
-import errno
 import gettext as gettext_module
 import os
 
