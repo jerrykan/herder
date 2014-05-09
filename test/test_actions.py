@@ -3,7 +3,7 @@ from cgi import FieldStorage, MiniFieldStorage
 
 from roundup import hyperdb
 from roundup.date import Date, Interval
-from roundup.cgi.actions import *
+from roundup.cgi import actions
 from roundup.cgi.client import add_message
 from roundup.exceptions import Unauthorised
 from roundup.cgi.exceptions import Redirect, SeriousError
@@ -49,7 +49,7 @@ class ShowActionTestCase(ActionTestCase):
     def testShowAction(self):
         self.client.base = 'BASE/'
 
-        action = ShowAction(self.client)
+        action = actions.ShowAction(self.client)
         self.assertRaises(ValueError, action.handle)
 
         self.form.value.append(MiniFieldStorage('@type', 'issue'))
@@ -59,7 +59,7 @@ class ShowActionTestCase(ActionTestCase):
         self.assertRaisesMessage(Redirect, action.handle, 'BASE/issue1')
 
     def testShowActionNoType(self):
-        action = ShowAction(self.client)
+        action = actions.ShowAction(self.client)
         self.assertRaises(ValueError, action.handle)
         self.form.value.append(MiniFieldStorage('@number', '1'))
         self.assertRaisesMessage(ValueError, action.handle,
@@ -69,11 +69,11 @@ class RetireActionTestCase(ActionTestCase):
     def testRetireAction(self):
         self.client.db.security.hasPermission = true
         self.client._ok_message = []
-        RetireAction(self.client).handle()
+        actions.RetireAction(self.client).handle()
         self.assert_(len(self.client._ok_message) == 1)
 
     def testNoPermission(self):
-        self.assertRaises(Unauthorised, RetireAction(self.client).execute)
+        self.assertRaises(Unauthorised, actions.RetireAction(self.client).execute)
 
     def testDontRetireAdminOrAnonymous(self):
         self.client.db.security.hasPermission=true
@@ -81,15 +81,15 @@ class RetireActionTestCase(ActionTestCase):
         self.client.classname = 'user'
         # but always look up admin, regardless of nodeid
         self.client.db.user.get = lambda a,b: 'admin'
-        self.assertRaises(ValueError, RetireAction(self.client).handle)
+        self.assertRaises(ValueError, actions.RetireAction(self.client).handle)
         # .. or anonymous
         self.client.db.user.get = lambda a,b: 'anonymous'
-        self.assertRaises(ValueError, RetireAction(self.client).handle)
+        self.assertRaises(ValueError, actions.RetireAction(self.client).handle)
 
 class SearchActionTestCase(ActionTestCase):
     def setUp(self):
         ActionTestCase.setUp(self)
-        self.action = SearchAction(self.client)
+        self.action = actions.SearchAction(self.client)
 
 class StandardSearchActionTestCase(SearchActionTestCase):
     def testNoPermission(self):
@@ -149,7 +149,7 @@ class FakeFilterVarsTestCase(SearchActionTestCase):
 class CollisionDetectionTestCase(ActionTestCase):
     def setUp(self):
         ActionTestCase.setUp(self)
-        self.action = EditItemAction(self.client)
+        self.action = actions.EditItemAction(self.client)
         self.now = Date('.')
         # round off for testing
         self.now.second = int(self.now.second)
@@ -203,7 +203,7 @@ class LoginTestCase(ActionTestCase):
             self.form.value.append(
                 MiniFieldStorage('__login_password', password))
 
-        LoginAction(self.client).handle()
+        actions.LoginAction(self.client).handle()
         self.assertEqual(self.client._error_message, messages)
 
     def testNoUsername(self):
@@ -259,7 +259,7 @@ class EditItemActionTestCase(ActionTestCase):
              ,'files':hyperdb.Multilink('file')
              ,'msg':hyperdb.Link('msg')
              })
-        self.action = EditItemAction(self.client)
+        self.action = actions.EditItemAction(self.client)
 
     def testMessageAttach(self):
         expect = \

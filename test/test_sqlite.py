@@ -15,7 +15,7 @@
 # BASIS, AND THERE IS NO OBLIGATION WHATSOEVER TO PROVIDE MAINTENANCE,
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
-import unittest, os, shutil, time
+import unittest, shutil
 from roundup.backends import get_backend, have_backend
 
 from db_test_base import DBTest, ROTest, SchemaTest, ClassicInitTest, config

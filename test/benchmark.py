@@ -1,8 +1,7 @@
 import sys, os, time
 
 from roundup.hyperdb import String, Password, Link, Multilink, Date, \
-    Interval, DatabaseError, Boolean, Number
-from roundup import date, password
+    Interval, Boolean, Number
 
 from db_test_base import config
 

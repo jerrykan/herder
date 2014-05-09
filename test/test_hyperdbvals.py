@@ -8,10 +8,10 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-import unittest, os, shutil, errno, sys, difflib, cgi, re
+import unittest
 from hashlib import sha1
 
-from roundup import init, instance, password, hyperdb, date
+from roundup import password, hyperdb, date
 
 class TestClass:
     def getprops(self):

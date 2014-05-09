@@ -14,8 +14,6 @@
 # Note that the calls are interleaved, but the proper
 # tx_Source is associated with the same ticket.
 
-import time as time
-
 def tx_SourceCheckAudit(db, cl, nodeid, newvalues):
     ''' An auditor to print the value of the source of the
         transaction that trigger this change. The sleep call

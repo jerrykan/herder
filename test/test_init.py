@@ -1,6 +1,6 @@
 #-*- encoding: utf8 -*-
 
-import unittest, os, pprint, difflib, textwrap
+import unittest, os, textwrap
 
 from roundup.init import loadTemplateInfo
 

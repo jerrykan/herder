@@ -4,15 +4,14 @@
 # For license terms see the file COPYING.txt.
 #
 
-import unittest, os, shutil, errno, sys, difflib, cgi, re
+import unittest, os, shutil, errno
 
 import pytest
 from xmlrpclib import MultiCall
-from roundup.cgi.exceptions import *
-from roundup import init, instance, password, hyperdb, date
+from roundup.exceptions import Unauthorised
+from roundup import password, hyperdb
 from roundup.xmlrpc import RoundupInstance, RoundupDispatcher
 from roundup.backends import list_backends
-from roundup.hyperdb import String
 from roundup.cgi import TranslationService
 
 import db_test_base

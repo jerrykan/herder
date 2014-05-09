@@ -8,13 +8,13 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-import unittest, os, shutil, errno, sys, difflib, cgi, re, StringIO
+import unittest, os, shutil, errno, cgi, re, StringIO
 
 from roundup.cgi import client, actions, exceptions
 from roundup.cgi.exceptions import FormError
 from roundup.cgi.templating import HTMLItem, HTMLRequest
 from roundup.cgi.form_parser import FormParser
-from roundup import init, instance, password, hyperdb, date
+from roundup import password, hyperdb, date
 
 from mocknull import MockNull
 

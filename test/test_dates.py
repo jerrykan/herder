@@ -21,9 +21,9 @@ import datetime
 import calendar
 
 import pytest
-from roundup import date, i18n
-from roundup.date import Date, Interval, Range, fixTimeOverflow, \
-    get_timezone
+from roundup import i18n
+from roundup.date import Date, Interval, Range, fixTimeOverflow
+    
 
 # FIX: workaround for a bug in pytest.mark.skipif():
 #   https://github.com/pytest-dev/pytest/issues/568

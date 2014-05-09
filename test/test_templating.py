@@ -1,8 +1,10 @@
 import unittest
 from cgi import FieldStorage, MiniFieldStorage
 
-from roundup.cgi.templating import *
-from test_actions import MockNull, true
+from roundup import hyperdb
+from roundup.cgi.templating import HTMLClass, HTMLDatabase, \
+    StringHTMLProperty, lookupIds, lookupKeys
+from test_actions import MockNull
 
 class MockDatabase(MockNull):
     def getclass(self, name):

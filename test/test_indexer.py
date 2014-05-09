@@ -21,13 +21,13 @@
 import os, unittest, shutil
 
 import pytest
-from roundup.backends import get_backend, have_backend
+from roundup.backends import have_backend
 from roundup.backends.indexer_rdbms import Indexer
 
 # borrow from other tests
-from db_test_base import setupSchema, config
-from .test_postgresql import postgresqlOpener, skip_postgresql
-from .test_mysql import mysqlOpener, skip_mysql
+from db_test_base import config
+from test_postgresql import postgresqlOpener
+from test_mysql import mysqlOpener
 from test_sqlite import sqliteOpener
 
 # FIX: workaround for a bug in pytest.mark.skipif():

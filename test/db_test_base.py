@@ -15,14 +15,14 @@
 # BASIS, AND THERE IS NO OBLIGATION WHATSOEVER TO PROVIDE MAINTENANCE,
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
-import unittest, os, shutil, errno, imp, sys, time, pprint, base64, os.path
+import unittest, os, shutil, errno, sys, time, base64, os.path
 import logging
 import gpgmelib
 from email.parser import FeedParser
 
 import pytest
 from roundup.hyperdb import String, Password, Link, Multilink, Date, \
-    Interval, DatabaseError, Boolean, Number, Node, Integer
+    Interval, DatabaseError, Boolean, Number, Integer
 from roundup.mailer import Mailer
 from roundup import date, password, init, instance, configuration, \
     roundupdb, i18n

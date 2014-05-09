@@ -1,6 +1,4 @@
-import unittest, os, shutil, time
-
-from roundup import hyperdb
+import unittest
 
 from db_test_base import DBTest, ROTest, SchemaTest, config, setupSchema
 import memorydb

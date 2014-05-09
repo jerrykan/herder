@@ -13,7 +13,7 @@
 
 import email
 import gpgmelib
-import unittest, tempfile, os, shutil, errno, imp, sys, difflib, time
+import unittest, os, difflib, time
 
 import pytest
 
@@ -34,8 +34,8 @@ SENDMAILDEBUG = os.environ['SENDMAILDEBUG']
 
 from roundup import mailgw, i18n, roundupdb
 from roundup.mailgw import MailGW, Unauthorized, uidFromAddress, \
-    parseContent, IgnoreLoop, IgnoreBulk, MailUsageError, MailUsageHelp
-from roundup import init, instance, password, __version__
+    IgnoreLoop, IgnoreBulk, MailUsageError, MailUsageHelp
+from roundup import __version__
 
 #import db_test_base
 import memorydb

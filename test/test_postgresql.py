@@ -18,7 +18,6 @@
 import unittest
 
 import pytest
-from roundup.hyperdb import DatabaseError
 
 from db_test_base import DBTest, ROTest, config, SchemaTest, ClassicInitTest
 from db_test_base import ConcurrentDBTest, HTMLItemTest, FilterCacheTest

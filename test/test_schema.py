@@ -19,8 +19,7 @@ import unittest, os, shutil
 
 from roundup import configuration
 from roundup.backends import back_anydbm
-from roundup.hyperdb import String, Password, Link, Multilink, Date, \
-    Interval
+from roundup.hyperdb import String, Password, Link
 
 config = configuration.CoreConfig()
 config.DATABASE = "_test_dir"

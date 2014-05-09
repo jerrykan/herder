@@ -1,4 +1,4 @@
-import os, unittest, shutil
+import unittest, shutil
 
 import pytest
 
