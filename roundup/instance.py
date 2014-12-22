@@ -63,7 +63,7 @@ class Tracker:
         self.load_interfaces()
         self.templates = templating.get_loader(self.config["TEMPLATES"],
             self.config["TEMPLATE_ENGINE"])
-        self.backend = backends.get_backend(self.get_backend_name())
+        self.backend = backends.get_backend(self.config.RDBMS_BACKEND)
 
         if self.optimize:
             self.templates.precompile()
@@ -76,12 +76,6 @@ class Tracker:
             self.detectors = self.get_extensions('detectors')
             # db_open is set to True after first open()
             self.db_open = 0
-
-    def get_backend_name(self):
-        f = file(os.path.join(self.config.DATABASE, 'backend_name'))
-        name = f.readline().strip()
-        f.close()
-        return name
 
     def open(self, name=None):
         # load the database schema
