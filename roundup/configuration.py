@@ -1170,7 +1170,11 @@ class Config:
         """
         if os.path.isdir(config_path):
             home_dir = config_path
-            config_path = os.path.join(config_path, self.INI_FILE)
+            config_file = os.environ.get('ROUNDUP_CONFIG_FILE', None)
+            if config_file is None:
+                config_path = os.path.join(config_path, self.INI_FILE)
+            else:
+                config_path = config_file
         else:
             home_dir = os.path.dirname(config_path)
         # parse the file
