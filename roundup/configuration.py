@@ -1418,6 +1418,11 @@ class CoreConfig(Config):
             config_defaults.update(defaults)
         Config.load_ini(self, home_dir, config_defaults)
 
+        for k in [k for k in self.options.keys() if not isinstance(k, tuple)]:
+            value = os.environ.get('ROUNDUP_{0}'.format(k))
+            if value is not None:
+                self.options[k].set(value)
+
     def load_pyconfig(self, home_dir):
         """Set options from config.py file in given home_dir directory"""
         # try to locate and import the module
