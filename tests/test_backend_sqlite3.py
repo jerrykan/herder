@@ -2,9 +2,10 @@ from unittest import TestCase
 from os import path
 
 from mock import Mock, patch
+from sqlalchemy import MetaData
 
 from roundup import hyperdb
-from roundup.backends.back_sqlite3 import Database, _temporary_db
+from roundup.backends.back_sqlite3 import Database, _temporary_db, types
 from roundup.backends.back_sqlite3 import Class
 
 
@@ -61,43 +62,437 @@ class PostInitDatabase(TestCase):
         config = Mock()
         config.DATABASE = ''
         config.RDBMS_NAME = ''
+
+        self.closed_db = Database(config)
         self.db = Database(config)
+        self.db.engine = self.closed_db.engine
+        self.db.schema.bind = self.db.engine
+
+        self.default_tables = ['otks', 'sessions', '__textids', '__words']
 
     def test_empty_schema(self):
-        pass
+        self.db.post_init()
 
-    def test_simple_table(self):
-        person = Class(self.db, 'person',
+        db = MetaData(bind=self.db.engine)
+        db.reflect()
+        self.assertEqual(
+            set(db.tables.keys()),
+            set(self.default_tables)
+        )
+
+    def test_simple_class(self):
+        Class(self.db, 'person',
             name=hyperdb.String(),
             age=hyperdb.Number(),
             birthday=hyperdb.Date()
         )
         self.db.post_init()
 
+        # check class table is correctly defined
         self.assertIn('_person', self.db.schema.tables)
-        import pdb; pdb.set_trace()
-        
-#    def test_it(self):
-#        person = Class(self.db, 'person',
-#            name=hyperdb.String(),
-#            age=hyperdb.Number(),
-#            birthday=hyperdb.Date(),
-#            gender=hyperdb.Link('gender'),
-##            jobs=hyperdb.Multilink('job')
-#        )
-#
-#        
-#
-#        gender = Class(self.db, 'gender',
-#            name=hyperdb.String()
-#        )
-#        job = Class(self.db, 'job',
-#            name=hyperdb.String(),
-#        )
-#
-#        self.db.post_init()
-#        import pdb; pdb.set_trace()
+        table = self.db.schema.tables['_person']
+        table_columns = (
+            ('_actor', types.Integer),
+            ('_activity', types.DateTime),
+            ('_creator', types.Integer),
+            ('_creation', types.DateTime),
+            ('_name', types.String),
+            ('_age', types.Float),
+            ('_birthday', types.DateTime),
+            ('id', types.Integer),
+            ('__retired__', types.Boolean),
+        )
 
+        self.assertEqual(
+            set(table.columns.keys()),
+            set([c[0] for c in table_columns])
+        )
+        for column, type_ in table_columns:
+            self.assertTrue(isinstance(table.columns[column].type, type_))
+
+        self.assertTrue(table.columns['id'].primary_key)
+        self.assertEqual(len(table.indexes), 1)
+        self.assertEqual(
+            list(table.indexes)[0].columns.keys(), ['__retired__'])
+
+        # check journal table is correctly defined
+        self.assertIn('person__journal', self.db.schema.tables)
+        journal = self.db.schema.tables['person__journal']
+        journal_columns = (
+            ('nodeid', types.Integer),
+            ('date', types.DateTime),
+            ('tag', types.String),
+            ('action', types.String),
+            ('params', types.String),
+        )
+
+        self.assertEqual(
+            set(journal.columns.keys()),
+            set([c[0] for c in journal_columns])
+        )
+        for column, type_ in journal_columns:
+            self.assertTrue(isinstance(journal.columns[column].type, type_))
+
+        self.assertEqual(len(journal.indexes), 1)
+        self.assertEqual(
+            list(journal.indexes)[0].columns.keys(), ['nodeid'])
+
+        # check tables created in DB
+        db = MetaData(bind=self.db.engine)
+        db.reflect()
+        self.assertEqual(
+            set(db.tables.keys()),
+            set(['_person', 'person__journal'] + self.default_tables)
+        )
+
+    def test_class_with_key(self):
+        person = Class(self.db, 'person',
+            name=hyperdb.String(),
+            age=hyperdb.Number(),
+            birthday=hyperdb.Date()
+        )
+        person.setkey('name')
+        self.db.post_init()
+
+        self.assertIn('_person', self.db.schema.tables)
+        table = self.db.schema.tables['_person']
+
+        self.assertEqual(len(table.indexes), 3)
+        indexes = dict((i.name, i) for i in table.indexes)
+        self.assertEqual(
+            indexes['ix__person___retired__'].columns.keys(),
+            ['__retired__']
+        )
+        self.assertEqual(
+            indexes['_person_key_retired_idx'].columns.keys(),
+            ['__retired__', '_name']
+        )
+        self.assertEqual(
+            indexes['_person_name_idx'].columns.keys(),
+            ['_name']
+        )
+
+    def test_class_with_multilink(self):
+        Class(self.db, 'person',
+            name=hyperdb.String(),
+            age=hyperdb.Number(),
+            birthday=hyperdb.Date(),
+            tasks=hyperdb.Multilink('task')
+        )
+        task = Class(self.db, 'task',
+            name=hyperdb.String()
+        )
+        self.db.post_init()
+
+        self.assertIn('_person', self.db.schema.tables)
+        self.assertIn('_task', self.db.schema.tables)
+        self.assertIn('person_tasks', self.db.schema.tables)
+        table = self.db.schema.tables['person_tasks']
+
+        self.assertEqual(len(table.indexes), 2)
+        indexes = dict((i.name, i) for i in table.indexes)
+        self.assertEqual(
+            indexes['ix_person_tasks_linkid'].columns.keys(),
+            ['linkid']
+        )
+        self.assertEqual(
+            indexes['ix_person_tasks_nodeid'].columns.keys(),
+            ['nodeid']
+        )
+
+        # check tables created in DB
+        db = MetaData(bind=self.db.engine)
+        db.reflect()
+        self.assertEqual(
+            set(db.tables.keys()),
+            set(['_person', 'person__journal', 'person_tasks', '_task',
+                 'task__journal'] + self.default_tables)
+        )
+
+    def test_schema_create_class(self):
+        # define "old" schema
+        self.closed_db.post_init()
+
+        # check "old" schema tables exist in DB
+        db = MetaData(bind=self.db.engine)
+        db.reflect()
+        self.assertEqual(
+            set(db.tables.keys()),
+            set(self.default_tables)
+        )
+
+        # define "new" schema
+        Class(self.db, 'person',
+            name=hyperdb.String(),
+            age=hyperdb.Number(),
+            birthday=hyperdb.Date()
+        )
+        self.db.post_init()
+
+        # check tables have been created
+        db.clear()
+        db.reflect()
+        self.assertEqual(
+            set(db.tables.keys()),
+            set(['_person', 'person__journal'] + self.default_tables)
+        )
+
+    def test_schema_drop_class(self):
+        # define "old" schema
+        Class(self.closed_db, 'person',
+            name=hyperdb.String(),
+            age=hyperdb.Number(),
+            birthday=hyperdb.Date()
+        )
+        self.closed_db.post_init()
+
+        # check "old" schema tables exist in DB
+        db = MetaData(bind=self.db.engine)
+        db.reflect()
+        self.assertEqual(
+            set(db.tables.keys()),
+            set(['_person', 'person__journal'] + self.default_tables)
+        )
+
+        # define "new" schema
+        self.db.post_init()
+
+        # check tables have been dropped
+        db.clear()
+        db.reflect()
+        self.assertEqual(
+            set(db.tables.keys()),
+            set(self.default_tables)
+        )
+
+    def test_schema_create_multilink(self):
+        # define "old" schema
+        Class(self.closed_db, 'person',
+            name=hyperdb.String(),
+            age=hyperdb.Number(),
+            birthday=hyperdb.Date()
+        )
+        self.closed_db.post_init()
+
+        # check "old" schema tables exist in DB
+        db = MetaData(bind=self.db.engine)
+        db.reflect()
+        self.assertEqual(
+            set(db.tables.keys()),
+            set(['_person', 'person__journal'] + self.default_tables)
+        )
+
+        # define "new" schema
+        Class(self.db, 'person',
+            name=hyperdb.String(),
+            age=hyperdb.Number(),
+            birthday=hyperdb.Date(),
+            tasks=hyperdb.Multilink('task')
+        )
+        Class(self.db, 'task',
+            name=hyperdb.String()
+        )
+        self.db.post_init()
+
+        # check tables have been created
+        db.clear()
+        db.reflect()
+        self.assertEqual(
+            set(db.tables.keys()),
+            set(['_person', 'person__journal', '_task', 'task__journal',
+                 'person_tasks'] + self.default_tables)
+        )
+
+    def test_schema_drop_multilink(self):
+        # define "old" schema
+        Class(self.closed_db, 'person',
+            name=hyperdb.String(),
+            age=hyperdb.Number(),
+            birthday=hyperdb.Date(),
+            tasks=hyperdb.Multilink('task')
+        )
+        Class(self.closed_db, 'task',
+            name=hyperdb.String(),
+        )
+        self.closed_db.post_init()
+
+        # check "old" schema tables exist in DB
+        db = MetaData(bind=self.db.engine)
+        db.reflect()
+        self.assertEqual(
+            set(db.tables.keys()),
+            set(['_person', 'person__journal', '_task', 'task__journal',
+                 'person_tasks'] + self.default_tables)
+        )
+
+        # define "new" schema
+        Class(self.db, 'person',
+            name=hyperdb.String(),
+            age=hyperdb.Number(),
+            birthday=hyperdb.Date()
+        )
+        self.db.post_init()
+
+        # check tables have been dropped
+        db.clear()
+        db.reflect()
+        self.assertEqual(
+            set(db.tables.keys()),
+            set(['_person', 'person__journal'] + self.default_tables)
+        )
+
+    def test_schema_create_key_index(self):
+        # define "old" schema
+        Class(self.closed_db, 'person',
+            name=hyperdb.String(),
+            age=hyperdb.Number(),
+            birthday=hyperdb.Date(),
+            tasks=hyperdb.Multilink('task')
+        )
+        self.closed_db.post_init()
+
+        # check "old" schema indexes
+        db = MetaData(bind=self.db.engine)
+        db.reflect()
+        self.assertEqual(len(db.tables['_person'].indexes), 1)
+        self.assertEqual(
+            [c.name for c in list(db.tables['_person'].indexes)[0].columns],
+            ['__retired__']
+        )
+
+        # define "new" schema
+        person = Class(self.db, 'person',
+            name=hyperdb.String(),
+            age=hyperdb.Number(),
+            birthday=hyperdb.Date(),
+            tasks=hyperdb.Multilink('task')
+        )
+        person.setkey('name')
+        self.db.post_init()
+
+        # check "new" schema indexes
+        db.clear()
+        db.reflect()
+        self.assertEqual(len(db.tables['_person'].indexes), 3)
+        indexes = dict((i.name, i) for i in db.tables['_person'].indexes)
+        self.assertEqual(
+            indexes['ix__person___retired__'].columns.keys(),
+            ['__retired__']
+        )
+        self.assertEqual(
+            indexes['_person_key_retired_idx'].columns.keys(),
+            ['__retired__', '_name']
+        )
+        self.assertEqual(
+            indexes['_person_name_idx'].columns.keys(),
+            ['_name']
+        )
+
+    def test_schema_drop_key_index(self):
+        # define "old" schema
+        person = Class(self.closed_db, 'person',
+            name=hyperdb.String(),
+            age=hyperdb.Number(),
+            birthday=hyperdb.Date(),
+            tasks=hyperdb.Multilink('task')
+        )
+        person.setkey('name')
+        self.closed_db.post_init()
+
+        # check "old" schema indexes
+        db = MetaData(bind=self.db.engine)
+        db.reflect()
+        self.assertEqual(len(db.tables['_person'].indexes), 3)
+        indexes = dict((i.name, i) for i in db.tables['_person'].indexes)
+        self.assertEqual(
+            indexes['ix__person___retired__'].columns.keys(),
+            ['__retired__']
+        )
+        self.assertEqual(
+            indexes['_person_key_retired_idx'].columns.keys(),
+            ['__retired__', '_name']
+        )
+        self.assertEqual(
+            indexes['_person_name_idx'].columns.keys(),
+            ['_name']
+        )
+
+        # define "new" schema
+        Class(self.db, 'person',
+            name=hyperdb.String(),
+            age=hyperdb.Number(),
+            birthday=hyperdb.Date(),
+            tasks=hyperdb.Multilink('task')
+        )
+        self.db.post_init()
+
+        # check "new" schema indexes
+        db.clear()
+        db.reflect()
+        self.assertEqual(len(db.tables['_person'].indexes), 1)
+        self.assertEqual(
+            [c.name for c in list(db.tables['_person'].indexes)[0].columns],
+            ['__retired__']
+        )
+
+    def test_schema_change_key_index(self):
+        # define "old" schema
+        person = Class(self.closed_db, 'person',
+            name=hyperdb.String(),
+            alias=hyperdb.String(),
+            age=hyperdb.Number(),
+            birthday=hyperdb.Date(),
+            tasks=hyperdb.Multilink('task')
+        )
+        person.setkey('name')
+        self.closed_db.post_init()
+
+        # check "old" schema indexes
+        db = MetaData(bind=self.db.engine)
+        db.reflect()
+        self.assertEqual(len(db.tables['_person'].indexes), 3)
+        indexes = dict((i.name, i) for i in db.tables['_person'].indexes)
+        self.assertEqual(
+            indexes['ix__person___retired__'].columns.keys(),
+            ['__retired__']
+        )
+        self.assertEqual(
+            indexes['_person_key_retired_idx'].columns.keys(),
+            ['__retired__', '_name']
+        )
+        self.assertEqual(
+            indexes['_person_name_idx'].columns.keys(),
+            ['_name']
+        )
+
+        # define "new" schema
+        person = Class(self.db, 'person',
+            name=hyperdb.String(),
+            alias=hyperdb.String(),
+            age=hyperdb.Number(),
+            birthday=hyperdb.Date(),
+            tasks=hyperdb.Multilink('task')
+        )
+        person.setkey('alias')
+        self.db.post_init()
+
+        # check "new" schema indexes
+        db.clear()
+        db.reflect()
+        self.assertEqual(len(db.tables['_person'].indexes), 3)
+        indexes = dict((i.name, i) for i in db.tables['_person'].indexes)
+        self.assertEqual(
+            indexes['ix__person___retired__'].columns.keys(),
+            ['__retired__']
+        )
+        self.assertEqual(
+            indexes['_person_key_retired_idx'].columns.keys(),
+            ['__retired__', '_alias']
+        )
+        self.assertEqual(
+            indexes['_person_alias_idx'].columns.keys(),
+            ['_alias']
+        )
 
 
 class AddClassDatabaseTest(TestCase):

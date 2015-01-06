@@ -105,6 +105,14 @@ class Database(SqlAlchemyDatabase):
             ]
 
             for name, prop in spec.properties.items():
+                # create pivot table for Multilink
+                if isinstance(prop, hyperdb.Multilink):
+                    Table('{0}_{1}'.format(classname, name), self.schema,
+                        Column('linkid', types.Integer, index=True),
+                        Column('nodeid', types.Integer, index=True),
+                    )
+                    continue
+
                 columns.append(
                     Column('_{0}'.format(name), TYPE_MAP[type(prop)]))
 
@@ -114,7 +122,72 @@ class Database(SqlAlchemyDatabase):
                Column('__retired__', types.Boolean, default=False, index=True),
             ]
 
-            Table('_{0}'.format(classname), self.schema, *columns)
+            table = Table('_{0}'.format(classname), self.schema, *columns)
+
+            # key property indexes
+            if spec.key:
+                Index('_{0}_{1}_idx'.format(classname, spec.key),
+                    table.columns['_{0}'.format(spec.key)],
+                )
+                # TODO: check for changing key and alter index accordingly
+                Index('_{0}_key_retired_idx'.format(classname),
+                    table.columns.__retired__,
+                    table.columns['_{0}'.format(spec.key)],
+                    unique=True
+                )
+
+            # journal table
+            Table('{0}__journal'.format(classname), self.schema,
+                Column('nodeid', types.Integer, index=True),
+                Column('date', TYPE_MAP[hyperdb.Date]),
+                Column('tag', types.String),
+                Column('action', types.String),
+                Column('params', types.String),
+            )
+
+        # determine differences between the schema.py spec and the DB
+        db = MetaData(bind=self.engine)
+        db.reflect()
+        db_tables = set(db.tables.keys())
+        schema_tables = set(self.schema.tables.keys())
+
+        db_indexes = {}
+        for table in db.tables.values():
+            for index in table.indexes:
+                db_indexes[index.name] = index
+
+        schema_indexes = {}
+        for table in self.schema.tables.values():
+            for index in table.indexes:
+                schema_indexes[index.name] = index
+
+        # drop tables
+        drop_tables = db_tables - schema_tables
+        for table in drop_tables:
+            db.tables[table].drop()
+
+        # drop indexes
+        for index in (set(db_indexes) - set(schema_indexes)):
+            if db_indexes[index].table.name not in drop_tables:
+                db_indexes[index].drop()
+
+        # modify indexes
+        for index in (set(db_indexes) & set(schema_indexes)):
+            if (db_indexes[index].columns.keys() !=
+                    schema_indexes[index].columns.keys()):
+                db_indexes[index].drop()
+                schema_indexes[index].create()
+
+        # create tables
+        create_tables = schema_tables - db_tables
+        for table in create_tables:
+            self.schema.tables[table].create(self.engine)
+
+        # create indexes
+        for index in (set(schema_indexes) - set(db_indexes)):
+            if schema_indexes[index].table.name not in create_tables:
+                schema_indexes[index].create()
+
     ##
     ## NOT TESTED BEYOND HERE
     ##
