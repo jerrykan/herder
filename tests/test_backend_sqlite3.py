@@ -1,8 +1,10 @@
+from datetime import datetime
 from unittest import TestCase
 from os import path
 
 from mock import Mock, patch
 from sqlalchemy import MetaData
+from sqlalchemy.sql import select
 
 from roundup import hyperdb
 from roundup.backends.back_sqlite3 import Database, _temporary_db, types
@@ -69,6 +71,8 @@ class PostInitDatabase(TestCase):
         self.db.schema.bind = self.db.engine
 
         self.default_tables = ['otks', 'sessions', '__textids', '__words']
+        self.default_columns = ['_activity', '_actor', '_creation', '_creator',
+                                'id', '__retired__']
 
     def test_empty_schema(self):
         self.db.post_init()
@@ -264,6 +268,97 @@ class PostInitDatabase(TestCase):
             set(db.tables.keys()),
             set(self.default_tables)
         )
+
+    def test_schema_add_prop(self):
+        # define "old" schema
+        Class(self.closed_db, 'person',
+            name=hyperdb.String(),
+            age=hyperdb.Number(),
+        )
+        self.closed_db.post_init()
+
+        # check "old" schema columns exist in DB
+        db = MetaData(bind=self.db.engine)
+        db.reflect()
+        self.assertEqual(
+            set(db.tables['_person'].columns.keys()),
+            set(['_name', '_age'] + self.default_columns)
+        )
+
+        # define "new" schema
+        Class(self.db, 'person',
+            name=hyperdb.String(),
+            age=hyperdb.Number(),
+            birthday=hyperdb.Date()
+        )
+        self.db.post_init()
+
+        # check table column has been created
+        db.clear()
+        db.reflect()
+        self.assertEqual(
+            set(db.tables['_person'].columns.keys()),
+            set(['_name', '_age', '_birthday'] + self.default_columns)
+        )
+
+    def test_schema_drop_prop(self):
+        # define "old" schema
+        Class(self.closed_db, 'person',
+            name=hyperdb.String(),
+            age=hyperdb.Number(),
+            birthday=hyperdb.Date()
+        )
+        self.closed_db.post_init()
+
+        # sqlite requires rebuilding the table, so lets insert some test data
+        # so we can check that it get migrated properly
+        person = self.closed_db.schema.tables['_person']
+        people = []
+        for i in range(1, 4):
+            people.append({
+                '_activity': datetime.now(),
+                '_actor': 1,
+                '_creation': datetime.now(),
+                '_creator': 2,
+                '_name': 'Person {0}'.format(i),
+                '_age': (i+18),
+                '_birthday': datetime.now(),
+                'id': i,
+                '__retired__': bool(i % 2),
+            })
+            query = person.insert().values(**people[-1])
+            self.closed_db.engine.execute(query)
+
+        # check "old" schema columns exist in DB
+        db = MetaData(bind=self.db.engine)
+        db.reflect()
+        self.assertEqual(
+            set(db.tables['_person'].columns.keys()),
+            set(['_name', '_age', '_birthday'] + self.default_columns)
+        )
+
+        # define "new" schema
+        Class(self.db, 'person',
+            name=hyperdb.String(),
+            age=hyperdb.Number(),
+        )
+        self.db.post_init()
+
+        # check table column has been created
+        db.clear()
+        db.reflect()
+        self.assertEqual(
+            set(db.tables['_person'].columns.keys()),
+            set(['_name', '_age'] + self.default_columns)
+        )
+
+        query = select([db.tables['_person']])
+        rows = self.db.engine.execute(query).fetchall()
+        self.assertEqual(len(rows), 3)
+
+        for i, row in enumerate(rows):
+            for column in (['_name', '_age'] + self.default_columns):
+                self.assertEqual(people[i][column], row[column])
 
     def test_schema_create_multilink(self):
         # define "old" schema

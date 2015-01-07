@@ -59,7 +59,6 @@ class Database(SqlAlchemyDatabase):
         else:
             self.engine = create_engine('sqlite:///{0}'.format(db_name))
 
-        self.conn = self.engine.connect()
         self.schema = MetaData(bind=self.engine)
         Table('otks', self.schema,
             Column('otk_key', types.String, index=True),
@@ -167,9 +166,57 @@ class Database(SqlAlchemyDatabase):
             db.tables[table].drop()
 
         # drop indexes
-        for index in (set(db_indexes) - set(schema_indexes)):
-            if db_indexes[index].table.name not in drop_tables:
-                db_indexes[index].drop()
+        for index_name in (set(db_indexes) - set(schema_indexes)):
+            if db_indexes[index_name].table.name not in drop_tables:
+                db_indexes[index_name].drop()
+
+        # modify tables
+        for table_name in (db_tables & schema_tables):
+            db_columns = set([c.name for c in db.tables[table_name].columns])
+            schema_columns = set([c.name for c in self.schema.tables[table_name].columns])
+            alter = {
+                'add': [
+                    self.schema.tables[table_name].columns[c]
+                    for c in (schema_columns - db_columns)
+                ],
+                'drop': [
+                    db.tables[table_name].columns[c]
+                    for c in (db_columns - schema_columns)
+                ],
+#                'change': [],
+            }
+
+            if len(alter['drop']) > 0:
+                # create new table without indexes
+                tmp_name = '_tmp_{0}'.format(table_name)
+                table = Table(tmp_name, db,
+                    *[c.copy() for c in self.schema.tables[table_name].columns])
+                table.create()
+
+                for index in table.indexes:
+                    index.drop()
+
+                # TODO: FIX: safer to use sqlalchemy instead of raw SQL?
+                # copy entries from the old to the new table
+                columns = ', '.join(
+                    [c for c in (db_columns & schema_columns)])
+
+                sql = 'INSERT INTO {0} ({2}) SELECT {2} FROM {1}'.format(
+                    tmp_name, table_name, columns)
+                self.engine.execute(sql)
+
+                # drop the old table
+                db.tables[table_name].drop()
+
+                # rename the new table
+                sql = 'ALTER TABLE {0} RENAME TO {1}'.format(
+                    tmp_name, table_name)
+                self.engine.execute(sql)
+            else:
+                for column in alter['add']:
+                    sql = 'ALTER TABLE {0} ADD COLUMN {1} {2}'.format(
+                        column.table, column.name, column.type.compile())
+                    self.engine.execute(sql)
 
         # modify indexes
         for index in (set(db_indexes) & set(schema_indexes)):
