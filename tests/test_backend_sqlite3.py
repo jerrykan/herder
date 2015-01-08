@@ -616,6 +616,74 @@ class PostInitDatabaseTest(TestCase):
         )
 
 
+class CreateClassTest(TestCase):
+    def setUp(self):
+        config = Mock()
+        config.DATABASE = ''
+        config.RDBMS_NAME = ''
+
+        self.db = Database(config, journaltag=1)
+        Class(self.db, 'person',
+            name=hyperdb.String(),
+            age=hyperdb.Number(),
+        )
+
+    def test_db_readonly(self):
+        self.db.journaltag = None
+        props = {
+            'name': 'Person One',
+            'age': 33,
+        }
+
+        self.assertRaises(
+            hyperdb.DatabaseError, self.db.person.create, **props)
+
+    def test_invalid_prop_id(self):
+        props = {
+            'id': 22,
+            'name': 'Person One',
+            'age': 33,
+        }
+
+        self.assertRaisesRegexp(
+            KeyError, "'id' is a reserved class property",
+            self.db.person.create, **props)
+
+    def test_invalid_prop_reserved(self):
+        msg = ("'activity', 'actor', 'creation', and 'creator' are reserved " +
+               "class properties")
+        props = {
+            'name': 'Person One',
+            'age': 33,
+        }
+
+        for prop in ('activity', 'actor', 'creation', 'creator'):
+            this_props = props.copy()
+            this_props[prop] = 'mock value'
+            try:
+                self.assertRaisesRegexp(
+                    KeyError, msg, self.db.person.create, **this_props)
+            except AssertionError as e:
+                raise AssertionError(
+                    "{0} for property '{1}'".format(str(e), prop))
+
+    def test_invalid_prop_nonexistant(self):
+        props = {
+            'name': 'Person One',
+            'age': 33,
+            'title': 'Token Person',
+        }
+
+        self.assertRaisesRegexp(
+            KeyError, "'person' class has no 'title' property'",
+            self.db.person.create, **props)
+
+
+
+    # TODO: test key value does not already exist
+    # TODO: test firing of auditors
+
+
 class AddClassDatabaseTest(TestCase):
     def setUp(self):
         config = Mock()

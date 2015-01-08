@@ -4,6 +4,7 @@ from sqlalchemy import Column, Index, MetaData, Table, create_engine, types
 
 from roundup import hyperdb, security
 from roundup.backends import rdbms_common
+from roundup.i18n import _
 from .rdbms_common import FileClass, IssueClass
 from .sqlalchemy_common import SqlAlchemyDatabase
 
@@ -18,9 +19,167 @@ TYPE_MAP = {
 }
 
 
-class Class(rdbms_common.Class):
-    pass
+#class Class(rdbms_common.Class):
+class Class(hyperdb.Class):
+    def create(self, **propvalues):
+        """ Create a new node of this class and return its id.
 
+        The keyword arguments in 'propvalues' map property names to values.
+
+        The values of arguments must be acceptable for the types of their
+        corresponding properties or a TypeError is raised.
+
+        If this class has a key property, it must be present and its value
+        must not collide with other key strings or a ValueError is raised.
+
+        Any other properties on this class that are missing from the
+        'propvalues' dictionary are set to None.
+
+        If an id in a link or multilink property does not refer to a valid
+        node, an IndexError is raised.
+        """
+
+        # TODO: fire auditor
+
+        if self.db.journaltag is None:
+            raise hyperdb.DatabaseError(_('Database open read-only'))
+
+        if 'id' in propvalues:
+            raise KeyError("'id' is a reserved class property")
+
+        if set(['activity', 'actor', 'creation', 'creator']) & set(propvalues):
+            raise KeyError("'activity', 'actor', 'creation', and 'creator' " +
+                           "are reserved class properties")
+
+        for key, value in propvalues.items():
+            try:
+                prop = self.properties[key]
+            except KeyError:
+                raise KeyError("'person' class has no 'title' property")
+                #raise KeyError("'{0}' class has no '{1}' property".format(
+                #    self.classname, key))
+
+
+    # TODO: ripped from rdbms_common.Class
+    def setkey(self, propname):
+        """Select a String property of this class to be the key property.
+
+        'propname' must be the name of a String property of this class or
+        None, or a TypeError is raised.  The values of the key property on
+        all existing nodes must be unique or a ValueError is raised.
+        """
+        prop = self.getprops()[propname]
+        if not isinstance(prop, hyperdb.String):
+            raise TypeError('key properties must be String')
+        self.key = propname
+
+    # TODO: ripped from rdbms_common.Class
+    # Manipulating properties:
+    def getprops(self, protected=1):
+        """Return a dictionary mapping property names to property objects.
+           If the "protected" flag is true, we include protected properties -
+           those which may not be modified.
+        """
+        d = self.properties.copy()
+        if protected:
+            d['id'] = hyperdb.String()
+            d['creation'] = hyperdb.Date()
+            d['activity'] = hyperdb.Date()
+            d['creator'] = hyperdb.Link('user')
+            d['actor'] = hyperdb.Link('user')
+        return d
+
+    def getnode(self, nodeid):
+        raise NotImplementedError
+        print "Class.getnode"
+        return super(Class, self).getnode(nodeid)
+
+    def history(self, nodeid):
+        raise NotImplementedError
+        print "Class.history"
+        return super(Class, self).history(nodeid)
+
+    def setlabelprop(self, labelprop):
+        raise NotImplementedError
+        print "Class.history"
+        return super(Class, self).history(nodeid)
+
+    def setorderprop(self, orderprop):
+        raise NotImplementedError
+        print "Class.history"
+        return super(Class, self).history(nodeid)
+
+    def labelprop(self, default_to_id=0):
+        raise NotImplementedError
+        print "Class.history"
+        return super(Class, self).history(nodeid)
+
+    def orderprop(self):
+        raise NotImplementedError
+        print "Class.history"
+        return super(Class, self).history(nodeid)
+
+    def _proptree(self, filterspec, sortattr=[], retr=False):
+        raise NotImplementedError
+        print "Class.history"
+        return super(Class, self).history(nodeid)
+
+    def get_transitive_prop(self, propname_path, default = None):
+        raise NotImplementedError
+        print "Class.history"
+        return super(Class, self).history(nodeid)
+
+    def _sortattr(self, sort=[], group=[]):
+        raise NotImplementedError
+        print "Class.history"
+        return super(Class, self).history(nodeid)
+
+    def filter(self, search_matches, filterspec, sort=[], group=[]):
+        raise NotImplementedError
+        print "Class.history"
+        return super(Class, self).history(nodeid)
+
+    def get_required_props(self, propnames = []):
+        raise NotImplementedError
+        print "Class.history"
+        return super(Class, self).history(nodeid)
+
+#    def audit(self, event, detector, priority = 100):
+
+    def fireAuditors(self, event, nodeid, newvalues):
+        raise NotImplementedError
+        print "Class.history"
+        return super(Class, self).history(nodeid)
+
+    def react(self, event, detector, priority = 100):
+        raise NotImplementedError
+        print "Class.history"
+        return super(Class, self).history(nodeid)
+
+    def fireReactors(self, event, nodeid, oldvalues):
+        raise NotImplementedError
+        print "Class.history"
+        return super(Class, self).history(nodeid)
+
+    def export_propnames(self):
+        raise NotImplementedError
+        print "Class.history"
+        return super(Class, self).history(nodeid)
+
+    def import_journals(self, entries):
+        raise NotImplementedError
+        print "Class.history"
+        return super(Class, self).history(nodeid)
+
+    def get_roles(self, nodeid):
+        raise NotImplementedError
+        print "Class.history"
+        return super(Class, self).history(nodeid)
+
+    def has_role(self, nodeid, *roles):
+        raise NotImplementedError
+        print "Class.history"
+        return super(Class, self).history(nodeid)
 
 # TODO: placeholder
 def db_exists(*args, **kwargs):
