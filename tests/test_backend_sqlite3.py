@@ -59,7 +59,7 @@ class InitDatabaseTest(TestCase):
         self.assertEqual(m_makedirs.call_args, (('db',), {}))
 
 
-class PostInitDatabase(TestCase):
+class PostInitDatabaseTest(TestCase):
     def setUp(self):
         config = Mock()
         config.DATABASE = ''
@@ -213,7 +213,7 @@ class PostInitDatabase(TestCase):
                  'task__journal'] + self.default_tables)
         )
 
-    def test_schema_create_class(self):
+    def test_schema_add_class(self):
         # define "old" schema
         self.closed_db.post_init()
 
@@ -311,7 +311,7 @@ class PostInitDatabase(TestCase):
         self.closed_db.post_init()
 
         # sqlite requires rebuilding the table, so lets insert some test data
-        # so we can check that it get migrated properly
+        # so we can check that it gets migrated correctly
         person = self.closed_db.schema.tables['_person']
         people = []
         for i in range(1, 4):
@@ -360,7 +360,31 @@ class PostInitDatabase(TestCase):
             for column in (['_name', '_age'] + self.default_columns):
                 self.assertEqual(people[i][column], row[column])
 
-    def test_schema_create_multilink(self):
+    def test_schema_change_prop(self):
+        # define "old" schema
+        Class(self.closed_db, 'person',
+            name=hyperdb.String(),
+            age=hyperdb.Number(),
+        )
+        self.closed_db.post_init()
+
+        # check "old" schema columns exist in DB
+        db = MetaData(bind=self.db.engine)
+        db.reflect()
+        self.assertEqual(
+            set(db.tables['_person'].columns.keys()),
+            set(['_name', '_age'] + self.default_columns)
+        )
+
+        # define "new" schema
+        Class(self.db, 'person',
+            name=hyperdb.String(),
+            age=hyperdb.String(),
+        )
+
+        self.assertRaises(NotImplementedError, self.db.post_init)
+
+    def test_schema_add_multilink(self):
         # define "old" schema
         Class(self.closed_db, 'person',
             name=hyperdb.String(),
@@ -436,7 +460,9 @@ class PostInitDatabase(TestCase):
             set(['_person', 'person__journal'] + self.default_tables)
         )
 
-    def test_schema_create_key_index(self):
+    # TODO: change multilink?
+
+    def test_schema_add_key_index(self):
         # define "old" schema
         Class(self.closed_db, 'person',
             name=hyperdb.String(),

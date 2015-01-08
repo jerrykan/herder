@@ -183,10 +183,23 @@ class Database(SqlAlchemyDatabase):
                     db.tables[table_name].columns[c]
                     for c in (db_columns - schema_columns)
                 ],
-#                'change': [],
+                'change': [],
             }
 
-            if len(alter['drop']) > 0:
+            for column in (db_columns & schema_columns):
+                db_type = db.tables[table_name].columns[column].type
+                schema_type = self.schema.tables[table_name].columns[column].type
+
+                if not isinstance(db_type, type(schema_type)):
+                    alter['change'].append(
+                        self.schema.tables[table_name].columns[column])
+
+            if len(alter['change']) > 0:
+                column = alter['change'][0]
+                raise NotImplementedError(
+                    'modifying schema class property types is not supported ' +
+                    "'{0}.{1}'".format(column.table.name[1:], column.name[1:]))
+            elif len(alter['drop']) > 0:
                 # create new table without indexes
                 tmp_name = '_tmp_{0}'.format(table_name)
                 table = Table(tmp_name, db,
@@ -234,6 +247,9 @@ class Database(SqlAlchemyDatabase):
         for index in (set(schema_indexes) - set(db_indexes)):
             if schema_indexes[index].table.name not in create_tables:
                 schema_indexes[index].create()
+
+        # TODO: (re)indexing
+
 
     ##
     ## NOT TESTED BEYOND HERE
