@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 
 from sqlalchemy import Column, Index, MetaData, Table, create_engine, types
 
@@ -212,7 +213,7 @@ class Database(SqlAlchemyDatabase):
         if not _temporary_db(db_name):
             if not os.path.isdir(db_path):
                 os.makedirs(db_path)
-            
+
             self.engine = create_engine('sqlite:///{0}'.format(
                 os.path.join(db_path, db_name)))
         else:
@@ -409,6 +410,72 @@ class Database(SqlAlchemyDatabase):
 
         # TODO: (re)indexing
 
+    def addnode(self, classname, nodeid, node):
+        """Add the specified node to its class's db.
+
+            Note: 'nodeid' is defined by hyperdb.Database.addnode() but is not
+                used because we rely on the DBs inbuild autoincrement
+
+            Note: this method returns a nodeid where as the method defined as
+                hyperdb.Database.addnode() does not assume this is the case
+
+            Note: there is no checking of multilink linkids, it is assumed that
+                this contraint is check before invoking this method.
+        """
+        # TODO: log the add node action
+        # TODO: clear node from cache ??
+        class_ = self.classes[classname]
+        props = class_.getprops()
+
+        invalid_props = set(node) - set(props)
+        if invalid_props:
+            raise KeyError("'{0}' has no '{1}' property".format(
+                    classname, list(invalid_props)[0]))
+
+        values = node.copy()
+
+        for prop in ('activity', 'creation'):
+            if prop not in values:
+                values[prop] = datetime.now()
+
+        for prop in ('actor', 'creator'):
+            if prop not in values:
+                # TODO: the location of of getuid() is not obvious, the method
+                #   is inherited from roundupdb.Database.getuid()
+                values[prop] = self.getuid()
+
+        multilink = {}
+        for prop, type_ in props.items():
+            if isinstance(type_, hyperdb.Multilink):
+                try:
+                    value = values[prop]
+                except KeyError:
+                    continue
+
+                if not isinstance(value, list):
+                    raise ValueError(
+                        "multilink property '{0}' must be a list".format(prop))
+
+                if value:
+                    multilink[prop] = value
+
+                del values[prop]
+
+        table = self.schema.tables['_{0}'.format(classname)]
+        query = table.insert().values(**dict([
+            ('_{0}'.format(k), v) for (k, v) in values.items()
+            if v is not None
+        ]))
+        result = self.engine.execute(query)
+        nodeid = result.inserted_primary_key[0]
+
+        for name, links in multilink.items():
+            table = self.schema.tables['{0}_{1}'.format(classname, name)]
+            for link in links:
+                query = table.insert().values(nodeid=nodeid, linkid=link)
+                self.engine.execute(query)
+
+        return nodeid
 
     ##
     ## NOT TESTED BEYOND HERE

@@ -616,6 +616,134 @@ class PostInitDatabaseTest(TestCase):
         )
 
 
+@patch('roundup.backends.back_sqlite3.Database.getuid', Mock(return_value=1))
+class AddNodeDatabaseTest(TestCase):
+    def setUp(self):
+        config = Mock()
+        config.DATABASE = ''
+        config.RDBMS_NAME = ''
+
+        self.db = Database(config, journaltag=1)
+        Class(self.db, 'person',
+            name=hyperdb.String(),
+            age=hyperdb.Number(),
+            tasks=hyperdb.Multilink('task'),
+        )
+        Class(self.db, 'task',
+            name=hyperdb.String(),
+        )
+        self.db.post_init()
+
+    def test_props_not_changed(self):
+        props = {
+            'name': 'Person One',
+            'age': 22,
+        }
+        before_props = props.copy()
+
+        self.db.addnode('person', None, props)
+
+        self.assertEqual(before_props, props)
+
+    def test_invalid_property(self):
+        props = {
+            'name': 'Person One',
+            'invalid': 'invalid prop',
+            'tasks': [3, 4]
+        }
+
+        self.assertRaisesRegexp(
+            KeyError, "'person' has no 'invalid' property",
+            self.db.addnode, 'person', None, props)
+
+    def test_simple(self):
+        props = {
+            'name': 'Person One',
+            'age': 22,
+        }
+
+        before = datetime.now()
+        nodeid = self.db.addnode('person', None, props)
+        after = datetime.now()
+
+        self.assertEqual(nodeid, 1)
+
+        query = select([self.db.schema.tables['_person']])
+        row = self.db.engine.execute(query).fetchone()
+
+        self.assertTrue(before <= row['_activity'] <= after)
+        self.assertEqual(row['_actor'], 1)
+        self.assertTrue(before <= row['_creation'] <= after)
+        self.assertEqual(row['_creator'], 1)
+        self.assertEqual(row['_age'], 22)
+        self.assertEqual(row['_name'], 'Person One')
+        self.assertEqual(row['id'], 1)
+        self.assertEqual(row['__retired__'], False)
+
+        query = select([self.db.schema.tables['_person']])
+        row = self.db.engine.execute(query).fetchone()
+
+    def test_protected_properties(self):
+        now = datetime.now()
+        props = {
+            'name': 'Person One',
+            'activity': now,
+        }
+
+        nodeid = self.db.addnode('person', None, props)
+
+        self.assertEqual(nodeid, 1)
+
+        query = select([self.db.schema.tables['_person']])
+        row = self.db.engine.execute(query).fetchone()
+
+        self.assertEqual(row['_activity'], now)
+        self.assertEqual(row['_age'], None)
+        self.assertEqual(row['_name'], 'Person One')
+        self.assertEqual(row['id'], 1)
+        self.assertEqual(row['__retired__'], False)
+
+        query = select([self.db.schema.tables['_person']])
+        row = self.db.engine.execute(query).fetchone()
+
+    def test_multilink(self):
+        props = {
+            'name': 'Person One',
+            'tasks': [3, 4],
+        }
+
+        before = datetime.now()
+        nodeid = self.db.addnode('person', None, props)
+        after = datetime.now()
+
+        self.assertEqual(nodeid, 1)
+
+        query = select([self.db.schema.tables['_person']])
+        row = self.db.engine.execute(query).fetchone()
+
+        self.assertEqual(row['_name'], 'Person One')
+        self.assertEqual(row['id'], 1)
+
+        query = select([self.db.schema.tables['person_tasks']])
+        rows = self.db.engine.execute(query).fetchall()
+
+        self.assertEqual(len(rows), 2)
+
+        for i, linkid in enumerate([3, 4]):
+            self.assertEqual(rows[i]['nodeid'], 1)
+            self.assertEqual(rows[i]['linkid'], linkid)
+
+    def test_multilink_is_list(self):
+        props = {
+            'name': 'Person One',
+            'tasks': '3',
+        }
+
+        self.assertRaisesRegexp(
+            ValueError, "multilink property 'tasks' must be a list",
+            self.db.addnode, 'person', None, props)
+
+
 class CreateClassTest(TestCase):
     def setUp(self):
         config = Mock()

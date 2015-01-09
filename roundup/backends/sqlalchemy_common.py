@@ -1,7 +1,7 @@
-from roundup.hyperdb import Database
+from roundup import hyperdb, roundupdb
 
 
-class SqlAlchemyDatabase(Database, object):
+class SqlAlchemyDatabase(roundupdb.Database, hyperdb.Database, object):
     def __init__(self, config, journaltag=None):
         """Open a hyperdatabase given a specifier to some storage.
 
