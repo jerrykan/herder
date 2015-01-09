@@ -52,14 +52,32 @@ class Class(hyperdb.Class):
             raise KeyError("'activity', 'actor', 'creation', and 'creator' " +
                            "are reserved class properties")
 
-        for key, value in propvalues.items():
-            try:
-                prop = self.properties[key]
-            except KeyError:
-                raise KeyError("'person' class has no 'title' property")
-                #raise KeyError("'{0}' class has no '{1}' property".format(
-                #    self.classname, key))
+        # check key is defined
+        # check if key value already exists
 
+        for prop_name, value in propvalues.items():
+            try:
+                prop = self.properties[prop_name]
+            except KeyError:
+                raise KeyError("'{0}' class has no '{1}' property".format(
+                    self.classname, prop_name))
+
+            # validate property and value
+            #hyperdb.String
+            #hyperdb.Date
+            #hyperdb.Link
+            #hyperdb.Interval
+            #hyperdb.Password
+            #hyperdb.Boolean
+            #hyperdb.Number
+
+        # add node
+        # do journaling if required
+
+
+    ##
+    ## NOT TESTED BEYOND HERE
+    ##
 
     # TODO: ripped from rdbms_common.Class
     def setkey(self, propname):

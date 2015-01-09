@@ -803,7 +803,7 @@ class CreateClassTest(TestCase):
         }
 
         self.assertRaisesRegexp(
-            KeyError, "'person' class has no 'title' property'",
+            KeyError, "'person' class has no 'title' property",
             self.db.person.create, **props)
 
 
