@@ -751,38 +751,42 @@ class CreateClassTest(TestCase):
         config.RDBMS_NAME = ''
 
         self.db = Database(config, journaltag=1)
-        Class(self.db, 'person',
-            name=hyperdb.String(),
-            age=hyperdb.Number(),
+        Class(self.db, 'stuff',
+            boolean=hyperdb.Boolean(),
+            number=hyperdb.Number(),
+            string=hyperdb.String(),
+            password=hyperdb.Password(),
+            date=hyperdb.Date(),
+            interval=hyperdb.Interval(),
         )
 
     def test_db_readonly(self):
         self.db.journaltag = None
         props = {
-            'name': 'Person One',
-            'age': 33,
+            'string': 'Some String',
+            'number': 33,
         }
 
         self.assertRaises(
-            hyperdb.DatabaseError, self.db.person.create, **props)
+            hyperdb.DatabaseError, self.db.stuff.create, **props)
 
     def test_invalid_prop_id(self):
         props = {
             'id': 22,
-            'name': 'Person One',
-            'age': 33,
+            'string': 'Some String',
+            'number': 33,
         }
 
         self.assertRaisesRegexp(
             KeyError, "'id' is a reserved class property",
-            self.db.person.create, **props)
+            self.db.stuff.create, **props)
 
     def test_invalid_prop_reserved(self):
         msg = ("'activity', 'actor', 'creation', and 'creator' are reserved " +
                "class properties")
         props = {
-            'name': 'Person One',
-            'age': 33,
+            'string': 'Some String',
+            'number': 33,
         }
 
         for prop in ('activity', 'actor', 'creation', 'creator'):
@@ -790,21 +794,87 @@ class CreateClassTest(TestCase):
             this_props[prop] = 'mock value'
             try:
                 self.assertRaisesRegexp(
-                    KeyError, msg, self.db.person.create, **this_props)
+                    KeyError, msg, self.db.stuff.create, **this_props)
             except AssertionError as e:
                 raise AssertionError(
                     "{0} for property '{1}'".format(str(e), prop))
 
     def test_invalid_prop_nonexistant(self):
         props = {
-            'name': 'Person One',
-            'age': 33,
-            'title': 'Token Person',
+            'string': 'Some String',
+            'number': 33,
+            'unknown': 'Token Person',
         }
 
         self.assertRaisesRegexp(
-            KeyError, "'person' class has no 'title' property",
-            self.db.person.create, **props)
+            KeyError, "'stuff' class has no 'unknown' property",
+            self.db.stuff.create, **props)
+
+    def test_invalid_prop_boolean(self):
+        props = {
+            'string': 'Some String',
+            'number': 33,
+            'boolean': 'Token Person',
+        }
+
+        self.assertRaisesRegexp(
+            TypeError, "value for new property 'boolean' is not a boolean",
+            self.db.stuff.create, **props)
+
+    def test_invalid_prop_number(self):
+        props = {
+            'string': 'Some String',
+            'number': 'not a number',
+        }
+
+        self.assertRaisesRegexp(
+            TypeError, "value for new property 'number' is not numeric",
+            self.db.stuff.create, **props)
+
+    def test_invalid_prop_string(self):
+        props = {
+            'string': 11,
+            'number': 22,
+        }
+
+        self.assertRaisesRegexp(
+            TypeError, "value for new property 'string' is not a string",
+            self.db.stuff.create, **props)
+
+    def test_invalid_prop_password(self):
+        props = {
+            'string': 'Some string',
+            'number': 22,
+            'password': 'not a password',
+        }
+
+        self.assertRaisesRegexp(
+            TypeError,
+            "value for new property 'password' is not a roundup password",
+            self.db.stuff.create, **props)
+
+    def test_invalid_prop_date(self):
+        props = {
+            'string': 'Some string',
+            'number': 22,
+            'date': 'not a date',
+        }
+
+        self.assertRaisesRegexp(
+            TypeError, "value for new property 'date' is not a roundup date",
+            self.db.stuff.create, **props)
+
+    def test_invalid_prop_interval(self):
+        props = {
+            'string': 'Some string',
+            'number': 22,
+            'interval': 'not an interval',
+        }
+
+        self.assertRaisesRegexp(
+            TypeError,
+            "value for new property 'interval' is not a roundup interval",
+            self.db.stuff.create, **props)
 
 
 

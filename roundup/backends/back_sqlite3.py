@@ -5,7 +5,9 @@ from sqlalchemy import Column, Index, MetaData, Table, create_engine, types
 
 from roundup import hyperdb, security
 from roundup.backends import rdbms_common
+from roundup.date import Date, Interval
 from roundup.i18n import _
+from roundup.password import Password
 from .rdbms_common import FileClass, IssueClass
 from .sqlalchemy_common import SqlAlchemyDatabase
 
@@ -55,6 +57,7 @@ class Class(hyperdb.Class):
         # check key is defined
         # check if key value already exists
 
+        error_msg = "value for new property '{0}' is not {1}"
         for prop_name, value in propvalues.items():
             try:
                 prop = self.properties[prop_name]
@@ -62,14 +65,44 @@ class Class(hyperdb.Class):
                 raise KeyError("'{0}' class has no '{1}' property".format(
                     self.classname, prop_name))
 
+            if value is None:
+                continue
+
+            if isinstance(prop, hyperdb.Boolean):
+                try:
+                    # TODO: this is how rdbms_common checks for boolean, but I
+                    #   suspect it dates back to when python didn't have bools
+                    int(value)
+                except (TypeError, ValueError):
+                    raise TypeError(
+                        error_msg.format(prop_name, 'a boolean'))
+            elif isinstance(prop, hyperdb.Number):
+                try:
+                    float(value)
+                except (TypeError, ValueError):
+                    raise TypeError(
+                        error_msg.format(prop_name, 'numeric'))
+            elif isinstance(prop, hyperdb.String):
+                if not isinstance(value, (str, unicode)):
+                    raise TypeError(
+                        error_msg.format(prop_name, 'a string'))
+                # TODO: indexing of the string
+            elif isinstance(prop, hyperdb.Password):
+                if not isinstance(value, Password):
+                    raise TypeError(
+                        error_msg.format(prop_name, 'a roundup password'))
+            elif isinstance(prop, hyperdb.Date):
+                if not isinstance(value, Date):
+                    raise TypeError(
+                        error_msg.format(prop_name, 'a roundup date'))
+            elif isinstance(prop, hyperdb.Interval):
+                if not isinstance(value, Interval):
+                    raise TypeError(
+                        error_msg.format(prop_name, 'a roundup interval'))
+
             # validate property and value
-            #hyperdb.String
-            #hyperdb.Date
             #hyperdb.Link
-            #hyperdb.Interval
-            #hyperdb.Password
-            #hyperdb.Boolean
-            #hyperdb.Number
+            #hyperdb.Multilink
 
         # add node
         # do journaling if required
