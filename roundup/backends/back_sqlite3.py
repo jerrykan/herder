@@ -2,7 +2,7 @@ import os
 from datetime import datetime
 
 from sqlalchemy import Column, Index, MetaData, Table, create_engine, types
-from sqlalchemy.sql import func, select
+from sqlalchemy.sql import and_, func, select
 
 from roundup import hyperdb, security
 from roundup.backends import rdbms_common
@@ -108,6 +108,35 @@ class Class(hyperdb.Class):
         # add node
         # do journaling if required
 
+    def lookup(self, keyvalue):
+        """Locate a particular node by its key property and return its id.
+
+        If this class has no key property, a TypeError is raised.  If the
+        'keyvalue' matches one of the values for the key property among
+        the nodes in this class, the matching node's id is returned;
+        otherwise a KeyError is raised.
+        """
+        if not self.key:
+            raise TypeError("No key property set for class '{0}'".format(
+                self.classname))
+
+        table = self.db.schema.tables['_{0}'.format(self.classname)]
+        query = (
+            select([table.columns['id']])
+            .where(and_(
+                table.columns['_{0}'.format(self.key)] == keyvalue,
+                table.columns['__retired__'] == False
+            ))
+        )
+        result = self.db.engine.execute(query).fetchone()
+
+        if result is None:
+            raise KeyError(
+                "'{0}' class has no key ({1}) with value '{2}'".format(
+                    self.classname, self.key, keyvalue))
+
+        # TODO: we are not returning a string
+        return result[0]
 
     ##
     ## NOT TESTED BEYOND HERE

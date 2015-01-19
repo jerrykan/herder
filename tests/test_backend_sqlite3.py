@@ -928,3 +928,36 @@ class AddClassDatabaseTest(TestCase):
     def test_redefined_class(self):
         Class(self.db, 'test')
         self.assertRaises(ValueError, Class, self.db, 'test')
+
+
+class LookupClassTest(TestCase):
+    def setUp(self):
+        config = Mock()
+        config.DATABASE = ''
+        config.RDBMS_NAME = ''
+
+        self.db = Database(config, journaltag=1)
+        self.person = Class(self.db, 'person',
+            name=hyperdb.String(),
+            age=hyperdb.Number(),
+        )
+        self.db.post_init()
+
+        for i in range(1, 3):
+            person = self.db.schema.tables['_person']
+            query = person.insert().values(**{
+                '_name': 'Person {0}'.format(i),
+                '_age': 20 + i,
+            })
+            self.db.engine.execute(query)
+
+    def test_class_has_key(self):
+        self.assertRaises(TypeError, self.person.lookup, 'nokeyset')
+
+    def test_class_lookup_exists(self):
+        self.person.setkey('name')
+        self.assertEqual(2, self.person.lookup('Person 2'))
+
+    def test_class_lookup_not_exist(self):
+        self.person.setkey('name')
+        self.assertRaises(KeyError, self.person.lookup, 'unknown')
