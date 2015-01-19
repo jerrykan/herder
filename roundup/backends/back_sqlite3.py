@@ -100,6 +100,24 @@ class Class(hyperdb.Class):
                 if not isinstance(value, Interval):
                     raise TypeError(
                         error_msg.format(prop_name, 'a roundup interval'))
+            elif isinstance(prop, hyperdb.Link):
+                link_classname = self.properties[prop_name].classname
+                try:
+                    nodeid = int(value)
+                    if not self.db.getclass(link_classname).hasnode(nodeid):
+                        raise IndexError(
+                            "class '{0}' has no node with id '{1}'".format(
+                                link_classname, nodeid))
+                except ValueError:
+                    try:
+                        nodeid = self.db.getclass(link_classname).lookup(value)
+                    except KeyError:
+                        raise IndexError(
+                            "class '{0}' has no node with key value '{1}'".format(
+                                link_classname, value))
+                # set the prop value for later use (if translated from a lookup)
+                # do some journaling
+
 
             # validate property and value
             #hyperdb.Link
@@ -141,6 +159,12 @@ class Class(hyperdb.Class):
     ##
     ## NOT TESTED BEYOND HERE
     ##
+
+    # TODO: ripped from rdbms_common.Class
+    def hasnode(self, nodeid):
+        """Determine if the given nodeid actually exists
+        """
+        return self.db.hasnode(self.classname, nodeid)
 
     # TODO: ripped from rdbms_common.Class
     def setkey(self, propname):

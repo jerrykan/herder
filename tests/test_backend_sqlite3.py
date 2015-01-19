@@ -789,7 +789,21 @@ class CreateClassTest(TestCase):
             password=hyperdb.Password(),
             date=hyperdb.Date(),
             interval=hyperdb.Interval(),
+            link=hyperdb.Link('other'),
         )
+        other = Class(self.db, 'other',
+            name=hyperdb.String(),
+        )
+        other.setkey('name')
+
+        self.db.post_init()
+
+        for i in range(0, 3):
+            table = self.db.schema.tables['_other']
+            query = table.insert().values(**{
+                '_name': 'Item {0}'.format(i),
+            })
+            self.db.engine.execute(query)
 
     def test_db_readonly(self):
         self.db.journaltag = None
@@ -907,6 +921,29 @@ class CreateClassTest(TestCase):
             "value for new property 'interval' is not a roundup interval",
             self.db.stuff.create, **props)
 
+    def test_invalid_prop_link_id(self):
+        props = {
+            'string': 'Some string',
+            'number': 22,
+            'link': 5,
+        }
+        self.assertRaisesRegexp(
+            IndexError, "class 'other' has no node with id '5'",
+            self.db.stuff.create, **props)
+
+    def test_invalid_prop_link_lookup(self):
+        props = {
+            'string': 'Some string',
+            'number': 22,
+            'link': 'unknown',
+        }
+        self.assertRaisesRegexp(
+            IndexError, "class 'other' has no node with key value 'unknown'",
+            self.db.stuff.create, **props)
+
+    # TODO: test link as int
+    # TODO: test link as int string
+    # TODO: test link as string key lookup
 
 
     # TODO: test key value does not already exist
