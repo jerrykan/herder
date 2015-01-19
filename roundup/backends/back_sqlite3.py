@@ -2,6 +2,7 @@ import os
 from datetime import datetime
 
 from sqlalchemy import Column, Index, MetaData, Table, create_engine, types
+from sqlalchemy.sql import func, select
 
 from roundup import hyperdb, security
 from roundup.backends import rdbms_common
@@ -527,6 +528,23 @@ class Database(SqlAlchemyDatabase):
                 self.engine.execute(query)
 
         return nodeid
+
+    def hasnode(self, classname, nodeid):
+        """Determine if the database has a given node.
+        """
+        # TODO: does this need to exist? maybe only on Class class
+        try:
+            table = self.schema.tables['_{0}'.format(classname)]
+        except KeyError:
+            raise KeyError("class '{0}' does not exist".format(classname))
+
+        query = (
+            select([func.count()])
+            .select_from(table)
+            .where(table.columns['id'] == nodeid)
+        )
+
+        return bool(self.engine.execute(query).fetchone()[0])
 
     ##
     ## NOT TESTED BEYOND HERE

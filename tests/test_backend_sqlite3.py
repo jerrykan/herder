@@ -744,6 +744,37 @@ class AddNodeDatabaseTest(TestCase):
             self.db.addnode, 'person', None, props)
 
 
+class HasNodeDatabaseTest(TestCase):
+    def setUp(self):
+        config = Mock()
+        config.DATABASE = ''
+        config.RDBMS_NAME = ''
+
+        self.db = Database(config, journaltag=1)
+        Class(self.db, 'person',
+            name=hyperdb.String(),
+            age=hyperdb.Number(),
+        )
+        self.db.post_init()
+
+        for i in range(1, 3):
+            person = self.db.schema.tables['_person']
+            query = person.insert().values(**{
+                '_name': 'Person {0}'.format(i),
+                '_age': 20 + i,
+            })
+            self.db.engine.execute(query)
+
+    def test_invalid_class(self):
+        self.assertRaises(KeyError, self.db.hasnode, 'unknown', 1)
+
+    def test_hasnode_exists(self):
+        self.assertTrue(self.db.hasnode('person', 2))
+
+    def test_hasnode_not_exist(self):
+        self.assertFalse(self.db.hasnode('person', 5))
+
+
 class CreateClassTest(TestCase):
     def setUp(self):
         config = Mock()
