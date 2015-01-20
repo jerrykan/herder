@@ -790,6 +790,7 @@ class CreateClassTest(TestCase):
             date=hyperdb.Date(),
             interval=hyperdb.Interval(),
             link=hyperdb.Link('other'),
+            multilink=hyperdb.Multilink('other'),
         )
         other = Class(self.db, 'other',
             name=hyperdb.String(),
@@ -941,9 +942,54 @@ class CreateClassTest(TestCase):
             IndexError, "class 'other' has no node with key value 'unknown'",
             self.db.stuff.create, **props)
 
+    def test_invalid_prop_multilink_not_iterable(self):
+        props = {
+            'string': 'Some string',
+            'number': 22,
+            'multilink': 11,
+        }
+        self.assertRaisesRegexp(
+            TypeError,
+            "value for new property 'multilink' is not an iterable of node ids",
+            self.db.stuff.create, **props)
+
+    def test_invalid_prop_multilink_string(self):
+        props = {
+            'string': 'Some string',
+            'number': 22,
+            'multilink': 'not node ids',
+        }
+        self.assertRaisesRegexp(
+            TypeError,
+            "value for new property 'multilink' is not an iterable of node ids",
+            self.db.stuff.create, **props)
+
+    def test_invalid_prop_multilink_id(self):
+        props = {
+            'string': 'Some string',
+            'number': 22,
+            'multilink': [5],
+        }
+        self.assertRaisesRegexp(
+            IndexError, "class 'other' has no node with id '5'",
+            self.db.stuff.create, **props)
+
+    def test_invalid_prop_multilink_lookup(self):
+        props = {
+            'string': 'Some string',
+            'number': 22,
+            'multilink': ['unknown'],
+        }
+        self.assertRaisesRegexp(
+            IndexError, "class 'other' has no node with key value 'unknown'",
+            self.db.stuff.create, **props)
+
     # TODO: test link as int
     # TODO: test link as int string
     # TODO: test link as string key lookup
+    # TODO: test multilink as int
+    # TODO: test multilink as int string
+    # TODO: test multilink as string key lookup
 
 
     # TODO: test key value does not already exist

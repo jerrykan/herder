@@ -55,9 +55,6 @@ class Class(hyperdb.Class):
             raise KeyError("'activity', 'actor', 'creation', and 'creator' " +
                            "are reserved class properties")
 
-        # check key is defined
-        # check if key value already exists
-
         error_msg = "value for new property '{0}' is not {1}"
         for prop_name, value in propvalues.items():
             try:
@@ -117,11 +114,35 @@ class Class(hyperdb.Class):
                                 link_classname, value))
                 # set the prop value for later use (if translated from a lookup)
                 # do some journaling
+            elif isinstance(prop, hyperdb.Multilink):
+                try:
+                    if isinstance(value, (str, unicode)):
+                        raise TypeError
+                    values = set(value)
+                except TypeError:
+                    raise TypeError(
+                        error_msg.format(prop_name, 'an iterable of node ids'))
 
+                link_classname = self.properties[prop_name].classname
+                for val in values:
+                    try:
+                        nodeid = int(val)
+                        if not self.db.getclass(link_classname).hasnode(nodeid):
+                            raise IndexError(
+                                "class '{0}' has no node with id '{1}'".format(
+                                    link_classname, nodeid))
+                    except ValueError:
+                        try:
+                            nodeid = self.db.getclass(link_classname).lookup(val)
+                        except KeyError:
+                            raise IndexError(
+                                "class '{0}' has no node with key value '{1}'".format(
+                                    link_classname, val))
+                # set the prop value for later use (if translated from a lookup)
+                # do some journaling
 
-            # validate property and value
-            #hyperdb.Link
-            #hyperdb.Multilink
+        # check key is defined
+        # check if key value already exists
 
         # add node
         # do journaling if required
