@@ -141,11 +141,26 @@ class Class(hyperdb.Class):
                 # set the prop value for later use (if translated from a lookup)
                 # do some journaling
 
-        # check key is defined
-        # check if key value already exists
+        if self.key:
+            try:
+                key_value = propvalues[self.key]
+            except KeyError:
+                raise ValueError(
+                    "class '{0}' requires a value for key property '{1}'".format(
+                        self.classname, self.key))
 
-        # add node
+            try:
+                self.lookup(key_value)
+            except KeyError:
+                pass
+            else:
+                raise ValueError(
+                    "node for class '{0}' already exists with key ({1}) value '{2}'".format(
+                        self.classname, self.key, key_value))
+
+        nodeid = self.db.addnode(self.classname, None, propvalues)
         # do journaling if required
+        return nodeid
 
     def lookup(self, keyvalue):
         """Locate a particular node by its key property and return its id.

@@ -782,7 +782,7 @@ class CreateClassTest(TestCase):
         config.RDBMS_NAME = ''
 
         self.db = Database(config, journaltag=1)
-        Class(self.db, 'stuff',
+        self.stuff = Class(self.db, 'stuff',
             boolean=hyperdb.Boolean(),
             number=hyperdb.Number(),
             string=hyperdb.String(),
@@ -983,6 +983,25 @@ class CreateClassTest(TestCase):
         self.assertRaisesRegexp(
             IndexError, "class 'other' has no node with key value 'unknown'",
             self.db.stuff.create, **props)
+
+    def test_key_value_missing(self):
+        self.stuff.setkey('string')
+        props = {
+            'boolean': True,
+            'number': 22,
+        }
+        self.assertRaisesRegexp(
+            ValueError, "class 'stuff' requires a value for key property 'string'",
+            self.db.stuff.create, **props)
+
+    def test_key_value_exists(self):
+        props = {
+            'name': 'Item 1',
+        }
+        self.assertRaisesRegexp(
+            ValueError, "node for class 'other' already exists with key \(name\) value 'Item 1'",
+            self.db.other.create, **props)
+
 
     # TODO: test link as int
     # TODO: test link as int string
