@@ -1,6 +1,7 @@
 from roundup.hyperdb import Database
 
-class SQLAlchemyDatabase(Database, object):
+
+class SqlAlchemyDatabase(Database, object):
     def __init__(self, config, journaltag=None):
         """Open a hyperdatabase given a specifier to some storage.
 
@@ -15,6 +16,10 @@ class SQLAlchemyDatabase(Database, object):
         None, the database is opened in read-only mode: the Class.create(),
         Class.set(), and Class.retire() methods are disabled.
         """
+        # set up logger
+        # determine if database exists - create if not
+        # open connection to database
+        # check if schema exists - create if not
         raise NotImplementedError
 
     def post_init(self):
