@@ -1,5 +1,5 @@
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from sqlalchemy import Column, Index, MetaData, Table, create_engine, types
 from sqlalchemy.sql import and_, func, select
@@ -89,14 +89,23 @@ class Class(hyperdb.Class):
                 if not isinstance(value, Password):
                     raise TypeError(
                         error_msg.format(prop_name, 'a roundup password'))
+
+                propvalues[prop_name] = str(value)
             elif isinstance(prop, hyperdb.Date):
                 if not isinstance(value, Date):
                     raise TypeError(
                         error_msg.format(prop_name, 'a roundup date'))
+
+                propvalues[prop_name] = datetime(
+                    value.year, value.month, value.day,
+                    value.hour, value.minute, int(value.second),
+                    int((value.second * 1000000) % 1000000))
             elif isinstance(prop, hyperdb.Interval):
                 if not isinstance(value, Interval):
                     raise TypeError(
                         error_msg.format(prop_name, 'a roundup interval'))
+
+                propvalues[prop_name] = timedelta(seconds=value.as_seconds())
             elif isinstance(prop, hyperdb.Link):
                 link_classname = self.properties[prop_name].classname
                 try:

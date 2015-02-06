@@ -1,4 +1,5 @@
-from datetime import datetime
+import time
+from datetime import datetime, timedelta
 from unittest import TestCase
 from os import path
 
@@ -9,6 +10,8 @@ from sqlalchemy.sql import select
 from roundup import hyperdb
 from roundup.backends.back_sqlite3 import Database, _temporary_db, types
 from roundup.backends.back_sqlite3 import Class
+from roundup.date import Date, Interval
+from roundup.password import Password
 
 
 class TemporaryDbTest(TestCase):
@@ -1001,6 +1004,41 @@ class CreateClassTest(TestCase):
         self.assertRaisesRegexp(
             ValueError, "node for class 'other' already exists with key \(name\) value 'Item 1'",
             self.db.other.create, **props)
+
+    @patch('roundup.backends.back_sqlite3.Database.getuid',
+           Mock(return_value=1))
+    def test_create_simple(self):
+        password = Password('some password')
+        # date picked includes potential rounding error on microseconds
+        date = datetime(2015, 2, 6, 17, 43, 47, 393420)
+        rdate = Date(date)
+        interval = Interval('-1d 12:14')
+        props = {
+            'boolean': False,
+            'number': 11,
+            'string': 'some string',
+            'password': password,
+            'date': rdate,
+            'interval': interval,
+        }
+
+        nodeid = self.db.stuff.create(**props)
+
+        db = MetaData(bind=self.db.engine)
+        db.reflect()
+        table = db.tables['_stuff']
+        query = table.select().where(table.columns['id'] == nodeid)
+        rows = self.db.engine.execute(query).fetchone()
+
+        self.assertEqual(rows['_boolean'], False)
+        self.assertEqual(rows['_number'], 11)
+        self.assertEqual(rows['_string'], 'some string')
+        self.assertEqual(rows['_password'], str(password))
+        self.assertEqual(rows['_date'], date)
+        # sqlalchemy stores timedeltas as epoch + timedelta()
+        self.assertEqual(
+            rows['_interval'],
+            datetime.utcfromtimestamp(-86400 - (12 * 3600) - (14 * 60)))
 
 
     # TODO: test link as int
