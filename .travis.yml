@@ -1,6 +1,11 @@
 language: python
 python:
   - 2.7
+  - 3.4
+
+matrix:
+  allow_failures:
+    - python: 3.4
 
 sudo: false
 
@@ -15,17 +20,20 @@ addons:
 
 before_install:
   - cd /tmp
-  - curl -s -O https://oligarchy.co.uk/xapian/1.2.8/xapian-bindings-1.2.8.tar.gz
-  - tar -zxvf xapian-bindings-1.2.8.tar.gz
-  - cd xapian-bindings-1.2.8/
-  - ./configure --prefix=$VIRTUAL_ENV --with-python && make && make install
+  - if [ $TRAVIS_PYTHON_VERSION != "3.4" ]; then curl -s -O https://oligarchy.co.uk/xapian/1.2.8/xapian-bindings-1.2.8.tar.gz; fi
+  - if [ $TRAVIS_PYTHON_VERSION != "3.4" ]; then tar -zxvf xapian-bindings-1.2.8.tar.gz; fi
+  - if [ $TRAVIS_PYTHON_VERSION != "3.4" ]; then cd xapian-bindings-1.2.8/; fi
+  - if [ $TRAVIS_PYTHON_VERSION != "3.4" ]; then ./configure --prefix=$VIRTUAL_ENV --with-python && make && make install; fi
 
   # change back to the checked out repository directory
   - cd $TRAVIS_BUILD_DIR
 
 install:
-  - pip install MySQL-python psycopg2 pytz pyme whoosh
+  - if [ $TRAVIS_PYTHON_VERSION != "3.4" ]; then pip install MySQL-python psycopg2 pytz pyme whoosh; fi
   - pip install pytest-cov codecov
+
+  # includes a patch for python 2.6 support
+  - if [ $TRAVIS_PYTHON_VERSION != "3.4" ]; then pip install git+https://bitbucket.org/malb/pyme.git@459f3eca65#egg=pyme; fi
 
 before_script:
   # set up mysql database
