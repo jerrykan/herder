@@ -1,7 +1,11 @@
 import time
 from datetime import datetime, timedelta
-from unittest import TestCase
 from os import path
+
+try:
+    from unittest2 import TestCase
+except ImportError:
+    from unittest import TestCase
 
 from mock import Mock, patch
 from sqlalchemy import MetaData
@@ -50,14 +54,15 @@ class InitDatabaseTest(TestCase):
                         return_value=False)
         p_create_engine = patch('roundup.backends.back_sqlite3.create_engine')
 
-        with p_isdir, p_create_engine as m_create_engine:
-            db = Database(self.config)
+        with p_isdir:
+            with p_create_engine as m_create_engine:
+                Database(self.config)
 
-            self.assertEqual(
-                m_create_engine.call_args[0],
-                ('sqlite:///{0}'.format(path.join('db', 'roundup.db')),)
-            )
-            self.assertEqual(m_create_engine.call_args[1], {})
+                self.assertEqual(
+                    m_create_engine.call_args[0],
+                    ('sqlite:///{0}'.format(path.join('db', 'roundup.db')),)
+                )
+                self.assertEqual(m_create_engine.call_args[1], {})
 
         self.assertEqual(m_makedirs.call_args, (('db',), {}))
 

@@ -28,6 +28,7 @@ python:
 #
 install:
     - pip install pytest mock sqlalchemy
+    - if [[ $TRAVIS_PYTHON_VERSION == "2.6" ]]; then pip install unittest2; fi
 
 #    # includes a patch for python 2.6 support
 #    - pip install git+https://bitbucket.org/malb/pyme.git@459f3eca65#egg=pyme
