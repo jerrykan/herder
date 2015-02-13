@@ -3,42 +3,42 @@ python:
     - "2.6"
     - "2.7"
 
-before_install:
-    # update apt package list
-    - sudo apt-get update -qq
-
-    # install xapian bindings from source
-    - sudo apt-get install uuid-dev
-    - mkdir -p $VIRTUAL_ENV/packages
-    - cd $VIRTUAL_ENV/packages
-    - wget -q http://oligarchy.co.uk/xapian/1.2.8/xapian-core-1.2.8.tar.gz
-    - wget -q http://oligarchy.co.uk/xapian/1.2.8/xapian-bindings-1.2.8.tar.gz
-    - tar -zxvf xapian-core-1.2.8.tar.gz
-    - tar -zxvf xapian-bindings-1.2.8.tar.gz
-    - cd xapian-core-1.2.8/
-    - ./configure --prefix=$VIRTUAL_ENV && make && make install
-    - cd ../xapian-bindings-1.2.8/
-    - ./configure --prefix=$VIRTUAL_ENV --with-python && make && make install
-
-    # install dependencies for pyme
-    - sudo apt-get install libgpgme11-dev swig
-
-    # change back to the checked out repository directory
-    - cd $TRAVIS_BUILD_DIR
-
+#before_install:
+#    # update apt package list
+#    - sudo apt-get update -qq
+#
+#    # install xapian bindings from source
+#    - sudo apt-get install uuid-dev
+#    - mkdir -p $VIRTUAL_ENV/packages
+#    - cd $VIRTUAL_ENV/packages
+#    - wget -q http://oligarchy.co.uk/xapian/1.2.8/xapian-core-1.2.8.tar.gz
+#    - wget -q http://oligarchy.co.uk/xapian/1.2.8/xapian-bindings-1.2.8.tar.gz
+#    - tar -zxvf xapian-core-1.2.8.tar.gz
+#    - tar -zxvf xapian-bindings-1.2.8.tar.gz
+#    - cd xapian-core-1.2.8/
+#    - ./configure --prefix=$VIRTUAL_ENV && make && make install
+#    - cd ../xapian-bindings-1.2.8/
+#    - ./configure --prefix=$VIRTUAL_ENV --with-python && make && make install
+#
+#    # install dependencies for pyme
+#    - sudo apt-get install libgpgme11-dev swig
+#
+#    # change back to the checked out repository directory
+#    - cd $TRAVIS_BUILD_DIR
+#
 install:
-    - pip install MySQL-python psycopg2
+    - pip install pytest mock sqlalchemy
 
-    # includes a patch for python 2.6 support
-    - pip install git+https://bitbucket.org/malb/pyme.git@459f3eca65#egg=pyme
-
-before_script:
-    # set up mysql database
-    - mysql -u root -e 'CREATE DATABASE rounduptest;'
-    - mysql -u root -e 'GRANT ALL ON rounduptest.* TO rounduptest@localhost IDENTIFIED BY "rounduptest";'
-
-    # set up postgresql database
-    - psql -c "CREATE ROLE rounduptest WITH CREATEDB LOGIN PASSWORD 'rounduptest';" -U postgres
+#    # includes a patch for python 2.6 support
+#    - pip install git+https://bitbucket.org/malb/pyme.git@459f3eca65#egg=pyme
+#
+#before_script:
+#    # set up mysql database
+#    - mysql -u root -e 'CREATE DATABASE rounduptest;'
+#    - mysql -u root -e 'GRANT ALL ON rounduptest.* TO rounduptest@localhost IDENTIFIED BY "rounduptest";'
+#
+#    # set up postgresql database
+#    - psql -c "CREATE ROLE rounduptest WITH CREATEDB LOGIN PASSWORD 'rounduptest';" -U postgres
 
 script:
-    - python run_tests.py
+    - py.test tests
