@@ -67,7 +67,7 @@ def list_backends():
 
     '''
     l = []
-    for name in 'anydbm', 'mysql', 'sqlite', 'postgresql':
+    for name in 'anydbm', 'mysql', 'sqlite', 'postgresql', 'sqlite3':
         if have_backend(name):
             l.append(name)
     return l
