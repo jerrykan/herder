@@ -1045,10 +1045,52 @@ class CreateClassTest(TestCase):
             rows['_interval'],
             datetime.utcfromtimestamp(-86400 - (12 * 3600) - (14 * 60)))
 
+    # TODO: ints not supported with legacy backends
+    @patch('roundup.backends.back_sqlite3.Database.getuid',
+           Mock(return_value=1))
+    def test_create_link_int(self):
+        props = {
+            'link': 1,
+        }
+        nodeid = self.db.stuff.create(**props)
+        db = MetaData(bind=self.db.engine)
+        db.reflect()
+        table = db.tables['_stuff']
+        query = table.select().where(table.columns['id'] == nodeid)
+        rows = self.db.engine.execute(query).fetchone()
 
-    # TODO: test link as int
-    # TODO: test link as int string
-    # TODO: test link as string key lookup
+        self.assertEqual(rows['_link'], 1)
+
+    @patch('roundup.backends.back_sqlite3.Database.getuid',
+           Mock(return_value=1))
+    def test_create_link_string_int(self):
+        props = {
+            'link': '1',
+        }
+        nodeid = self.db.stuff.create(**props)
+        db = MetaData(bind=self.db.engine)
+        db.reflect()
+        table = db.tables['_stuff']
+        query = table.select().where(table.columns['id'] == nodeid)
+        rows = self.db.engine.execute(query).fetchone()
+
+        self.assertEqual(rows['_link'], 1)
+
+    @patch('roundup.backends.back_sqlite3.Database.getuid',
+           Mock(return_value=1))
+    def test_create_link_string_key(self):
+        props = {
+            'link': 'Item 1',
+        }
+        nodeid = self.db.stuff.create(**props)
+        db = MetaData(bind=self.db.engine)
+        db.reflect()
+        table = db.tables['_stuff']
+        query = table.select().where(table.columns['id'] == nodeid)
+        rows = self.db.engine.execute(query).fetchone()
+
+        self.assertEqual(rows['_link'], 2)
+
     # TODO: test multilink as int
     # TODO: test multilink as int string
     # TODO: test multilink as string key lookup

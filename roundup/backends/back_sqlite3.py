@@ -109,6 +109,7 @@ class Class(hyperdb.Class):
             elif isinstance(prop, hyperdb.Link):
                 link_classname = self.properties[prop_name].classname
                 try:
+                    # TODO: ints not valid with legacy backends - not sure why
                     nodeid = int(value)
                     if not self.db.getclass(link_classname).hasnode(nodeid):
                         raise IndexError(
@@ -121,7 +122,7 @@ class Class(hyperdb.Class):
                         raise IndexError(
                             "class '{0}' has no node with key value '{1}'".format(
                                 link_classname, value))
-                # set the prop value for later use (if translated from a lookup)
+                propvalues[prop_name] = nodeid
                 # do some journaling
             elif isinstance(prop, hyperdb.Multilink):
                 try:
