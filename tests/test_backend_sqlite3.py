@@ -1091,10 +1091,64 @@ class CreateClassTest(TestCase):
 
         self.assertEqual(rows['_link'], 2)
 
-    # TODO: test multilink as int
-    # TODO: test multilink as int string
-    # TODO: test multilink as string key lookup
+    # TODO: ints not supported with legacy backends
+    @patch('roundup.backends.back_sqlite3.Database.getuid',
+           Mock(return_value=1))
+    def test_create_multilink_int(self):
+        props = {
+            'multilink': [1, 2],
+        }
+        nodeid = self.db.stuff.create(**props)
+        db = MetaData(bind=self.db.engine)
+        db.reflect()
+        table = db.tables['stuff_multilink']
+        query = table.select().where(table.columns['nodeid'] == nodeid)\
+            .order_by(table.columns['linkid'])
+        rows = self.db.engine.execute(query).fetchall()
 
+        self.assertEqual(len(rows), 2)
+        self.assertEqual(rows[0]['linkid'], 1)
+        self.assertEqual(rows[1]['linkid'], 2)
+
+    # TODO: test multilink as int string
+    @patch('roundup.backends.back_sqlite3.Database.getuid',
+           Mock(return_value=1))
+    def test_create_multilink_string_int(self):
+        props = {
+            'multilink': [1, 2],
+        }
+        nodeid = self.db.stuff.create(**props)
+        db = MetaData(bind=self.db.engine)
+        db.reflect()
+        table = db.tables['stuff_multilink']
+        query = table.select().where(table.columns['nodeid'] == nodeid)\
+            .order_by(table.columns['linkid'])
+        rows = self.db.engine.execute(query).fetchall()
+
+        self.assertEqual(len(rows), 2)
+        self.assertEqual(rows[0]['linkid'], 1)
+        self.assertEqual(rows[1]['linkid'], 2)
+
+    @patch('roundup.backends.back_sqlite3.Database.getuid',
+           Mock(return_value=1))
+    def test_create_multilink_string_key(self):
+        props = {
+            'multilink': ['Item 1', 'Item 2'],
+        }
+        nodeid = self.db.stuff.create(**props)
+        db = MetaData(bind=self.db.engine)
+        db.reflect()
+        table = db.tables['stuff_multilink']
+        query = table.select().where(table.columns['nodeid'] == nodeid)\
+            .order_by(table.columns['linkid'])
+        rows = self.db.engine.execute(query).fetchall()
+
+        self.assertEqual(len(rows), 2)
+        self.assertEqual(rows[0]['linkid'], 2)
+        self.assertEqual(rows[1]['linkid'], 3)
+
+    # TODO: test multilink specified multiple times
+    #   what is the correct behaviour?
 
     # TODO: test key value does not already exist
     # TODO: test firing of auditors

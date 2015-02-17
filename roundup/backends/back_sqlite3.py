@@ -134,8 +134,10 @@ class Class(hyperdb.Class):
                         error_msg.format(prop_name, 'an iterable of node ids'))
 
                 link_classname = self.properties[prop_name].classname
+                propvalues[prop_name] = []
                 for val in values:
                     try:
+                        # TODO: ints not valid with legacy backends
                         nodeid = int(val)
                         if not self.db.getclass(link_classname).hasnode(nodeid):
                             raise IndexError(
@@ -148,7 +150,7 @@ class Class(hyperdb.Class):
                             raise IndexError(
                                 "class '{0}' has no node with key value '{1}'".format(
                                     link_classname, val))
-                # set the prop value for later use (if translated from a lookup)
+                    propvalues[prop_name].append(nodeid)
                 # do some journaling
 
         if self.key:
