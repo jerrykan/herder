@@ -810,7 +810,7 @@ class CreateClassTest(TestCase):
         for i in range(0, 3):
             table = self.db.schema.tables['_other']
             query = table.insert().values(**{
-                '_name': 'Item {0}'.format(i),
+                '_name': 'Item {0}'.format(i+1),
             })
             self.db.engine.execute(query)
 
@@ -1089,7 +1089,7 @@ class CreateClassTest(TestCase):
         query = table.select().where(table.columns['id'] == nodeid)
         rows = self.db.engine.execute(query).fetchone()
 
-        self.assertEqual(rows['_link'], 2)
+        self.assertEqual(rows['_link'], 1)
 
     # TODO: ints not supported with legacy backends
     @patch('roundup.backends.back_sqlite3.Database.getuid',
@@ -1110,7 +1110,6 @@ class CreateClassTest(TestCase):
         self.assertEqual(rows[0]['linkid'], 1)
         self.assertEqual(rows[1]['linkid'], 2)
 
-    # TODO: test multilink as int string
     @patch('roundup.backends.back_sqlite3.Database.getuid',
            Mock(return_value=1))
     def test_create_multilink_string_int(self):
@@ -1144,8 +1143,8 @@ class CreateClassTest(TestCase):
         rows = self.db.engine.execute(query).fetchall()
 
         self.assertEqual(len(rows), 2)
-        self.assertEqual(rows[0]['linkid'], 2)
-        self.assertEqual(rows[1]['linkid'], 3)
+        self.assertEqual(rows[0]['linkid'], 1)
+        self.assertEqual(rows[1]['linkid'], 2)
 
     # TODO: test multilink specified multiple times
     #   what is the correct behaviour?

@@ -448,6 +448,7 @@ class Database(SqlAlchemyDatabase):
                     unique=True
                 )
 
+            # TODO: don't create journal table if disabled in schema
             # journal table
             Table('{0}__journal'.format(classname), self.schema,
                 Column('nodeid', types.Integer, index=True),
