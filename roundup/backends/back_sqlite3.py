@@ -135,6 +135,7 @@ class Class(hyperdb.Class):
 
                 link_classname = self.properties[prop_name].classname
                 propvalues[prop_name] = []
+                links = set()
                 for val in values:
                     try:
                         # TODO: ints not valid with legacy backends
@@ -150,7 +151,10 @@ class Class(hyperdb.Class):
                             raise IndexError(
                                 "class '{0}' has no node with key value '{1}'".format(
                                     link_classname, val))
-                    propvalues[prop_name].append(nodeid)
+                    links.add(nodeid)
+
+                # TODO: multilink supports lists or sets
+                propvalues[prop_name] = list(links)
                 # do some journaling
 
         if self.key:
@@ -606,6 +610,7 @@ class Database(SqlAlchemyDatabase):
                 except KeyError:
                     continue
 
+                # TODO: multilink supports lists or sets
                 if not isinstance(value, list):
                     raise ValueError(
                         "multilink property '{0}' must be a list".format(prop))

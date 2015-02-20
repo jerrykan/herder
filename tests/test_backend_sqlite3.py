@@ -1061,6 +1061,7 @@ class CreateClassTest(TestCase):
 
         self.assertEqual(rows['_link'], 1)
 
+    # TODO: would be good to do away with string ints
     @patch('roundup.backends.back_sqlite3.Database.getuid',
            Mock(return_value=1))
     def test_create_link_string_int(self):
@@ -1110,6 +1111,7 @@ class CreateClassTest(TestCase):
         self.assertEqual(rows[0]['linkid'], 1)
         self.assertEqual(rows[1]['linkid'], 2)
 
+    # TODO: would be good to do away with string ints
     @patch('roundup.backends.back_sqlite3.Database.getuid',
            Mock(return_value=1))
     def test_create_multilink_string_int(self):
@@ -1146,10 +1148,43 @@ class CreateClassTest(TestCase):
         self.assertEqual(rows[0]['linkid'], 1)
         self.assertEqual(rows[1]['linkid'], 2)
 
-    # TODO: test multilink specified multiple times
-    #   what is the correct behaviour?
+    # TODO: legacy backends allow duplicate links??
+    @patch('roundup.backends.back_sqlite3.Database.getuid',
+           Mock(return_value=1))
+    def test_create_multilink_duplicates(self):
+        props = {
+            'multilink': [1, 'Item 2', 2],
+        }
+        nodeid = self.db.stuff.create(**props)
+        db = MetaData(bind=self.db.engine)
+        db.reflect()
+        table = db.tables['stuff_multilink']
+        query = table.select().where(table.columns['nodeid'] == nodeid)\
+            .order_by(table.columns['linkid'])
+        rows = self.db.engine.execute(query).fetchall()
 
-    # TODO: test key value does not already exist
+        self.assertEqual(len(rows), 2)
+        self.assertEqual(rows[0]['linkid'], 1)
+        self.assertEqual(rows[1]['linkid'], 2)
+
+    # TODO: multilink supports lists or sets
+
+    @patch('roundup.backends.back_sqlite3.Database.getuid',
+           Mock(return_value=1))
+    def test_create_with_setkey(self):
+        props = {
+            'name': 'Item 4',
+        }
+        nodeid = self.db.other.create(**props)
+        db = MetaData(bind=self.db.engine)
+        db.reflect()
+        table = db.tables['_other']
+        query = table.select().where(table.columns['id'] == nodeid)
+        rows = self.db.engine.execute(query).fetchall()
+
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]['_name'], 'Item 4')
+
     # TODO: test firing of auditors
 
 
