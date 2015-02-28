@@ -27,6 +27,7 @@ import os, re, shutil, weakref
 import date, password
 from support import ensureParentsExist, PrioList, sorted, reversed
 from roundup.i18n import _
+from roundup.i18n import translation
 
 #
 # Types
@@ -71,14 +72,14 @@ class String(_Type):
 
 class Password(_Type):
     """An object designating a Password property."""
-    def from_raw(self, value, **kw):
+    def from_raw(self, value, translator=translation, **kw):
         if not value:
             return None
         try:
             return password.Password(encrypted=value, strict=True)
         except password.PasswordValueError, message:
             raise HyperdbValueError, \
-                    _('property %s: %s')%(kw['propname'], message)
+                    translator.gettext('property %s: %s')%(kw['propname'], message)
 
     def sort_repr (self, cls, val, name):
         if not val:
@@ -95,11 +96,11 @@ class Date(_Type):
         if self._offset is not None:
             return self._offset
         return db.getUserTimezone()
-    def from_raw(self, value, db, **kw):
+    def from_raw(self, value, db, translator=translation, **kw):
         try:
-            value = date.Date(value, self.offset(db))
+            value = date.Date(value, self.offset(db), translator=translator)
         except ValueError, message:
-            raise HyperdbValueError, _('property %s: %r is an invalid '\
+            raise HyperdbValueError, translator.gettext('property %s: %r is an invalid '\
                 'date (%s)')%(kw['propname'], value, message)
         return value
     def range_from_raw(self, value, db):
@@ -112,11 +113,11 @@ class Date(_Type):
 
 class Interval(_Type):
     """An object designating an Interval property."""
-    def from_raw(self, value, **kw):
+    def from_raw(self, value, translator=translation, **kw):
         try:
-            value = date.Interval(value)
+            value = date.Interval(value, translator=translator)
         except ValueError, message:
-            raise HyperdbValueError, _('property %s: %r is an invalid '\
+            raise HyperdbValueError, translator.gettext('property %s: %r is an invalid '\
                 'date interval (%s)')%(kw['propname'], value, message)
         return value
     def sort_repr (self, cls, val, name):
@@ -184,7 +185,7 @@ class Multilink(_Pointer):
                                         required = required,
                                         default_value = [])        
 
-    def from_raw(self, value, db, klass, propname, itemid, **kw):
+    def from_raw(self, value, db, klass, propname, itemid, translator=translation, **kw):
         if not value:
             return []
 
@@ -232,7 +233,7 @@ class Multilink(_Pointer):
                 try:
                     curvalue.remove(itemid)
                 except ValueError:
-                    raise HyperdbValueError, _('property %s: %r is not ' \
+                    raise HyperdbValueError, translator.gettext('property %s: %r is not ' \
                         'currently an element')%(propname, item)
             else:
                 newvalue.append(itemid)
@@ -271,12 +272,12 @@ class Boolean(_Type):
 
 class Number(_Type):
     """An object designating a numeric property"""
-    def from_raw(self, value, **kw):
+    def from_raw(self, value, translator=translation, **kw):
         value = value.strip()
         try:
             value = float(value)
         except ValueError:
-            raise HyperdbValueError, _('property %s: %r is not a number')%(
+            raise HyperdbValueError, translator.gettext('property %s: %r is not a number')%(
                 kw['propname'], value)
         return value
 #
@@ -1389,7 +1390,7 @@ def fixNewlines(text):
     text = text.replace('\r\n', '\n')
     return text.replace('\r', '\n')
 
-def rawToHyperdb(db, klass, itemid, propname, value, **kw):
+def rawToHyperdb(db, klass, itemid, propname, value, translator=translation, **kw):
     """ Convert the raw (user-input) value to a hyperdb-storable value. The
         value is for the "propname" property on itemid (may be None for a
         new item) of "klass" in "db".
@@ -1405,7 +1406,7 @@ def rawToHyperdb(db, klass, itemid, propname, value, **kw):
     try:
         proptype =  properties[propname]
     except KeyError:
-        raise HyperdbValueError, _('%r is not a property of %s')%(propname,
+        raise HyperdbValueError, translator.gettext('%r is not a property of %s')%(propname,
             klass.classname)
 
     # if we got a string, strip it now
@@ -1414,7 +1415,7 @@ def rawToHyperdb(db, klass, itemid, propname, value, **kw):
 
     # convert the input value to a real property value
     value = proptype.from_raw(value, db=db, klass=klass,
-        propname=propname, itemid=itemid, **kw)
+        propname=propname, itemid=itemid, translator=translator, **kw)
 
     return value
 

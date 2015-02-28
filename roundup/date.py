@@ -31,15 +31,6 @@ except ImportError:
 
 from roundup import i18n
 
-# no, I don't know why we must anchor the date RE when we only ever use it
-# in a match()
-date_re = re.compile(r'''^
-    ((?P<y>\d\d\d\d)([/-](?P<m>\d\d?)([/-](?P<d>\d\d?))?)? # yyyy[-mm[-dd]]
-    |(?P<a>\d\d?)[/-](?P<b>\d\d?))?              # or mm-dd
-    (?P<n>\.)?                                   # .
-    (((?P<H>\d?\d):(?P<M>\d\d))?(:(?P<S>\d\d?(\.\d+)?))?)?  # hh:mm:ss
-    (?P<o>[\d\smywd\-+]+)?                       # offset
-$''', re.VERBOSE)
 serialised_date_re = re.compile(r'''
     (\d{4})(\d\d)(\d\d)(\d\d)(\d\d)(\d\d?(\.\d+)?)
 ''', re.VERBOSE)
@@ -233,8 +224,8 @@ class Date:
         <Date 2003-07-01.00:00:0.000000>
     '''
 
-    def __init__(self, spec='.', offset=0, add_granularity=False,
-            translator=i18n):
+    def __init__(self, spec=datetime.datetime.utcnow(),
+                 offset=0, add_granularity=False, translator=i18n.translation):
         """Construct a date given a specification and a time zone offset.
 
         'spec'
@@ -281,7 +272,7 @@ class Date:
         except:
             raise ValueError, 'Unknown spec %r' % (spec,)
 
-    def set(self, spec, offset=0, date_re=date_re,
+    def set(self, spec, offset=0,
             serialised_re=serialised_date_re, add_granularity=False):
         ''' set the date to the value in spec
         '''
@@ -296,11 +287,11 @@ class Date:
             return
 
         # not serialised data, try usual format
-        m = date_re.match(spec)
+        m = self.translator.date_input_re.match(spec)
         if m is None:
-            raise ValueError, self._('Not a date spec: '
+            raise ValueError, self._('%r not a date / time spec '
                 '"yyyy-mm-dd", "mm-dd", "HH:MM", "HH:MM:SS" or '
-                '"yyyy-mm-dd.HH:MM:SS.SSS"')
+                    '"yyyy-mm-dd.HH:MM:SS.SSS"')%(spec,)
 
         info = m.groupdict()
 
@@ -510,6 +501,14 @@ class Date:
         return f%(self.year, self.month, self.day, self.hour, self.minute,
             self.second)
 
+    def format(self, format='%d %m %Y'):
+        '''print day using strftime supplied format.
+        '''
+        dt = datetime.datetime(self.year, self.month, self.day, self.hour,
+            self.minute, int(self.second),
+            int ((self.second - int (self.second)) * 1000000.))
+        return dt.strftime(format)
+
     def pretty(self, format='%d %B %Y'):
         ''' print up the date date using a pretty format...
 
@@ -640,7 +639,7 @@ class Interval:
     TODO: more examples, showing the order of addition operation
     '''
     def __init__(self, spec, sign=1, allowdate=1, add_granularity=False,
-        translator=i18n
+        translator=i18n.translation
     ):
         """Construct an interval given a specification."""
         self.setTranslator(translator)
@@ -724,7 +723,7 @@ class Interval:
 
         # use a date spec if one is given
         if allowdate and info['D'] is not None:
-            now = Date('.')
+            now = Date()
             date = Date(info['D'])
             # if no time part was specified, nuke it in the "now" date
             if not date.hour or date.minute or date.second:

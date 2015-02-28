@@ -1719,7 +1719,7 @@ class DateHTMLProperty(HTMLProperty):
         if not self.is_view_ok():
             return self._('[hidden]')
 
-        ret = date.Date('.', translator=self._client)
+        ret = date.Date(translator=self._client.translator)
 
         if isinstance(str_interval, basestring):
             sign = 1
@@ -1813,7 +1813,7 @@ class DateHTMLProperty(HTMLProperty):
             return ''
 
         # figure the interval
-        interval = self._value - date.Date('.', translator=self._client)
+        interval = self._value - date.Date(translator=self._client.translator)
         if pretty:
             return interval.pretty()
         return str(interval)
@@ -1836,10 +1836,19 @@ class DateHTMLProperty(HTMLProperty):
 
         if not self._value:
             return ''
-        elif format is not self._marker:
-            return self._value.local(offset).pretty(format)
-        else:
-            return self._value.local(offset).pretty()
+        try:
+            if format is not self._marker:
+                return self._value.local(offset).pretty(format)
+            else:
+                return self._value.local(offset).pretty()
+        except AttributeError:
+            # not a date value, e.g. from unsaved form data
+            return str(self._value)
+
+    def format(self, strftime_format):
+        '''Print date exactly as supplied strftime_format.
+        '''
+        return self._value.format(strftime_format)
 
     def local(self, offset):
         """ Return the date/time as a local (timezone offset) date/time.

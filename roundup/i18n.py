@@ -38,6 +38,7 @@ __docformat__ = 'restructuredtext'
 import errno
 import gettext as gettext_module
 import os
+import re
 
 from roundup import msgfmt
 
@@ -61,8 +62,52 @@ del _mo_path
 # Roundup text domain
 DOMAIN = "roundup"
 
-RoundupNullTranslations = gettext_module.NullTranslations
-RoundupTranslations = gettext_module.GNUTranslations
+#--additional class to care about locale such as date format
+#--Not for direct use. Use Roundup*Translations instead.
+#--This object is to use without modification with
+#--gettext NullTranslations or GNUTranslations. Also, inside this class
+#--we use gettext and other functions of gettext module *Translations classes
+#--methods, but does not include it in base class.
+#--All this become correct when instantiated as Roundup*Translaions.
+class I18NStaff(object):
+    def __init__(self, fp = None, language = 'en'):
+        #ugly code.
+        #We must call __init__ of
+        #NullTranslations or GNUtranslations (gettext classes).
+        #The main problem is that gettext classes in Python 2.X is "old-style"
+        #classes.
+        #For python 3+ this must be changed for ?super().__init__? in case
+        #of unchanged Roundup*Translations base classes order.
+        if issubclass(self.__class__, RoundupNullTranslations):
+            gettext_module.NullTranslations.__init__(self, fp)
+        elif issubclass(self.__class__, RoundupTranslations):
+            gettext_module.GNUTranslations.__init__(self, fp)
+
+        #pattern for parsing date input.
+        #It may be modified via language translation files. If modified translate
+        #message "not a date / time spec..." in date.py
+        #accordingly.
+        date_re = self.gettext(r'''^
+            ((?P<y>\d\d\d\d)([/-](?P<m>\d\d?)([/-](?P<d>\d\d?))?)? # yyyy[-mm[-dd]]
+            |(?P<a>\d\d?)[/-](?P<b>\d\d?))?              # or mm-dd
+            (?P<n>\.)?                                   # .
+            (((?P<H>\d?\d):(?P<M>\d\d))?(:(?P<S>\d\d?(\.\d+)?))?)?  # hh:mm:ss
+            (?P<o>[\d\smywd\-+]+)?                       # offset
+        $''')
+        self.date_input_re = re.compile(date_re, re.VERBOSE)
+
+
+class RoundupNullTranslations(I18NStaff, gettext_module.NullTranslations):
+    """Do not change order of base classes. """
+    pass
+
+class RoundupTranslations(I18NStaff, gettext_module.GNUTranslations):
+    """Do not change order of base classes. """
+    def __init__(self, fp, language='en'):
+    #Require fp (translation file) parameter. Without this gettext function
+    #will fail with exception. If no translation file, use RoundupNullTranslations.
+        I18NStaff.__init__(self, fp, language)
+
 
 def find_locales(language=None):
     """Return normalized list of locale names to try for given language

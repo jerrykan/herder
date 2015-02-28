@@ -34,12 +34,19 @@ class FormParser:
         self.classname = client.classname
         self.nodeid = client.nodeid
         try:
+            self.translator=client.translator
             self._ = self.gettext = client.gettext
             self.ngettext = client.ngettext
         except AttributeError:
             _translator = templating.translationService
             self._ = self.gettext = _translator.gettext
             self.ngettext = _translator.ngettext
+
+    def rawToHyperdb(self, klass, itemid, propname, value, **kw):
+        """ Wrapper for the same function with some filled values
+        """
+        return hyperdb.rawToHyperdb(self.db, klass, itemid, propname, value,
+                                    translator=self.translator, **kw)
 
     def parse(self, create=0, num_re=re.compile('^\d+$')):
         """ Item properties and their values are edited with html FORM
@@ -393,7 +400,7 @@ class FormParser:
             elif isinstance(proptype, hyperdb.Multilink):
                 # convert input to list of ids
                 try:
-                    l = hyperdb.rawToHyperdb(self.db, cl, nodeid,
+                    l = self.rawToHyperdb(cl, nodeid,
                         propname, value)
                 except hyperdb.HyperdbValueError, msg:
                     raise FormError, msg
@@ -460,11 +467,11 @@ class FormParser:
                             # finally, read the content RAW
                             value = value.value
                         else:
-                            value = hyperdb.rawToHyperdb(self.db, cl,
-                                nodeid, propname, value)
+                            value = self.rawToHyperdb(cl, nodeid,
+                                                      propname, value)
 
                     else:
-                        value = hyperdb.rawToHyperdb(self.db, cl, nodeid,
+                        value = self.rawToHyperdb(cl, nodeid,
                             propname, value)
                 except hyperdb.HyperdbValueError, msg:
                     raise FormError, msg
