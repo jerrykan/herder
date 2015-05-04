@@ -340,6 +340,14 @@ class Class(hyperdb.Class):
         return super(Class, self).history(nodeid)
 
 
+# placeholder: not tested
+def db_nuke(config):
+    import shutil
+    db_path = config.DATABASE
+    db_name = config.RDBMS_NAME
+    shutil.rmtree(db_path)
+
+
 def _temporary_db(db_name):
     if db_name == '':
         return True
