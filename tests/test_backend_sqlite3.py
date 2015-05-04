@@ -12,7 +12,8 @@ from sqlalchemy import MetaData
 from sqlalchemy.sql import select
 
 from roundup import hyperdb
-from roundup.backends.back_sqlite3 import Database, _temporary_db, types
+from roundup.backends.back_sqlite3 import Database, db_exists, _temporary_db, \
+    types
 from roundup.backends.back_sqlite3 import Class
 from roundup.date import Date, Interval
 from roundup.password import Password
@@ -27,6 +28,45 @@ class TemporaryDbTest(TestCase):
 
     def test_filename_db(self):
         self.assertFalse(_temporary_db('roundup.db'))
+
+
+@patch('roundup.backends.back_sqlite3.os.path.isfile')
+class DbExistsTest(TestCase):
+    def test_temporary_db(self, m_isfile):
+        config = Mock()
+        config.DATABASE = 'db'
+        config.RDBMS_NAME = ''
+
+        self.assertEqual(m_isfile.call_count, 0)
+        self.assertFalse(db_exists(config))
+
+    def test_inmemory_db(self, m_isfile):
+        config = Mock()
+        config.DATABASE = 'db'
+        config.RDBMS_NAME = ':memory:'
+
+        self.assertEqual(m_isfile.call_count, 0)
+        self.assertFalse(db_exists(config))
+
+    def test_db_file_exists(self, m_isfile):
+        m_isfile.return_value = True
+
+        config = Mock()
+        config.DATABASE = 'db'
+        config.RDBMS_NAME = 'roundup.sqlite'
+
+        self.assertTrue(db_exists(config))
+        m_isfile.assert_called_once_with(path.join('db', 'roundup.sqlite'))
+
+    def test_db_file_not_exists(self, m_isfile):
+        m_isfile.return_value = False
+
+        config = Mock()
+        config.DATABASE = 'db'
+        config.RDBMS_NAME = 'roundup.sqlite'
+
+        self.assertFalse(db_exists(config))
+        m_isfile.assert_called_once_with(path.join('db', 'roundup.sqlite'))
 
 
 @patch('roundup.backends.back_sqlite3.os.makedirs')

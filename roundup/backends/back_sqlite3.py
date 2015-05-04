@@ -339,10 +339,6 @@ class Class(hyperdb.Class):
         print "Class.history"
         return super(Class, self).history(nodeid)
 
-# TODO: placeholder
-def db_exists(*args, **kwargs):
-    return False
-
 
 def _temporary_db(db_name):
     if db_name == '':
@@ -352,6 +348,16 @@ def _temporary_db(db_name):
         return True
 
     return False
+
+
+def db_exists(config):
+    db_path = config.DATABASE
+    db_name = config.RDBMS_NAME
+
+    if _temporary_db(db_name):
+        return False
+
+    return os.path.isfile(os.path.join(db_path, db_name))
 
 
 class Database(SqlAlchemyDatabase):
