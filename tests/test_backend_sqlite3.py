@@ -117,6 +117,8 @@ class PostInitDatabaseTest(TestCase):
         self.db = Database(config)
         self.db.engine = self.closed_db.engine
         self.db.schema.bind = self.db.engine
+        self.db.conn = self.closed_db.conn
+        self.db.transaction = self.closed_db.transaction
 
         self.default_tables = ['otks', 'sessions', '__textids', '__words']
         self.default_columns = ['_activity', '_actor', '_creation', '_creator',
@@ -124,6 +126,8 @@ class PostInitDatabaseTest(TestCase):
 
     def test_empty_schema(self):
         self.db.post_init()
+        self.db.transaction.commit()
+        self.db.conn.close()
 
         db = MetaData(bind=self.db.engine)
         db.reflect()
@@ -333,6 +337,11 @@ class PostInitDatabaseTest(TestCase):
             set(['_name', '_age'] + self.default_columns)
         )
 
+        self.db.transaction.rollback()
+        self.db.conn.close()
+        self.db.conn = self.db.engine.connect()
+        self.db.transaction = self.db.conn.begin()
+
         # define "new" schema
         Class(self.db, 'person',
             name=hyperdb.String(),
@@ -357,6 +366,8 @@ class PostInitDatabaseTest(TestCase):
             birthday=hyperdb.Date()
         )
         self.closed_db.post_init()
+        self.closed_db.transaction.commit()
+        self.closed_db.conn.close()
 
         # sqlite requires rebuilding the table, so lets insert some test data
         # so we can check that it gets migrated correctly
@@ -390,6 +401,10 @@ class PostInitDatabaseTest(TestCase):
             name=hyperdb.String(),
             age=hyperdb.Number(),
         )
+        self.db.transaction.rollback()
+        self.db.conn.close()
+        self.db.conn = self.db.engine.connect()
+        self.db.transaction = self.db.conn.begin()
         self.db.post_init()
 
         # check table column has been created
@@ -763,6 +778,8 @@ class AddNodeDatabaseTest(TestCase):
         before = datetime.now()
         nodeid = self.db.addnode('person', None, props)
         after = datetime.now()
+        self.db.transaction.commit()
+        self.db.conn.close()
 
         self.assertEqual(nodeid, 1)
 

@@ -198,7 +198,7 @@ class Class(hyperdb.Class):
                 table.columns['__retired__'] == False
             ))
         )
-        result = self.db.engine.execute(query).fetchone()
+        result = self.db.conn.execute(query).fetchone()
 
         if result is None:
             raise KeyError(
@@ -419,6 +419,10 @@ class Database(SqlAlchemyDatabase):
         )
         # NOTE: we don't store the schema dump in db, it is checked in post_init
 
+        # TODO: opening the connection probably should be its own method
+        self.conn = self.engine.connect()
+        self.transaction = self.conn.begin()
+
     def post_init(self):
         """ Called once the schema initialisation has finished.
 
@@ -536,10 +540,10 @@ class Database(SqlAlchemyDatabase):
                 tmp_name = '_tmp_{0}'.format(table_name)
                 table = Table(tmp_name, db,
                     *[c.copy() for c in self.schema.tables[table_name].columns])
-                table.create()
+                table.create(self.conn)
 
                 for index in table.indexes:
-                    index.drop()
+                    index.drop(self.conn)
 
                 # TODO: FIX: safer to use sqlalchemy instead of raw SQL?
                 # copy entries from the old to the new table
@@ -548,7 +552,7 @@ class Database(SqlAlchemyDatabase):
 
                 sql = 'INSERT INTO {0} ({2}) SELECT {2} FROM {1}'.format(
                     tmp_name, table_name, columns)
-                self.engine.execute(sql)
+                self.conn.execute(sql)
 
                 # drop the old table
                 db.tables[table_name].drop()
@@ -556,29 +560,29 @@ class Database(SqlAlchemyDatabase):
                 # rename the new table
                 sql = 'ALTER TABLE {0} RENAME TO {1}'.format(
                     tmp_name, table_name)
-                self.engine.execute(sql)
+                self.conn.execute(sql)
             else:
                 for column in alter['add']:
                     sql = 'ALTER TABLE {0} ADD COLUMN {1} {2}'.format(
                         column.table, column.name, column.type.compile())
-                    self.engine.execute(sql)
+                    self.conn.execute(sql)
 
         # modify indexes
         for index in (set(db_indexes) & set(schema_indexes)):
             if (db_indexes[index].columns.keys() !=
                     schema_indexes[index].columns.keys()):
                 db_indexes[index].drop()
-                schema_indexes[index].create()
+                schema_indexes[index].create(self.conn)
 
         # create tables
         create_tables = schema_tables - db_tables
         for table in create_tables:
-            self.schema.tables[table].create(self.engine)
+            self.schema.tables[table].create(self.conn)
 
         # create indexes
         for index in (set(schema_indexes) - set(db_indexes)):
             if schema_indexes[index].table.name not in create_tables:
-                schema_indexes[index].create()
+                schema_indexes[index].create(self.conn)
 
         # TODO: (re)indexing
 
@@ -639,14 +643,14 @@ class Database(SqlAlchemyDatabase):
             ('_{0}'.format(k), v) for (k, v) in values.items()
             if v is not None
         ]))
-        result = self.engine.execute(query)
+        result = self.conn.execute(query)
         nodeid = result.inserted_primary_key[0]
 
         for name, links in multilink.items():
             table = self.schema.tables['{0}_{1}'.format(classname, name)]
             for link in links:
                 query = table.insert().values(nodeid=nodeid, linkid=link)
-                self.engine.execute(query)
+                self.conn.execute(query)
 
         return nodeid
 
@@ -665,7 +669,7 @@ class Database(SqlAlchemyDatabase):
             .where(table.columns['id'] == nodeid)
         )
 
-        return bool(self.engine.execute(query).fetchone()[0])
+        return bool(self.conn.execute(query).fetchone()[0])
 
     ##
     ## NOT TESTED BEYOND HERE
