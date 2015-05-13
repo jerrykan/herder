@@ -339,8 +339,7 @@ class PostInitDatabaseTest(TestCase):
 
         self.db.transaction.rollback()
         self.db.conn.close()
-        self.db.conn = self.db.engine.connect()
-        self.db.transaction = self.db.conn.begin()
+        self.db.open()
 
         # define "new" schema
         Class(self.db, 'person',
@@ -403,8 +402,7 @@ class PostInitDatabaseTest(TestCase):
         )
         self.db.transaction.rollback()
         self.db.conn.close()
-        self.db.conn = self.db.engine.connect()
-        self.db.transaction = self.db.conn.begin()
+        self.db.open()
         self.db.post_init()
 
         # check table column has been created

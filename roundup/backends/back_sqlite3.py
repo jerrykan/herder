@@ -420,6 +420,9 @@ class Database(SqlAlchemyDatabase):
         # NOTE: we don't store the schema dump in db, it is checked in post_init
 
         # TODO: opening the connection probably should be its own method
+        self.open()
+
+    def open(self):
         self.conn = self.engine.connect()
         self.transaction = self.conn.begin()
 
