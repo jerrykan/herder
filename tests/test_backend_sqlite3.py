@@ -126,8 +126,8 @@ class PostInitDatabaseTest(TestCase):
 
     def test_empty_schema(self):
         self.db.post_init()
-        self.db.transaction.commit()
-        self.db.conn.close()
+        self.db.commit()
+        self.db.close()
 
         db = MetaData(bind=self.db.engine)
         db.reflect()
@@ -365,8 +365,8 @@ class PostInitDatabaseTest(TestCase):
             birthday=hyperdb.Date()
         )
         self.closed_db.post_init()
-        self.closed_db.transaction.commit()
-        self.closed_db.conn.close()
+        self.closed_db.commit()
+        self.closed_db.close()
 
         # sqlite requires rebuilding the table, so lets insert some test data
         # so we can check that it gets migrated correctly
@@ -776,8 +776,8 @@ class AddNodeDatabaseTest(TestCase):
         before = datetime.now()
         nodeid = self.db.addnode('person', None, props)
         after = datetime.now()
-        self.db.transaction.commit()
-        self.db.conn.close()
+        self.db.commit()
+        self.db.close()
 
         self.assertEqual(nodeid, 1)
 

@@ -674,6 +674,12 @@ class Database(SqlAlchemyDatabase):
 
         return bool(self.conn.execute(query).fetchone()[0])
 
+    def commit(self):
+        self.transaction.commit()
+
+    def close(self):
+        self.conn.close()
+
     ##
     ## NOT TESTED BEYOND HERE
     ##
