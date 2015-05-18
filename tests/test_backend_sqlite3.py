@@ -16,7 +16,7 @@ from roundup.backends.back_sqlite3 import Database, db_exists, _temporary_db, \
     types
 from roundup.backends.back_sqlite3 import Class
 from roundup.backends.back_sqlite3 import boolean_validator, \
-    number_validator, string_validator
+    number_validator, string_validator, password_validator
 from roundup.date import Date, Interval
 from roundup.password import Password
 
@@ -78,6 +78,20 @@ class StringValidatorTest(TestCase):
         self.assertRaisesRegexp(
             TypeError, "value for property 'string_prop' is not a string",
             string_validator, 'string_prop', [])
+
+
+class PasswordValidatorTest(TestCase):
+    def test_roundup_password(self):
+        password = Password('some password')
+        password.password = '10000$dummypass'
+
+        value = password_validator('password_prop', password)
+        self.assertEqual(value, '{PBKDF2}10000$dummypass')
+
+    def test_invalid_password(self):
+        self.assertRaisesRegexp(
+            TypeError, "value for property 'password_prop' is not a password",
+            password_validator, 'password_prop', 'not a password')
 
 
 class TemporaryDbTest(TestCase):

@@ -39,6 +39,13 @@ def string_validator(name, value):
     raise TypeError("value for property '{0}' is not a string".format(name))
 
 
+def password_validator(name, value):
+    if isinstance(value, Password):
+        return str(value)
+
+    raise TypeError("value for property '{0}' is not a password".format(name))
+
+
 TYPE_MAP = {
     hyperdb.String: types.String,
     hyperdb.Date: types.DateTime,
