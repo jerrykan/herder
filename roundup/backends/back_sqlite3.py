@@ -32,6 +32,13 @@ def number_validator(name, value):
             "value for property '{0}' is not numeric".format(name))
 
 
+def string_validator(name, value):
+    if isinstance(value, (str, unicode)):
+        return value
+
+    raise TypeError("value for property '{0}' is not a string".format(name))
+
+
 TYPE_MAP = {
     hyperdb.String: types.String,
     hyperdb.Date: types.DateTime,

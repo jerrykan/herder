@@ -15,7 +15,8 @@ from roundup import hyperdb
 from roundup.backends.back_sqlite3 import Database, db_exists, _temporary_db, \
     types
 from roundup.backends.back_sqlite3 import Class
-from roundup.backends.back_sqlite3 import boolean_validator, number_validator
+from roundup.backends.back_sqlite3 import boolean_validator, \
+    number_validator, string_validator
 from roundup.date import Date, Interval
 from roundup.password import Password
 
@@ -58,6 +59,25 @@ class NumberValidatorTest(TestCase):
         self.assertRaisesRegexp(
             TypeError, "value for property 'number_prop' is not numeric",
             number_validator, 'number_prop', 'Some String')
+
+
+class StringValidatorTest(TestCase):
+    def test_default_string(self):
+        value = string_validator('string_prop', 'default string')
+        self.assertEqual(value, 'default string')
+
+    def test_bytes(self):
+        value = string_validator('string_prop', 'bytes string')
+        self.assertEqual(value, 'bytes string')
+
+    def test_unicode(self):
+        value = string_validator('string_prop', u'unicode string')
+        self.assertEqual(value, 'unicode string')
+
+    def test_invalid_string(self):
+        self.assertRaisesRegexp(
+            TypeError, "value for property 'string_prop' is not a string",
+            string_validator, 'string_prop', [])
 
 
 class TemporaryDbTest(TestCase):
