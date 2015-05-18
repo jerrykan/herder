@@ -23,6 +23,15 @@ def boolean_validator(name, value):
             "value for property '{0}' is not a boolean".format(name))
 
 
+def number_validator(name, value):
+    try:
+        float(value)
+        return value
+    except (TypeError, ValueError):
+        raise TypeError(
+            "value for property '{0}' is not numeric".format(name))
+
+
 TYPE_MAP = {
     hyperdb.String: types.String,
     hyperdb.Date: types.DateTime,

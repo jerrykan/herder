@@ -15,7 +15,7 @@ from roundup import hyperdb
 from roundup.backends.back_sqlite3 import Database, db_exists, _temporary_db, \
     types
 from roundup.backends.back_sqlite3 import Class
-from roundup.backends.back_sqlite3 import boolean_validator
+from roundup.backends.back_sqlite3 import boolean_validator, number_validator
 from roundup.date import Date, Interval
 from roundup.password import Password
 
@@ -39,6 +39,25 @@ class BooleanValidatorTest(TestCase):
         self.assertRaisesRegexp(
             TypeError, "value for property 'boolean_prop' is not a boolean",
             boolean_validator, 'boolean_prop', 'Some String')
+
+
+class NumberValidatorTest(TestCase):
+    def test_float(self):
+        value = number_validator('number_prop', 12.3)
+        self.assertEqual(value, 12.3)
+
+    def test_int(self):
+        value = number_validator('number_prop', 33)
+        self.assertEqual(value, 33)
+
+    def test_string_number(self):
+        value = number_validator('number_prop', '11.4')
+        self.assertEqual(value, '11.4')
+
+    def test_invalid_number(self):
+        self.assertRaisesRegexp(
+            TypeError, "value for property 'number_prop' is not numeric",
+            number_validator, 'number_prop', 'Some String')
 
 
 class TemporaryDbTest(TestCase):
