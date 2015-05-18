@@ -16,7 +16,7 @@ from roundup.backends.back_sqlite3 import Database, db_exists, _temporary_db, \
     types
 from roundup.backends.back_sqlite3 import Class
 from roundup.backends.back_sqlite3 import boolean_validator, \
-    number_validator, string_validator, password_validator
+    number_validator, string_validator, password_validator, date_validator
 from roundup.date import Date, Interval
 from roundup.password import Password
 
@@ -92,6 +92,20 @@ class PasswordValidatorTest(TestCase):
         self.assertRaisesRegexp(
             TypeError, "value for property 'password_prop' is not a password",
             password_validator, 'password_prop', 'not a password')
+
+
+class DateValidatorTest(TestCase):
+    def test_roundup_date(self):
+        date = Date('2015-01-01')
+
+        value = date_validator('date_prop', date)
+        self.assertEqual(value, datetime(2015, 1, 1))
+
+    # TODO: should date/time/datetime be accepted?
+    def test_invalid_date(self):
+        self.assertRaisesRegexp(
+            TypeError, "value for property 'date_prop' is not a date",
+            date_validator, 'date_prop', datetime(2015, 1, 1))
 
 
 class TemporaryDbTest(TestCase):
