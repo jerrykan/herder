@@ -12,6 +12,17 @@ from roundup.password import Password
 from .rdbms_common import FileClass, IssueClass
 from .sqlalchemy_common import SqlAlchemyDatabase
 
+def boolean_validator(name, value):
+    try:
+        # TODO: this is how rdbms_common checks for boolean, but I
+        #   suspect it dates back to when python didn't have bools
+        int(value)
+        return value
+    except (TypeError, ValueError):
+        raise TypeError(
+            "value for property '{0}' is not a boolean".format(name))
+
+
 TYPE_MAP = {
     hyperdb.String: types.String,
     hyperdb.Date: types.DateTime,

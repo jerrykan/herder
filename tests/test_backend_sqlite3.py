@@ -15,8 +15,30 @@ from roundup import hyperdb
 from roundup.backends.back_sqlite3 import Database, db_exists, _temporary_db, \
     types
 from roundup.backends.back_sqlite3 import Class
+from roundup.backends.back_sqlite3 import boolean_validator
 from roundup.date import Date, Interval
 from roundup.password import Password
+
+
+# TODO: all these should probably simplify down to just returning a bool value,
+#   but keep as is for the time being to preserve backward compatibility.
+class BooleanValidatorTest(TestCase):
+    def test_bool(self):
+        value = boolean_validator('boolean_prop', True)
+        self.assertEqual(value, True)
+
+    def test_int(self):
+        value = boolean_validator('boolean_prop', 33)
+        self.assertEqual(value, 33)
+
+    def test_string_number(self):
+        value = boolean_validator('boolean_prop', '12')
+        self.assertEqual(value, '12')
+
+    def test_invalid_boolean(self):
+        self.assertRaisesRegexp(
+            TypeError, "value for property 'boolean_prop' is not a boolean",
+            boolean_validator, 'boolean_prop', 'Some String')
 
 
 class TemporaryDbTest(TestCase):
