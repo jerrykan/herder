@@ -56,6 +56,13 @@ def date_validator(name, value):
     raise TypeError("value for property '{0}' is not a date".format(name))
 
 
+def interval_validator(name, value):
+    if isinstance(value, Interval):
+        return timedelta(seconds=value.as_seconds())
+
+    raise TypeError("value for property '{0}' is not an interval".format(name))
+
+
 TYPE_MAP = {
     hyperdb.String: types.String,
     hyperdb.Date: types.DateTime,

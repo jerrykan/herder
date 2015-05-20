@@ -16,7 +16,8 @@ from roundup.backends.back_sqlite3 import Database, db_exists, _temporary_db, \
     types
 from roundup.backends.back_sqlite3 import Class
 from roundup.backends.back_sqlite3 import boolean_validator, \
-    number_validator, string_validator, password_validator, date_validator
+    number_validator, string_validator, password_validator, date_validator, \
+    interval_validator
 from roundup.date import Date, Interval
 from roundup.password import Password
 
@@ -106,6 +107,20 @@ class DateValidatorTest(TestCase):
         self.assertRaisesRegexp(
             TypeError, "value for property 'date_prop' is not a date",
             date_validator, 'date_prop', datetime(2015, 1, 1))
+
+
+class IntervalValidatorTest(TestCase):
+    def test_roundup_interval(self):
+        interval = Interval('-1d 12:14')
+
+        value = interval_validator('interval_prop', interval)
+        self.assertEqual(value, timedelta(-1, -((12 * 3600) + (14 * 60))))
+
+    # TODO: should timedelta be accepted?
+    def test_invalid_interval(self):
+        self.assertRaisesRegexp(
+            TypeError, "value for property 'interval_prop' is not an interval",
+            interval_validator, 'interval_prop', timedelta(-1, -43200))
 
 
 class TemporaryDbTest(TestCase):
