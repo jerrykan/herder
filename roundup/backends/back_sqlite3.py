@@ -43,7 +43,8 @@ def password_validator(name, value):
     if isinstance(value, Password):
         return str(value)
 
-    raise TypeError("value for property '{0}' is not a password".format(name))
+    raise TypeError("value for property '{0}' is not a roundup password"
+        .format(name))
 
 
 def date_validator(name, value):
@@ -53,14 +54,16 @@ def date_validator(name, value):
             value.hour, value.minute, int(value.second),
             int((value.second * 1000000) % 1000000))
 
-    raise TypeError("value for property '{0}' is not a date".format(name))
+    raise TypeError("value for property '{0}' is not a roundup date"
+        .format(name))
 
 
 def interval_validator(name, value):
     if isinstance(value, Interval):
         return timedelta(seconds=value.as_seconds())
 
-    raise TypeError("value for property '{0}' is not an interval".format(name))
+    raise TypeError("value for property '{0}' is not a roundup interval"
+        .format(name))
 
 
 TYPE_MAP = {

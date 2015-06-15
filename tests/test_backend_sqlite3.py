@@ -91,7 +91,8 @@ class PasswordValidatorTest(TestCase):
 
     def test_invalid_password(self):
         self.assertRaisesRegexp(
-            TypeError, "value for property 'password_prop' is not a password",
+            TypeError,
+            "value for property 'password_prop' is not a roundup password",
             password_validator, 'password_prop', 'not a password')
 
 
@@ -105,7 +106,7 @@ class DateValidatorTest(TestCase):
     # TODO: should date/time/datetime be accepted?
     def test_invalid_date(self):
         self.assertRaisesRegexp(
-            TypeError, "value for property 'date_prop' is not a date",
+            TypeError, "value for property 'date_prop' is not a roundup date",
             date_validator, 'date_prop', datetime(2015, 1, 1))
 
 
@@ -119,7 +120,8 @@ class IntervalValidatorTest(TestCase):
     # TODO: should timedelta be accepted?
     def test_invalid_interval(self):
         self.assertRaisesRegexp(
-            TypeError, "value for property 'interval_prop' is not an interval",
+            TypeError,
+            "value for property 'interval_prop' is not a roundup interval",
             interval_validator, 'interval_prop', timedelta(-1, -43200))
 
 
