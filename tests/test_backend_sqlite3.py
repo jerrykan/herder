@@ -1033,7 +1033,7 @@ class CreateClassTest(TestCase):
         }
 
         self.assertRaisesRegexp(
-            TypeError, "value for new property 'boolean' is not a boolean",
+            TypeError, "value for property 'boolean' is not a boolean",
             self.db.stuff.create, **props)
 
     def test_invalid_prop_number(self):
@@ -1043,7 +1043,7 @@ class CreateClassTest(TestCase):
         }
 
         self.assertRaisesRegexp(
-            TypeError, "value for new property 'number' is not numeric",
+            TypeError, "value for property 'number' is not numeric",
             self.db.stuff.create, **props)
 
     def test_invalid_prop_string(self):
@@ -1053,7 +1053,7 @@ class CreateClassTest(TestCase):
         }
 
         self.assertRaisesRegexp(
-            TypeError, "value for new property 'string' is not a string",
+            TypeError, "value for property 'string' is not a string",
             self.db.stuff.create, **props)
 
     def test_invalid_prop_password(self):
@@ -1065,7 +1065,7 @@ class CreateClassTest(TestCase):
 
         self.assertRaisesRegexp(
             TypeError,
-            "value for new property 'password' is not a roundup password",
+            "value for property 'password' is not a roundup password",
             self.db.stuff.create, **props)
 
     def test_invalid_prop_date(self):
@@ -1076,7 +1076,7 @@ class CreateClassTest(TestCase):
         }
 
         self.assertRaisesRegexp(
-            TypeError, "value for new property 'date' is not a roundup date",
+            TypeError, "value for property 'date' is not a roundup date",
             self.db.stuff.create, **props)
 
     def test_invalid_prop_interval(self):
@@ -1088,7 +1088,7 @@ class CreateClassTest(TestCase):
 
         self.assertRaisesRegexp(
             TypeError,
-            "value for new property 'interval' is not a roundup interval",
+            "value for property 'interval' is not a roundup interval",
             self.db.stuff.create, **props)
 
     def test_invalid_prop_link_id(self):

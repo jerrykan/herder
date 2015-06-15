@@ -1,4 +1,5 @@
 import os
+from collections import namedtuple
 from datetime import datetime, timedelta
 
 from sqlalchemy import Column, Index, MetaData, Table, create_engine, types
@@ -11,6 +12,9 @@ from roundup.i18n import _
 from roundup.password import Password
 from .rdbms_common import FileClass, IssueClass
 from .sqlalchemy_common import SqlAlchemyDatabase
+
+HyperDbType = namedtuple('HyperDbType', ['type', 'validator'])
+
 
 def boolean_validator(name, value):
     try:
@@ -67,13 +71,13 @@ def interval_validator(name, value):
 
 
 TYPE_MAP = {
-    hyperdb.String: types.String,
-    hyperdb.Date: types.DateTime,
-    hyperdb.Link: types.Integer,
-    hyperdb.Interval: types.Interval,
-    hyperdb.Password: types.String,
-    hyperdb.Boolean: types.Boolean,
-    hyperdb.Number: types.Float,
+    hyperdb.Boolean: HyperDbType(types.Boolean, boolean_validator),
+    hyperdb.Number: HyperDbType(types.Float, number_validator),
+    hyperdb.String: HyperDbType(types.String, string_validator),
+    hyperdb.Password: HyperDbType(types.String, password_validator),
+    hyperdb.Date: HyperDbType(types.DateTime, date_validator),
+    hyperdb.Interval: HyperDbType(types.Interval, interval_validator),
+    hyperdb.Link: HyperDbType(types.Integer, None),
 }
 
 
@@ -121,45 +125,21 @@ class Class(hyperdb.Class):
                 continue
 
             if isinstance(prop, hyperdb.Boolean):
-                try:
-                    # TODO: this is how rdbms_common checks for boolean, but I
-                    #   suspect it dates back to when python didn't have bools
-                    int(value)
-                except (TypeError, ValueError):
-                    raise TypeError(
-                        error_msg.format(prop_name, 'a boolean'))
+                TYPE_MAP[hyperdb.Boolean].validator(prop_name, value)
             elif isinstance(prop, hyperdb.Number):
-                try:
-                    float(value)
-                except (TypeError, ValueError):
-                    raise TypeError(
-                        error_msg.format(prop_name, 'numeric'))
+                TYPE_MAP[hyperdb.Number].validator(prop_name, value)
             elif isinstance(prop, hyperdb.String):
-                if not isinstance(value, (str, unicode)):
-                    raise TypeError(
-                        error_msg.format(prop_name, 'a string'))
+                TYPE_MAP[hyperdb.String].validator(prop_name, value)
                 # TODO: indexing of the string
             elif isinstance(prop, hyperdb.Password):
-                if not isinstance(value, Password):
-                    raise TypeError(
-                        error_msg.format(prop_name, 'a roundup password'))
-
-                propvalues[prop_name] = str(value)
+                propvalues[prop_name] = \
+                    TYPE_MAP[hyperdb.Password].validator(prop_name, value)
             elif isinstance(prop, hyperdb.Date):
-                if not isinstance(value, Date):
-                    raise TypeError(
-                        error_msg.format(prop_name, 'a roundup date'))
-
-                propvalues[prop_name] = datetime(
-                    value.year, value.month, value.day,
-                    value.hour, value.minute, int(value.second),
-                    int((value.second * 1000000) % 1000000))
+                propvalues[prop_name] = \
+                    TYPE_MAP[hyperdb.Date].validator(prop_name, value)
             elif isinstance(prop, hyperdb.Interval):
-                if not isinstance(value, Interval):
-                    raise TypeError(
-                        error_msg.format(prop_name, 'a roundup interval'))
-
-                propvalues[prop_name] = timedelta(seconds=value.as_seconds())
+                propvalues[prop_name] = \
+                    TYPE_MAP[hyperdb.Interval].validator(prop_name, value)
             elif isinstance(prop, hyperdb.Link):
                 link_classname = self.properties[prop_name].classname
                 try:
@@ -489,10 +469,10 @@ class Database(SqlAlchemyDatabase):
         # TODO: check if the database can be altered (config.RDBMS_ALLOW_ALTER)
         for classname, spec in self.classes.items():
             columns = [
-               Column('_actor', TYPE_MAP[hyperdb.Link]),
-               Column('_activity', TYPE_MAP[hyperdb.Date]),
-               Column('_creator', TYPE_MAP[hyperdb.Link]),
-               Column('_creation', TYPE_MAP[hyperdb.Date]),
+               Column('_actor', TYPE_MAP[hyperdb.Link].type),
+               Column('_activity', TYPE_MAP[hyperdb.Date].type),
+               Column('_creator', TYPE_MAP[hyperdb.Link].type),
+               Column('_creation', TYPE_MAP[hyperdb.Date].type),
             ]
 
             for name, prop in spec.properties.items():
@@ -505,7 +485,7 @@ class Database(SqlAlchemyDatabase):
                     continue
 
                 columns.append(
-                    Column('_{0}'.format(name), TYPE_MAP[type(prop)]))
+                    Column('_{0}'.format(name), TYPE_MAP[type(prop)].type))
 
             columns.sort(key=lambda x: x.name)
             columns += [
@@ -531,7 +511,7 @@ class Database(SqlAlchemyDatabase):
             # journal table
             Table('{0}__journal'.format(classname), self.schema,
                 Column('nodeid', types.Integer, index=True),
-                Column('date', TYPE_MAP[hyperdb.Date]),
+                Column('date', TYPE_MAP[hyperdb.Date].type),
                 Column('tag', types.String),
                 Column('action', types.String),
                 Column('params', types.String),
