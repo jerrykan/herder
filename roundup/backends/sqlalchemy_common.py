@@ -1,6 +1,45 @@
 from roundup import hyperdb, roundupdb
 
 
+class SqlAlchemyVolatileData(object):
+    ''' Provide a nice encapsulation of an RDBMS table.
+
+        Keys are id strings, values are automatically marshalled data.
+    '''
+    def __init__(self, engine):
+        raise NotImplementedError
+
+    def clear(self):
+        raise NotImplementedError
+
+    def exists(self, infoid):
+        raise NotImplementedError
+
+    _marker = []
+    def get(self, infoid, value, default=_marker):
+        raise NotImplementedError
+
+    def getall(self, infoid):
+        raise NotImplementedError
+
+    def set(self, infoid, **newvalues):
+        raise NotImplementedError
+
+    def list(self):
+        raise NotImplementedError
+
+    def destroy(self, infoid):
+        raise NotImplementedError
+
+    def updateTimestamp(self, infoid):
+        """ don't update every hit - once a minute should be OK """
+        raise NotImplementedError
+
+    def clean(self):
+        ''' Remove session records that haven't been used for a week. '''
+        raise NotImplementedError
+
+
 class SqlAlchemyDatabase(roundupdb.Database, hyperdb.Database, object):
     def __init__(self, config, journaltag=None):
         """Open a hyperdatabase given a specifier to some storage.

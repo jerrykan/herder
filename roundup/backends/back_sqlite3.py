@@ -1,4 +1,6 @@
+import json
 import os
+import time
 from collections import namedtuple
 from datetime import datetime, timedelta
 
@@ -11,7 +13,7 @@ from roundup.date import Date, Interval
 from roundup.i18n import _
 from roundup.password import Password
 from .rdbms_common import FileClass, IssueClass
-from .sqlalchemy_common import SqlAlchemyDatabase
+from .sqlalchemy_common import SqlAlchemyVolatileData, SqlAlchemyDatabase
 
 HyperDbType = namedtuple('HyperDbType', ['type', 'validator'])
 
@@ -402,6 +404,48 @@ def db_exists(config):
     return os.path.isfile(os.path.join(db_path, db_name))
 
 
+class VolatileData(SqlAlchemyVolatileData):
+    def __init__(self, table):
+        self.table = table
+        self.c = dict([
+            (c, '{0}_{1}'.format(table.name[:-1], c))
+            for c in ('key', 'value', 'time')
+        ])
+
+    def get(self, infoid, value, default=[]):
+        """
+            infoid - row id
+            value - column name
+            default - herm?
+        """
+        return default
+
+    def set(self, infoid, **newvalues):
+        row = self.table.select().where(
+            self.table.c[self.c['key']]==infoid
+        ).execute().fetchone()
+
+        if row is None:
+            self.table.insert().values(**{
+                self.c['key']: infoid,
+                self.c['value']: json.dumps(newvalues),
+                self.c['time']: time.time(),
+            }).execute()
+            return
+
+        data = json.loads(row[self.c['value']])
+        data.update(newvalues)
+
+        self.table.update().where(
+            self.table.c[self.c['key']]==infoid
+        ).values(**{
+            self.c['value']: json.dumps(data),
+        }).execute()
+
+    def clean(self):
+        pass
+
+
 class Database(SqlAlchemyDatabase):
     def __init__(self, config, journaltag=None):
         ### TODO: ripped from rdbms_common
@@ -425,11 +469,13 @@ class Database(SqlAlchemyDatabase):
             self.engine = create_engine('sqlite:///{0}'.format(db_name))
 
         self.schema = MetaData(bind=self.engine)
+        # move table creation into OneTimeKeys??
         Table('otks', self.schema,
             Column('otk_key', types.String, index=True),
             Column('otk_value', types.String),
             Column('otk_time', types.Integer),
         )
+        # move table creation into Sessions??
         Table('sessions', self.schema,
             Column('session_key', types.String, index=True),
             Column('session_time', types.Integer),
@@ -713,6 +759,13 @@ class Database(SqlAlchemyDatabase):
 
     def close(self):
         self.conn.close()
+
+    ### RDBMS_COMMON
+    def getSessionManager(self):
+        return VolatileData(self.schema.tables['sessions'])
+
+    def getOTKManager(self):
+        return VolatileData(self.schema.tables['otks'])
 
     ##
     ## NOT TESTED BEYOND HERE
