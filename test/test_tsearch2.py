@@ -37,7 +37,8 @@ class tsearch2Opener:
         # clear out the database - easiest way is to nuke and re-create it
         self.module.db_nuke(config)
 
-class tsearch2DBTest(tsearch2Opener, DBTest):
+
+class tsearch2DBTest(tsearch2Opener, DBTest, unittest.TestCase):
     def setUp(self):
         tsearch2Opener.setUp(self)
         DBTest.setUp(self)
@@ -63,7 +64,8 @@ class tsearch2DBTest(tsearch2Opener, DBTest):
         # checking rollbacks/commits.
         pass
 
-class tsearch2ROTest(tsearch2Opener, ROTest):
+
+class tsearch2ROTest(tsearch2Opener, ROTest, unittest.TestCase):
     def setUp(self):
         tsearch2Opener.setUp(self)
         ROTest.setUp(self)
@@ -72,7 +74,8 @@ class tsearch2ROTest(tsearch2Opener, ROTest):
         ROTest.tearDown(self)
         tsearch2Opener.tearDown(self)
 
-class tsearch2SchemaTest(tsearch2Opener, SchemaTest):
+
+class tsearch2SchemaTest(tsearch2Opener, SchemaTest, unittest.TestCase):
     def setUp(self):
         tsearch2Opener.setUp(self)
         SchemaTest.setUp(self)
@@ -81,7 +84,9 @@ class tsearch2SchemaTest(tsearch2Opener, SchemaTest):
         SchemaTest.tearDown(self)
         tsearch2Opener.tearDown(self)
 
-class tsearch2ClassicInitTest(tsearch2Opener, ClassicInitTest):
+
+class tsearch2ClassicInitTest(tsearch2Opener, ClassicInitTest,
+                              unittest.TestCase):
     backend = 'tsearch2'
     def setUp(self):
         tsearch2Opener.setUp(self)
@@ -91,8 +96,9 @@ class tsearch2ClassicInitTest(tsearch2Opener, ClassicInitTest):
         ClassicInitTest.tearDown(self)
         tsearch2Opener.tearDown(self)
 
+
 from session_common import RDBMSTest
-class tsearch2SessionTest(tsearch2Opener, RDBMSTest):
+class tsearch2SessionTest(tsearch2Opener, RDBMSTest, unittest.TestCase):
     def setUp(self):
         tsearch2Opener.setUp(self)
         RDBMSTest.setUp(self)

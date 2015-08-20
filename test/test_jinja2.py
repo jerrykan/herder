@@ -17,7 +17,8 @@ class TestCase_Zero(unittest.TestCase):
     def test_zero(self):
         self.assertEqual(True, True)
 
-class TestCase(unittest.TestCase):
+
+class Jinja2Test(object):
 
     backend = None  # can be used to create tests per backend, see test_xmlrpc
 
@@ -29,6 +30,11 @@ class TestCase(unittest.TestCase):
     def test_zero(self):
         pass
 
+
+class anydbmJinja2Test(Jinja2Test, unittest.TestCase):
+    backend = 'anydbm'
+
+
 def test_suite():
     suite = unittest.TestSuite()
 
@@ -37,10 +43,7 @@ def test_suite():
     # only using one database backend for now, not sure if doing all
     # backends will keep the test focussed enough to be useful for the used
     # computing time. Would be okay to change in the future.
-    l = 'anydbm'
-    dct = dict(backend = l)
-    subcls = type(TestCase)('TestCase_%s'%l, (TestCase,), dct)
-    suite.addTest(unittest.makeSuite(subcls))
+    suite.addTest(unittest.makeSuite(anydbmJinja2Test))
 
     return suite
 
