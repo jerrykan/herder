@@ -6,6 +6,7 @@
 
 import unittest, os, shutil, errno, sys, difflib, cgi, re
 
+import pytest
 from xmlrpclib import MultiCall
 from roundup.cgi.exceptions import *
 from roundup import init, instance, password, hyperdb, date
@@ -15,6 +16,8 @@ from roundup.hyperdb import String
 from roundup.cgi import TranslationService
 
 import db_test_base
+from .test_mysql import skip_mysql
+from .test_postgresql import skip_postgresql
 
 NEEDS_INSTANCE = 1
 
@@ -253,6 +256,7 @@ class anydbmXmlrpcTest(XmlrpcTest, unittest.TestCase):
     backend = 'anydbm'
 
 
+@skip_mysql
 class mysqlXmlrpcTest(XmlrpcTest, unittest.TestCase):
     backend = 'mysql'
 
@@ -261,6 +265,7 @@ class sqliteXmlrpcTest(XmlrpcTest, unittest.TestCase):
     backend = 'sqlite'
 
 
+@skip_postgresql
 class postgresqlXmlrpcTest(XmlrpcTest, unittest.TestCase):
     backend = 'postgresql'
 

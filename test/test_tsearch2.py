@@ -17,11 +17,15 @@
 
 import unittest
 
+import pytest
 from roundup.hyperdb import DatabaseError
 
 from db_test_base import DBTest, ROTest, config, SchemaTest, ClassicInitTest
 
 from roundup.backends import get_backend, have_backend
+
+skip_tsearch2 = pytest.skip('backend currently not working')
+
 
 class tsearch2Opener:
     if have_backend('tsearch2'):
@@ -38,6 +42,7 @@ class tsearch2Opener:
         self.module.db_nuke(config)
 
 
+@skip_tsearch2
 class tsearch2DBTest(tsearch2Opener, DBTest, unittest.TestCase):
     def setUp(self):
         tsearch2Opener.setUp(self)
@@ -65,6 +70,7 @@ class tsearch2DBTest(tsearch2Opener, DBTest, unittest.TestCase):
         pass
 
 
+@skip_tsearch2
 class tsearch2ROTest(tsearch2Opener, ROTest, unittest.TestCase):
     def setUp(self):
         tsearch2Opener.setUp(self)
@@ -75,6 +81,7 @@ class tsearch2ROTest(tsearch2Opener, ROTest, unittest.TestCase):
         tsearch2Opener.tearDown(self)
 
 
+@skip_tsearch2
 class tsearch2SchemaTest(tsearch2Opener, SchemaTest, unittest.TestCase):
     def setUp(self):
         tsearch2Opener.setUp(self)
@@ -85,6 +92,7 @@ class tsearch2SchemaTest(tsearch2Opener, SchemaTest, unittest.TestCase):
         tsearch2Opener.tearDown(self)
 
 
+@skip_tsearch2
 class tsearch2ClassicInitTest(tsearch2Opener, ClassicInitTest,
                               unittest.TestCase):
     backend = 'tsearch2'
@@ -98,6 +106,7 @@ class tsearch2ClassicInitTest(tsearch2Opener, ClassicInitTest,
 
 
 from session_common import RDBMSTest
+@skip_tsearch2
 class tsearch2SessionTest(tsearch2Opener, RDBMSTest, unittest.TestCase):
     def setUp(self):
         tsearch2Opener.setUp(self)
