@@ -115,23 +115,4 @@ class tsearch2SessionTest(tsearch2Opener, RDBMSTest, unittest.TestCase):
         RDBMSTest.tearDown(self)
         tsearch2Opener.tearDown(self)
 
-def test_suite():
-    suite = unittest.TestSuite()
-    if not have_backend('tsearch2'):
-        print "Skipping tsearch2 tests"
-        return suite
-
-    # make sure we start with a clean slate
-    if tsearch2Opener.module.db_exists(config):
-        tsearch2Opener.module.db_nuke(config, 1)
-
-    # TODO: Check if we can run postgresql tests
-    print 'Including tsearch2 tests'
-    suite.addTest(unittest.makeSuite(tsearch2DBTest))
-    suite.addTest(unittest.makeSuite(tsearch2ROTest))
-    suite.addTest(unittest.makeSuite(tsearch2SchemaTest))
-    suite.addTest(unittest.makeSuite(tsearch2ClassicInitTest))
-    suite.addTest(unittest.makeSuite(tsearch2SessionTest))
-    return suite
-
 # vim: set et sts=4 sw=4 :

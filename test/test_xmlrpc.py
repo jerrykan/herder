@@ -268,16 +268,3 @@ class sqliteXmlrpcTest(XmlrpcTest, unittest.TestCase):
 @skip_postgresql
 class postgresqlXmlrpcTest(XmlrpcTest, unittest.TestCase):
     backend = 'postgresql'
-
-
-def test_suite():
-    suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(anydbmXmlrpcTest))
-    suite.addTest(unittest.makeSuite(mysqlXmlrpcTest))
-    suite.addTest(unittest.makeSuite(sqilteXmlrpcTest))
-    suite.addTest(unittest.makeSuite(postgresqlXmlrpcTest))
-    return suite
-
-if __name__ == '__main__':
-    runner = unittest.TextTestRunner()
-    unittest.main(testRunner=runner)
