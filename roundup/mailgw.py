@@ -1152,7 +1152,7 @@ not find a text/plain part to use.
                     recipients=self.recipients, date=date.Date('.'),
                     summary=summary, content=content,
                     messageid=messageid, inreplyto=inreplyto, **self.msg_props)
-            except exceptions.Reject, error:
+            except exceptions.Reject as error:
                 raise MailUsageError, _("""
 Mail message was rejected by a detector.
 %(error)s
@@ -1196,7 +1196,7 @@ Mail message was rejected by a detector.
                             'property %(prop)s of class %(classname)s.'
                             ) % locals()
                 self.nodeid = self.cl.create(**self.props)
-        except (TypeError, IndexError, ValueError, exceptions.Reject), message:
+        except (TypeError, IndexError, ValueError, exceptions.Reject) as message:
             self.mailgw.logger.exception("Rejecting email due to node creation error:")
             raise MailUsageError, _("""
 There was a problem with the message you sent:
@@ -1373,7 +1373,7 @@ class MailGW:
                 server.login_cram_md5(user, password)
             else:
                 server.login(user, password)
-        except imaplib.IMAP4.error, e:
+        except imaplib.IMAP4.error as e:
             self.logger.exception('IMAP login failure')
             return 1
 
@@ -1388,7 +1388,7 @@ class MailGW:
                 return 1
             try:
                 numMessages = int(data[0])
-            except ValueError, value:
+            except ValueError as value:
                 self.logger.error('Invalid message count from mailbox %r'%
                     data[0])
                 return 1
@@ -1525,7 +1525,7 @@ class MailGW:
             m.append(fulldoc)
             self.mailer.bounce_message(message, [sendto[0][1]], m,
                 subject="Mail Gateway Help")
-        except MailUsageError, value:
+        except MailUsageError as value:
             # bounce the message back to the sender with the usage message
             fulldoc = '\n'.join(string.split(__doc__, '\n')[2:])
             m = ['']
@@ -1536,7 +1536,7 @@ class MailGW:
                 message = self.parsed_message.message
                 crypt = self.parsed_message.crypt
             self.mailer.bounce_message(message, [sendto[0][1]], m, crypt=crypt)
-        except Unauthorized, value:
+        except Unauthorized as value:
             # just inform the user that he is not authorized
             m = ['']
             m.append(str(value))
@@ -1685,7 +1685,7 @@ def setPropArrayFromString(self, cl, propString, nodeid=None):
         # extract the property name and value
         try:
             propname, value = prop.split('=')
-        except ValueError, message:
+        except ValueError as message:
             errors.append(_('not of form [arg=value,value,...;'
                 'arg=value,value,...]'))
             return (errors, props)
@@ -1694,7 +1694,7 @@ def setPropArrayFromString(self, cl, propString, nodeid=None):
         try:
             props[propname] = hyperdb.rawToHyperdb(self.db, cl, nodeid,
                 propname, value)
-        except hyperdb.HyperdbValueError, message:
+        except hyperdb.HyperdbValueError as message:
             errors.append(str(message))
     return errors, props
 

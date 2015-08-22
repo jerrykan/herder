@@ -82,8 +82,9 @@ class Password(_Type):
         if not value:
             return None
         try:
-            return password.Password(encrypted=value, scheme=self.scheme, strict=True)
-        except password.PasswordValueError, message:
+            return password.Password(encrypted=value, scheme=self.scheme,
+                                     strict=True)
+        except password.PasswordValueError as message:
             raise HyperdbValueError, \
                     _('property %s: %s')%(kw['propname'], message)
 
@@ -106,7 +107,7 @@ class Date(_Type):
     def from_raw(self, value, db, **kw):
         try:
             value = date.Date(value, self.offset(db))
-        except ValueError, message:
+        except ValueError as message:
             raise HyperdbValueError, _('property %s: %r is an invalid '\
                 'date (%s)')%(kw['propname'], value, message)
         return value
@@ -123,7 +124,7 @@ class Interval(_Type):
     def from_raw(self, value, **kw):
         try:
             value = date.Interval(value)
-        except ValueError, message:
+        except ValueError as message:
             raise HyperdbValueError, _('property %s: %r is an invalid '\
                 'date interval (%s)')%(kw['propname'], value, message)
         return value
@@ -1433,7 +1434,7 @@ def convertLinkValue(db, propname, prop, value, idre=re.compile('^\d+$')):
         if linkcl.getkey():
             try:
                 value = linkcl.lookup(value)
-            except KeyError, message:
+            except KeyError as message:
                 raise HyperdbValueError, _('property %s: %r is not a %s.')%(
                     propname, value, prop.classname)
         else:
@@ -1568,7 +1569,7 @@ class Node:
             return self.__dict__[name]
         try:
             return self.cl.get(self.nodeid, name)
-        except KeyError, value:
+        except KeyError as value:
             # we trap this but re-raise it as AttributeError - all other
             # exceptions should pass through untrapped
             pass
@@ -1579,7 +1580,7 @@ class Node:
     def __setattr__(self, name, value):
         try:
             return self.cl.set(self.nodeid, **{name: value})
-        except KeyError, value:
+        except KeyError as value:
             raise AttributeError, str(value)
     def __setitem__(self, name, value):
         self.cl.set(self.nodeid, **{name: value})

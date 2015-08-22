@@ -544,7 +544,7 @@ Erase it? Y/N: """))
             # decode the node designator
             try:
                 classname, nodeid = hyperdb.splitDesignator(designator)
-            except hyperdb.DesignatorError, message:
+            except hyperdb.DesignatorError as message:
                 raise UsageError(message)
 
             # get the class
@@ -640,7 +640,7 @@ Erase it? Y/N: """))
         else:
             try:
                 designators = [hyperdb.splitDesignator(x) for x in designators]
-            except hyperdb.DesignatorError, message:
+            except hyperdb.DesignatorError as message:
                 raise UsageError(message)
 
         # get the props from the args
@@ -661,13 +661,13 @@ Erase it? Y/N: """))
                     # designators if not reinitalized.
                     props[key] = hyperdb.rawToHyperdb(self.db, cl, itemid,
                         key, value)
-                except hyperdb.HyperdbValueError, message:
+                except hyperdb.HyperdbValueError as message:
                     raise UsageError(message)
 
             # try the set
             try:
                 cl.set(itemid, **props)
-            except (TypeError, IndexError, ValueError), message:
+            except (TypeError, IndexError, ValueError) as message:
                 import traceback; traceback.print_exc()
                 raise UsageError(message)
         self.db_uncommitted = True
@@ -729,7 +729,7 @@ Erase it? Y/N: """))
         except KeyError:
             raise UsageError(_('%(classname)s has no property '
                 '"%(propname)s"')%locals())
-        except (ValueError, TypeError), message:
+        except (ValueError, TypeError) as message:
             raise UsageError(message)
         return 0
 
@@ -771,7 +771,7 @@ Erase it? Y/N: """))
         for designator in args[0].split(','):
             try:
                 classname, nodeid = hyperdb.splitDesignator(designator)
-            except hyperdb.DesignatorError, message:
+            except hyperdb.DesignatorError as message:
                 raise UsageError(message)
 
             # get the class
@@ -832,7 +832,7 @@ Erase it? Y/N: """))
             try:
                 props[propname] = hyperdb.rawToHyperdb(self.db, cl, None,
                     propname, props[propname])
-            except hyperdb.HyperdbValueError, message:
+            except hyperdb.HyperdbValueError as message:
                 raise UsageError(message)
 
         # check for the key property
@@ -844,7 +844,7 @@ Erase it? Y/N: """))
         # do the actual create
         try:
             sys.stdout.write(cl.create(**props) + '\n')
-        except (TypeError, IndexError, ValueError), message:
+        except (TypeError, IndexError, ValueError) as message:
             raise UsageError(message)
         self.db_uncommitted = True
         return 0
@@ -1010,7 +1010,7 @@ Erase it? Y/N: """))
             raise UsageError(_('Not enough arguments supplied'))
         try:
             classname, nodeid = hyperdb.splitDesignator(args[0])
-        except hyperdb.DesignatorError, message:
+        except hyperdb.DesignatorError as message:
             raise UsageError(message)
 
         try:
@@ -1066,7 +1066,7 @@ Erase it? Y/N: """))
         for designator in designators:
             try:
                 classname, nodeid = hyperdb.splitDesignator(designator)
-            except hyperdb.DesignatorError, message:
+            except hyperdb.DesignatorError as message:
                 raise UsageError(message)
             try:
                 self.db.getclass(classname).retire(nodeid)
@@ -1093,7 +1093,7 @@ Erase it? Y/N: """))
         for designator in designators:
             try:
                 classname, nodeid = hyperdb.splitDesignator(designator)
-            except hyperdb.DesignatorError, message:
+            except hyperdb.DesignatorError as message:
                 raise UsageError(message)
             try:
                 self.db.getclass(classname).restore(nodeid)
@@ -1473,20 +1473,20 @@ Erase it? Y/N: """))
         if command == 'initialise':
             try:
                 return self.do_initialise(self.tracker_home, args)
-            except UsageError, message:
+            except UsageError as message:
                 print _('Error: %(message)s')%locals()
                 return 1
         elif command == 'install':
             try:
                 return self.do_install(self.tracker_home, args)
-            except UsageError, message:
+            except UsageError as message:
                 print _('Error: %(message)s')%locals()
                 return 1
 
         # get the tracker
         try:
             tracker = roundup.instance.open(self.tracker_home)
-        except ValueError, message:
+        except ValueError as message:
             self.tracker_home = ''
             print _("Error: Couldn't open tracker: %(message)s")%locals()
             return 1
@@ -1501,7 +1501,7 @@ Erase it? Y/N: """))
         ret = 0
         try:
             ret = function(args[1:])
-        except UsageError, message:
+        except UsageError as message:
             print _('Error: %(message)s')%locals()
             print
             print function.__doc__
@@ -1544,7 +1544,7 @@ Erase it? Y/N: """))
     def main(self):
         try:
             opts, args = getopt.getopt(sys.argv[1:], 'i:u:hcdsS:vV')
-        except getopt.GetoptError, e:
+        except getopt.GetoptError as e:
             self.usage(str(e))
             return 1
 

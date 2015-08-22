@@ -78,7 +78,7 @@ def install_demo(home, backend, template):
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         try:
             s.connect((hostname, port))
-        except socket.error, e:
+        except socket.error as e:
             if not hasattr(e, 'args') or e.args[0] != errno.ECONNREFUSED:
                 raise
             print 'should be ok.'
@@ -171,7 +171,7 @@ def main():
 
     try:
         opts, args = getopt.getopt(sys.argv[1:], 't:b:h')
-    except getopt.GetoptError, e:
+    except getopt.GetoptError as e:
         usage(str(e))
         return 1
     for opt, arg in opts:

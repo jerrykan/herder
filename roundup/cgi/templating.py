@@ -151,7 +151,7 @@ class TALLoaderBase(LoaderBase):
         """Special method to access templates by loader['name']"""
         try:
             return self.load(name)
-        except NoTemplate, message:
+        except NoTemplate as message:
             raise KeyError, message
 
 class MultiLoader(LoaderBase):
@@ -176,7 +176,7 @@ class MultiLoader(LoaderBase):
         # [ ] document root and helper templates
         try:
             return self.load(name)
-        except NoTemplate, message:
+        except NoTemplate as message:
             raise KeyError, message
         
 
