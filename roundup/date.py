@@ -1209,31 +1209,31 @@ def test_range():
         "2002-11-10; 2002-12-12", "; 20:00 +1d", '2002-10-12')
     rispecs = ('from -1w 2d 4:32 to 4d', '-2w 1d')
     for rspec in rspecs:
-        print '>>> Range("%s")' % rspec
-        print repr(Range(rspec, Date))
-        print
+        print('>>> Range("%s")' % rspec)
+        print(repr(Range(rspec, Date)))
+        print()
     for rspec in rispecs:
-        print '>>> Range("%s")' % rspec
-        print repr(Range(rspec, Interval))
-        print
+        print('>>> Range("%s")' % rspec)
+        print(repr(Range(rspec, Interval)))
+        print()
 
 
 def test():
     intervals = ("  3w  1  d  2:00", " + 2d", "3w")
     for interval in intervals:
-        print '>>> Interval("%s")'%interval
-        print repr(Interval(interval))
+        print('>>> Interval("%s")' % interval)
+        print(repr(Interval(interval)))
 
     dates = (".", "2000-06-25.19:34:02", ". + 2d", "1997-04-17", "01-25",
         "08-13.22:13", "14:25", '2002-12')
     for date in dates:
-        print '>>> Date("%s")'%date
-        print repr(Date(date))
+        print('>>> Date("%s")' % date)
+        print(repr(Date(date)))
 
     sums = ((". + 2d", "3w"), (".", "  3w  1  d  2:00"))
     for date, interval in sums:
-        print '>>> Date("%s") + Interval("%s")'%(date, interval)
-        print repr(Date(date) + Interval(interval))
+        print('>>> Date("%s") + Interval("%s")' % (date, interval))
+        print(repr(Date(date) + Interval(interval)))
 
 if __name__ == '__main__':
     test()

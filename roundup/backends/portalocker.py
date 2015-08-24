@@ -151,7 +151,7 @@ if __name__ == '__main__':
     timestamp = strftime("%m/%d/%Y %H:%M:%S\n", localtime(time()))
     log.write( timestamp )
 
-    print "Wrote lines. Hit enter to release lock."
+    print("Wrote lines. Hit enter to release lock.")
     dummy = sys.stdin.readline()
 
     log.close()

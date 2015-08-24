@@ -1354,7 +1354,7 @@ class MailGW:
                 password = getpass.getpass()
         except (KeyboardInterrupt, EOFError):
             # Ctrl C or D maybe also Ctrl Z under Windows.
-            print "\nAborted by user."
+            print("\nAborted by user.")
             return 1
         # open a connection to the server and retrieve all messages
         try:
@@ -1434,7 +1434,7 @@ class MailGW:
                 password = getpass.getpass()
         except (KeyboardInterrupt, EOFError):
             # Ctrl C or D maybe also Ctrl Z under Windows.
-            print "\nAborted by user."
+            print("\nAborted by user.")
             return 1
 
         # open a connection to the server and retrieve all messages

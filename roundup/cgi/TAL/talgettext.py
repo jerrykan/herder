@@ -253,7 +253,7 @@ def main():
             engine = UpdatePOEngine(filename=arg)
 
     if not args:
-        print 'nothing to do'
+        print('nothing to do')
         return
 
     # We don't care about the rendered output of the .pt file

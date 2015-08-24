@@ -26,7 +26,7 @@ def check_manifest():
     try:
         f = open('MANIFEST')
     except:
-        print '\n*** SOURCE WARNING: The MANIFEST file is missing!'
+        print('\n*** SOURCE WARNING: The MANIFEST file is missing!')
         return
     try:
         manifest = [l.strip() for l in f.readlines()]
@@ -38,8 +38,8 @@ def check_manifest():
         'roundup-mailgw', 'roundup-server', 'roundup-xmlrpc-server'])
     if err:
         n = len(manifest)
-        print '\n*** SOURCE WARNING: There are files missing (%d/%d found)!'%(
-            n-len(err), n)
+        print('\n*** SOURCE WARNING: There are files missing (%d/%d found)!' %
+              (n-len(err), n))
         print 'Missing:', '\nMissing: '.join(err)
 
 def build_message_files(command):

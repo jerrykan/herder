@@ -132,9 +132,8 @@ def loadTemplateInfo(path):
         return None
 
     if os.path.exists(os.path.join(path, 'config.py')):
-        print _("WARNING: directory '%s'\n"
-            "\tcontains old-style template - ignored"
-            ) % os.path.abspath(path)
+        print(_("WARNING: directory '%s'\n\tcontains old-style template " +
+                "- ignored") % os.path.abspath(path))
         return None
 
     # load up the template's information

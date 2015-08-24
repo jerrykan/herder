@@ -51,11 +51,11 @@ def install_demo(home, backend, template):
         if os.path.exists(home + '/config.ini'):
             # clear everything out to avoid conflicts with former
             # extensions and detectors
-            print "Nuking directory left from the previous demo instance."
+            print("Nuking directory left from the previous demo instance.")
             shutil.rmtree(home)
         else:
-            print "Error: Refusing to nuke non-tracker directory:"
-            print "    %s" % home
+            print("Error: Refusing to nuke non-tracker directory:")
+            print("    %s" % home)
             sys.exit(1)
 
     template_dir = os.path.join('share', 'roundup', 'templates', template)
@@ -81,11 +81,11 @@ def install_demo(home, backend, template):
         except socket.error as e:
             if not hasattr(e, 'args') or e.args[0] != errno.ECONNREFUSED:
                 raise
-            print 'should be ok.'
+            print('should be ok.')
             break
         else:
             s.close()
-            print 'already in use.'
+            print('already in use.')
             port += 100
     config['TRACKER_WEB'] = 'http://%s:%s/demo/'%(hostname, port)
 
@@ -143,10 +143,10 @@ then restart demo. If you want to change backend types, you must use "nuke".
     roundup_server.run(success_message=success_message)
 
 
-def usage(msg = ''):
+def usage(msg=''):
     if msg:
-        print msg
-    print """\
+        print(msg)
+    print("""\
 Usage: %(script)s [options] [nuke]
 
  Run a demo server. Config and database files are created in
@@ -160,7 +160,7 @@ Options:
  -h                -- print this help message
  -t template       -- specify the tracker template to use
  -b backend        -- specify the database backend to use
-""" % dict(script=sys.argv[0], datadir=TRACKER_HOME+os.sep)
+""" % dict(script=sys.argv[0], datadir=(TRACKER_HOME + os.sep)))
 
 
 def main():
@@ -194,11 +194,12 @@ def main():
             usage()
             return 1
 
-        print "Initializing demo instance in:\n    %s" % home
+        print("Initializing demo instance in:\n    %s" % home)
         install_demo(home, backend, template)
     elif opts:
-        print "Error: Arguments are not allowed when running an existing demo."
-        print "       Use the 'nuke' command to start over."
+        print("Error: Arguments are not allowed when running an existing " +
+              "demo.")
+        print("       Use the 'nuke' command to start over.")
         sys.exit(1)
 
     run_demo(home)

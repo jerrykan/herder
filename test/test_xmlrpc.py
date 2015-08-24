@@ -161,7 +161,7 @@ class XmlrpcTest(object):
         # test a bogus action
         with self.assertRaises(Exception) as cm:
             self.server.action('bogus')
-        print cm.exception
+        print(cm.exception)
         self.assertEqual(cm.exception.message,
                          'action "bogus" is not supported ')
 

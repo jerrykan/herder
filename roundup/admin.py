@@ -155,21 +155,21 @@ matches only one command, e.g. l == li == lis == list."""))
             h = _(command.__doc__).split('\n')
             name = command.__name__[3:]
             usage = h[0]
-            print """
+            print("""
 <tr><td valign=top><strong>%(name)s</strong></td>
     <td><tt>%(usage)s</tt><p>
-<pre>""" % locals()
+<pre>""" % locals())
             indent = indent_re.match(h[3])
             if indent: indent = len(indent.group(1))
             for line in h[3:]:
                 if indent:
-                    print line[indent:]
+                    print(line[indent:])
                 else:
-                    print line
-            print '</pre></td></tr>\n'
+                    print(line)
+            print('</pre></td></tr>\n')
 
     def help_all(self):
-        print _("""
+        print(_("""
 All commands (except help) require a tracker specifier. This is just
 the path to the roundup tracker you're working with. A roundup tracker
 is where roundup keeps the database and configuration file that defines
@@ -230,9 +230,9 @@ Date format examples:
   "." means "right now"
 
 Command help:
-""")
+"""))
         for name, command in self.commands.items():
-            print _('%s:')%name
+            print(_('%s:') % name)
             print '   ', _(command.__doc__)
 
     def do_help(self, args, nl_re=re.compile('[\r\n]'),
@@ -260,20 +260,20 @@ Command help:
         try:
             l = self.commands.get(topic)
         except KeyError:
-            print _('Sorry, no help for "%(topic)s"')%locals()
+            print(_('Sorry, no help for "%(topic)s"') % locals())
             return 1
 
         # display the help for each match, removing the docsring indent
         for name, help in l:
             lines = nl_re.split(_(help.__doc__))
-            print lines[0]
+            print(lines[0])
             indent = indent_re.match(lines[1])
             if indent: indent = len(indent.group(1))
             for line in lines[1:]:
                 if indent:
-                    print line[indent:]
+                    print(line[indent:])
                 else:
-                    print line
+                    print(line)
         return 0
 
     def listTemplates(self):
@@ -415,7 +415,7 @@ Erase it? Y/N: """) % locals())
             try:
                 defns = dict([item.split("=") for item in args[3].split(",")])
             except:
-                print _('Error in configuration settings: "%s"') % args[3]
+                print(_('Error in configuration settings: "%s"') % args[3])
                 raise
         else:
             defns = {}
@@ -424,22 +424,22 @@ Erase it? Y/N: """) % locals())
         # install!
         init.install(tracker_home, templates[template]['path'], settings=defns)
 
-        print _("""
+        print(_("""
 ---------------------------------------------------------------------------
  You should now edit the tracker configuration file:
-   %(config_file)s""") % {"config_file": config_ini_file}
+   %(config_file)s""") % {"config_file": config_ini_file})
 
         # find list of options that need manual adjustments
         # XXX config._get_unset_options() is marked as private
         #   (leading underscore).  make it public or don't care?
         need_set = CoreConfig(tracker_home)._get_unset_options()
         if need_set:
-            print _(" ... at a minimum, you must set following options:")
+            print(_(" ... at a minimum, you must set following options:"))
             for section in need_set:
-                print "   [%s]: %s" % (section, ", ".join(need_set[section]))
+                print("   [%s]: %s" % (section, ", ".join(need_set[section])))
 
         # note about schema modifications
-        print _("""
+        print(_("""
  If you wish to modify the database schema,
  you should also edit the schema file:
    %(database_config_file)s
@@ -453,7 +453,7 @@ Erase it? Y/N: """) % locals())
 """) % {
     'database_config_file': os.path.join(tracker_home, 'schema.py'),
     'database_init_file': os.path.join(tracker_home, 'initial_data.py'),
-}
+})
         return 0
 
     def _get_choice(self, list_name, prompt, options, argument, default=None):
@@ -592,9 +592,9 @@ Erase it? Y/N: """))
                         propclassname = self.db.getclass(property.classname).classname
                         id = cl.get(nodeid, propname)
                         for i in id:
-                            print propclassname + i
+                            print(propclassname + i)
                     else:
-                        print cl.get(nodeid, propname)
+                        print(cl.get(nodeid, propname))
             except IndexError:
                 raise UsageError(_('no such %(classname)s node '
                     '"%(nodeid)s"')%locals())
@@ -602,7 +602,7 @@ Erase it? Y/N: """))
                 raise UsageError(_('no such %(classname)s property '
                     '"%(propname)s"')%locals())
         if self.separator:
-            print self.separator.join(l)
+            print(self.separator.join(l))
 
         return 0
 
@@ -714,18 +714,18 @@ Erase it? Y/N: """))
                     id = cl.find(**props)
                     for i in id:
                         designator.append(classname + i)
-                    print self.separator.join(designator)
+                    print(self.separator.join(designator))
                 else:
-                    print self.separator.join(cl.find(**props))
+                    print(self.separator.join(cl.find(**props)))
 
             else:
                 if self.print_designator:
                     id = cl.find(**props)
                     for i in id:
                         designator.append(classname + i)
-                    print designator
+                    print(designator)
                 else:
-                    print cl.find(**props)
+                    print(cl.find(**props))
         except KeyError:
             raise UsageError(_('%(classname)s has no property '
                 '"%(propname)s"')%locals())
@@ -781,7 +781,7 @@ Erase it? Y/N: """))
             keys = sorted(cl.properties)
             for key in keys:
                 value = cl.get(nodeid, key)
-                print _('%(key)s: %(value)s')%locals()
+                print(_('%(key)s: %(value)s') % locals())
 
     def do_create(self, args):
         ''"""Usage: create classname property=value ...
@@ -816,7 +816,8 @@ Erase it? Y/N: """))
                             'propname': key.capitalize()})
                         again = getpass.getpass(_('   %(propname)s (Again): ')%{
                             'propname': key.capitalize()})
-                        if value != again: print _('Sorry, try again...')
+                        if value != again:
+                            print(_('Sorry, try again...'))
                     if value:
                         props[key] = value
                 else:
@@ -887,11 +888,11 @@ Erase it? Y/N: """))
                     except KeyError:
                         raise UsageError(_('%(classname)s has no property '
                             '"%(propname)s"')%locals())
-                print self.separator.join(proplist)
+                print(self.separator.join(proplist))
             else:
                 # create a list of index id's since user didn't specify
                 # otherwise
-                print self.separator.join(cl.list())
+                print(self.separator.join(cl.list()))
         else:
             for nodeid in cl.list():
                 try:
@@ -899,7 +900,7 @@ Erase it? Y/N: """))
                 except KeyError:
                     raise UsageError(_('%(classname)s has no property '
                         '"%(propname)s"')%locals())
-                print _('%(nodeid)4s: %(value)s')%locals()
+                print(_('%(nodeid)4s: %(value)s') % locals())
         return 0
 
     def do_table(self, args):
@@ -976,7 +977,8 @@ Erase it? Y/N: """))
                props.append((spec, maxlen))
 
         # now display the heading
-        print ' '.join([name.capitalize().ljust(width) for name,width in props])
+        print(' '.join([
+            name.capitalize().ljust(width) for name, width in props]))
 
         # and the table data
         for nodeid in cl.list():
@@ -994,7 +996,7 @@ Erase it? Y/N: """))
                     value = str(nodeid)
                 f = '%%-%ds'%width
                 l.append(f%value[:width])
-            print ' '.join(l)
+            print(' '.join(l))
         return 0
 
     def do_history(self, args):
@@ -1014,7 +1016,7 @@ Erase it? Y/N: """))
             raise UsageError(message)
 
         try:
-            print self.db.getclass(classname).history(nodeid)
+            print(self.db.getclass(classname).history(nodeid))
         except KeyError:
             raise UsageError(_('no such class "%(classname)s"')%locals())
         except IndexError:
@@ -1419,10 +1421,10 @@ Erase it? Y/N: """))
         the habit.
         """
         if getattr(self.db, 'db_version_updated'):
-            print _('Tracker updated')
+            print(_('Tracker updated'))
             self.db_uncommitted = True
         else:
-            print _('No migration action required')
+            print(_('No migration action required'))
         return 0
 
     def run_command(self, args):
@@ -1451,14 +1453,16 @@ Erase it? Y/N: """))
             functions = self.commands.get(command)
         except KeyError:
             # not a valid command
-            print _('Unknown command "%(command)s" ("help commands" for a '
-                'list)')%locals()
+            print(_('Unknown command "%(command)s" ("help commands" for a '
+                    'list)') % locals())
             return 1
 
         # check for multiple matches
         if len(functions) > 1:
-            print _('Multiple commands match "%(command)s": %(list)s')%{'command':
-                command, 'list': ', '.join([i[0] for i in functions])}
+            print(_('Multiple commands match "%(command)s": %(list)s') % {
+                'command': command,
+                'list': ', '.join([i[0] for i in functions]),
+            })
             return 1
         command, function = functions[0]
 
@@ -1474,13 +1478,13 @@ Erase it? Y/N: """))
             try:
                 return self.do_initialise(self.tracker_home, args)
             except UsageError as message:
-                print _('Error: %(message)s')%locals()
+                print(_('Error: %(message)s') % locals())
                 return 1
         elif command == 'install':
             try:
                 return self.do_install(self.tracker_home, args)
             except UsageError as message:
-                print _('Error: %(message)s')%locals()
+                print(_('Error: %(message)s') % locals())
                 return 1
 
         # get the tracker
@@ -1488,7 +1492,7 @@ Erase it? Y/N: """))
             tracker = roundup.instance.open(self.tracker_home)
         except ValueError as message:
             self.tracker_home = ''
-            print _("Error: Couldn't open tracker: %(message)s")%locals()
+            print(_("Error: Couldn't open tracker: %(message)s") % locals())
             return 1
 
         # only open the database once!
@@ -1502,9 +1506,8 @@ Erase it? Y/N: """))
         try:
             ret = function(args[1:])
         except UsageError as message:
-            print _('Error: %(message)s')%locals()
-            print
-            print function.__doc__
+            print(_('Error: %(message)s') % locals(), end='\n\n')
+            print(function.__doc__)
             ret = 1
         except:
             import traceback
@@ -1515,18 +1518,18 @@ Erase it? Y/N: """))
     def interactive(self):
         """Run in an interactive mode
         """
-        print _('Roundup %s ready for input.\nType "help" for help.'
-            % roundup_version)
+        print(_('Roundup %s ready for input.\nType "help" for help.' %
+                roundup_version))
         try:
             import readline
         except ImportError:
-            print _('Note: command history and editing not available')
+            print(_('Note: command history and editing not available'))
 
         while 1:
             try:
                 command = raw_input(_('roundup> '))
             except EOFError:
-                print _('exit...')
+                print(_('exit...'))
                 break
             if not command: continue
             args = token.token_split(command)
@@ -1565,7 +1568,8 @@ Erase it? Y/N: """))
                 self.usage()
                 return 0
             elif opt == '-v':
-                print '%s (python %s)'%(roundup_version, sys.version.split()[0])
+                print('%s (python %s)' % (
+                    roundup_version, sys.version.split()[0]))
                 return 0
             elif opt == '-V':
                 self.verbose = 1
