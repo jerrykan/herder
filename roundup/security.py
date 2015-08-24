@@ -165,13 +165,13 @@ class Security:
             Raise ValueError if there is no exact match.
         '''
         if permission not in self.permission:
-            raise ValueError, 'No permission "%s" defined'%permission
+            raise ValueError('No permission "%s" defined' % permission)
 
         if classname:
             try:
                 self.db.getclass(classname)
             except KeyError:
-                raise ValueError, 'No class "%s" defined'%classname
+                raise ValueError('No class "%s" defined' % classname)
 
         # look through all the permissions of the given name
         tester = Permission(permission, klass=classname, properties=properties,
@@ -179,8 +179,8 @@ class Security:
         for perm in self.permission[permission]:
             if perm == tester:
                 return perm
-        raise ValueError, 'No permission "%s" defined for "%s"'%(permission,
-            classname)
+        raise ValueError('No permission "%s" defined for "%s"' % (
+            permission, classname))
 
     def hasPermission(self, permission, userid, classname=None,
             property=None, itemid=None):
@@ -205,7 +205,7 @@ class Security:
            Permission.test() method.
         '''
         if itemid and classname is None:
-            raise ValueError, 'classname must accompany itemid'
+            raise ValueError('classname must accompany itemid')
         for rolename in self.db.user.get_roles(userid):
             if not rolename or (rolename not in self.role):
                 continue

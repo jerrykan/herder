@@ -44,7 +44,7 @@ class ShowActionTestCase(ActionTestCase):
                 excName = exception.__name__
             else:
                 excName = str(exception)
-            raise self.failureException, excName
+            raise self.failureException(excName)
 
     def testShowAction(self):
         self.client.base = 'BASE/'

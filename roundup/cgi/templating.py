@@ -152,7 +152,8 @@ class TALLoaderBase(LoaderBase):
         try:
             return self.load(name)
         except NoTemplate as message:
-            raise KeyError, message
+            raise KeyError(message)
+
 
 class MultiLoader(LoaderBase):
     def __init__(self):
@@ -177,7 +178,7 @@ class MultiLoader(LoaderBase):
         try:
             return self.load(name)
         except NoTemplate as message:
-            raise KeyError, message
+            raise KeyError(message)
         
 
 class TemplateBase:
@@ -325,7 +326,7 @@ class HTMLDatabase:
         try:
             return self[attr]
         except KeyError:
-            raise AttributeError, attr
+            raise AttributeError(attr)
 
     def classes(self):
         l = self._client.db.classes.keys()
@@ -515,7 +516,8 @@ class HTMLClass(HTMLInputMixin, HTMLPermissions):
         try:
             prop = self._props[item]
         except KeyError:
-            raise KeyError, 'No such property "%s" on %s'%(item, self.classname)
+            raise KeyError('No such property "%s" on %s' % (
+                item, self.classname))
 
         # look up the correct HTMLProperty class
         for klass, htmlklass in propclasses:
@@ -526,14 +528,14 @@ class HTMLClass(HTMLInputMixin, HTMLPermissions):
                 value, self._anonymous)
 
         # no good
-        raise KeyError, item
+        raise KeyError(item)
 
     def __getattr__(self, attr):
         """ convenience access """
         try:
             return self[attr]
         except KeyError:
-            raise AttributeError, attr
+            raise AttributeError(attr)
 
     def designator(self):
         """ Return this class' designator (classname) """
@@ -817,7 +819,7 @@ class _HTMLItem(HTMLInputMixin, HTMLPermissions):
         prop = self._props[items[0]]
 
         if has_rest and not isinstance(prop, (hyperdb.Link, hyperdb.Multilink)):
-            raise KeyError, item
+            raise KeyError(item)
 
         # get the value, handling missing values
         value = None
@@ -840,14 +842,14 @@ class _HTMLItem(HTMLInputMixin, HTMLPermissions):
                 return htmlprop[items[1]]
             return htmlprop
 
-        raise KeyError, item
+        raise KeyError(item)
 
     def __getattr__(self, attr):
         """ convenience access to properties """
         try:
             return self[attr]
         except KeyError:
-            raise AttributeError, attr
+            raise AttributeError(attr)
 
     def designator(self):
         """Return this item's designator (classname + id)."""
@@ -898,7 +900,7 @@ class _HTMLItem(HTMLInputMixin, HTMLPermissions):
                 try:
                     template = self._client.selectTemplate(classname, 'item')
                     if template.startswith('_generic.'):
-                        raise NoTemplate, 'not really...'
+                        raise NoTemplate('not really...')
                 except NoTemplate:
                     pass
                 else:
@@ -970,7 +972,7 @@ class _HTMLItem(HTMLInputMixin, HTMLPermissions):
                             template = self._client.selectTemplate(classname,
                                'item')
                             if template.startswith('_generic.'):
-                                raise NoTemplate, 'not really...'
+                                raise NoTemplate('not really...')
                             hrefable = 1
                         except NoTemplate:
                             hrefable = 0
@@ -1822,9 +1824,10 @@ class DateHTMLProperty(HTMLProperty):
                 elif isinstance(default, DateHTMLProperty):
                     raw_value = default._value
                 else:
-                    raise ValueError, self._('default value for '
-                        'DateHTMLProperty must be either DateHTMLProperty '
-                        'or string date representation.')
+                    raise ValueError(self._(
+                        'default value for ' +
+                        'DateHTMLProperty must be either DateHTMLProperty ' +
+                        'or string date representation.'))
         elif isinstance(value, str) or isinstance(value, unicode):
             # most likely erroneous input to be passed back to user
             if isinstance(value, unicode): value = value.encode('utf8')
@@ -2209,7 +2212,7 @@ class MultilinkHTMLProperty(HTMLProperty):
 
     def __getattr__(self, attr):
         """ no extended attribute accesses make sense here """
-        raise AttributeError, attr
+        raise AttributeError(attr)
 
     def viewableGenerator(self, values):
         """Used to iterate over only the View'able items in a class."""
@@ -2936,11 +2939,12 @@ class Batch(ZTUtils.Batch):
     # overwrite so we can late-instantiate the HTMLItem instance
     def __getitem__(self, index):
         if index < 0:
-            if index + self.end < self.first: raise IndexError, index
+            if index + self.end < self.first:
+                raise IndexError(index)
             return self._sequence[index + self.end]
 
         if index >= self.length:
-            raise IndexError, index
+            raise IndexError(index)
 
         # move the last_item along - but only if the fetched index changes
         # (for some reason, index 0 is fetched twice)
@@ -3012,9 +3016,9 @@ class TemplatingUtils:
         """Try the tracker's templating_utils."""
         if not hasattr(self.client.instance, 'templating_utils'):
             # backwards-compatibility
-            raise AttributeError, name
+            raise AttributeError(name)
         if not self.client.instance.templating_utils.has_key(name):
-            raise AttributeError, name
+            raise AttributeError(name)
         return self.client.instance.templating_utils[name]
 
     def keywords_expressions(self, request):

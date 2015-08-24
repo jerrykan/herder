@@ -141,9 +141,10 @@ def get_timezone(tz):
     elif tz in _tzoffsets:
         return SimpleTimezone(_tzoffsets[tz], tz)
     else:
-        raise KeyError, tz
+        raise KeyError(tz)
 
-def _utc_to_local(y,m,d,H,M,S,tz):
+
+def _utc_to_local(y, m, d, H, M, S, tz):
     TZ = get_timezone(tz)
     S = min(S, 59.999)
     frac = S - int(S)
@@ -348,7 +349,7 @@ class Date:
             # making sure we match the precision of serialise()
             self.second = min(self.second, 59.999)
         except:
-            raise ValueError, 'Unknown spec %r' % (spec,)
+            raise ValueError('Unknown spec %r' % (spec,))
 
     def now(self):
         """ To be able to override for testing
@@ -372,9 +373,10 @@ class Date:
         # not serialised data, try usual format
         m = date_re.match(spec)
         if m is None:
-            raise ValueError, self._('Not a date spec: %r '
+            raise ValueError(self._(
+                'Not a date spec: %r '
                 '("yyyy-mm-dd", "mm-dd", "HH:MM", "HH:MM:SS" or '
-                '"yyyy-mm-dd.HH:MM:SS.SSS")' % spec)
+                '"yyyy-mm-dd.HH:MM:SS.SSS")' % spec))
 
         info = m.groupdict()
 
@@ -447,9 +449,10 @@ class Date:
             try:
                 self.applyInterval(Interval(info['o'], allowdate=0))
             except ValueError:
-                raise ValueError, self._('%r not a date / time spec '
-                    '"yyyy-mm-dd", "mm-dd", "HH:MM", "HH:MM:SS" or '
-                    '"yyyy-mm-dd.HH:MM:SS.SSS"')%(spec,)
+                raise ValueError(self._(
+                    '%r not a date / time spec ' +
+                    '"yyyy-mm-dd", "mm-dd", "HH:MM", "HH:MM:SS" or ' +
+                    '"yyyy-mm-dd.HH:MM:SS.SSS"') % spec)
 
         if info.get('tz', None):
             tz     = info ['tz'].strip ()
@@ -783,9 +786,10 @@ class Interval:
         if not m:
             m = interval_re.match(spec)
             if not m:
-                raise ValueError, self._('Not an interval spec: "%s"'
+                raise ValueError(self._(
+                    'Not an interval spec: "%s"'
                     ' ([+-] [#y] [#m] [#w] [#d] [[[H]H:MM]:SS] [date spec])'
-                    % spec)
+                    % spec))
         else:
             allowdate = 0
 
@@ -806,9 +810,10 @@ class Interval:
 
         # make sure it's valid
         if not valid and not info['D']:
-            raise ValueError, self._('Not an interval spec: "%s"'
+            raise ValueError(self._(
+                'Not an interval spec: "%s"'
                 ' ([+-] [#y] [#m] [#w] [#d] [[[H]H:MM]:SS])'
-                % spec)
+                % spec))
 
         if self.week:
             self.day = self.day + self.week*7
@@ -866,7 +871,7 @@ class Interval:
             i = fixTimeOverflow(i)
             return Interval(i, translator=self.translator)
         # nope, no idea what to do with this other...
-        raise TypeError, "Can't add %r"%other
+        raise TypeError("Can't add %r" % other)
 
     def __sub__(self, other):
         if isinstance(other, Date):
@@ -886,7 +891,7 @@ class Interval:
             i = fixTimeOverflow(i)
             return Interval(i, translator=self.translator)
         # nope, no idea what to do with this other...
-        raise TypeError, "Can't add %r"%other
+        raise TypeError("Can't add %r" % other)
 
     def __div__(self, other):
         """ Divide this interval by an int value.
@@ -897,13 +902,13 @@ class Interval:
         try:
             other = float(other)
         except TypeError:
-            raise ValueError, "Can only divide Intervals by numbers"
+            raise ValueError("Can only divide Intervals by numbers")
 
         y, m, d, H, M, S = (self.year, self.month, self.day,
             self.hour, self.minute, self.second)
         if y or m:
             if d or H or M or S:
-                raise ValueError, "Can't divide Interval with date and time"
+                raise ValueError("Can't divide Interval with date and time")
             months = self.year*12 + self.month
             months *= self.sign
 
@@ -1191,7 +1196,7 @@ class Range:
                 self.from_value = Type(spec, **params)
                 self.to_value = Type(spec, add_granularity=True, **params)
             else:
-                raise ValueError, "Invalid range"
+                raise ValueError("Invalid range")
 
     def __str__(self):
         return "from %s to %s" % (self.from_value, self.to_value)

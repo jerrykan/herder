@@ -286,8 +286,9 @@ class FormParser:
                 for entry in self.extractFormList(form[key]):
                     m = self.FV_DESIGNATOR.match(entry)
                     if not m:
-                        raise FormError (self._('link "%(key)s" '
-                            'value "%(entry)s" not a designator') % locals())
+                        raise FormError(self._(
+                            'link "%(key)s" value "%(entry)s" not a designator'
+                        ) % locals())
                     value.append((m.group(1), m.group(2)))
 
                     # get details of linked class
@@ -304,9 +305,12 @@ class FormParser:
                 # make sure the link property is valid
                 if (not isinstance(propdef[propname], hyperdb.Multilink) and
                         not isinstance(propdef[propname], hyperdb.Link)):
-                    raise FormError (self._('%(class)s %(property)s '
+                    raise FormError(self._('%(class)s %(property)s '
                         'is not a link or multilink property') % {
-                        'class':cn, 'property':propname})
+                            'class': cn,
+                            'property': propname,
+                        }
+                    )
 
                 all_links.append((cn, nodeid, propname, value))
                 continue
@@ -316,10 +320,12 @@ class FormParser:
                 for entry in self.extractFormList(form[key]):
                     m = self.FV_SPECIAL.match(entry)
                     if not m:
-                        raise FormError (self._('The form action claims to '
+                        raise FormError(self._('The form action claims to '
                             'require property "%(property)s" '
                             'which doesn\'t exist') % {
-                            'property':propname})
+                                'property': propname,
+                            }
+                        )
                     if m.group('classname'):
                         this = (m.group('classname'), m.group('id'))
                         entry = m.group('propname')
@@ -338,10 +344,13 @@ class FormParser:
             # does the property exist?
             if not propdef.has_key(propname):
                 if mlaction != 'set':
-                    raise FormError (self._('You have submitted a %(action)s '
+                    raise FormError(self._('You have submitted a %(action)s '
                         'action for the property "%(property)s" '
                         'which doesn\'t exist') % {
-                        'action': mlaction, 'property':propname})
+                            'action': mlaction,
+                            'property': propname,
+                        }
+                    )
                 # the form element is probably just something we don't care
                 # about - ignore it
                 continue
@@ -363,8 +372,9 @@ class FormParser:
             else:
                 # multiple values are not OK
                 if isinstance(value, type([])):
-                    raise FormError (self._('You have submitted more than one '
-                        'value for the %s property') % propname)
+                    raise FormError(self._(
+                        'You have submitted more than one value for the ' +
+                        '%s property') % propname)
                 # value might be a single file upload
                 if not getattr(value, 'filename', None):
                     value = value.value.strip()
@@ -388,19 +398,20 @@ class FormParser:
                         confirm = form[key]
                         break
                 else:
-                    raise FormError (self._('Password and confirmation text '
-                        'do not match'))
+                    raise FormError(self._(
+                        'Password and confirmation text do not match'))
                 if isinstance(confirm, type([])):
-                    raise FormError (self._('You have submitted more than one '
-                        'value for the %s property') % propname)
+                    raise FormError(self._(
+                        'You have submitted more than one value for the ' +
+                        '%s property') % propname)
                 if value != confirm.value:
-                    raise FormError (self._('Password and confirmation text '
-                        'do not match'))
+                    raise FormError(self._(
+                        'Password and confirmation text do not match'))
                 try:
                     value = password.Password(value, scheme = proptype.scheme,
                                               config=self.db.config)
                 except hyperdb.HyperdbValueError as msg:
-                    raise FormError (msg)
+                    raise FormError(msg)
             elif d['file']:
                 # This needs to be a Multilink and is checked above
                 fcn = 'file'
@@ -455,10 +466,12 @@ class FormParser:
                             try:
                                 existing.remove(entry)
                             except ValueError:
-                                raise FormError (self._('property '
+                                raise FormError(self._('property '
                                     '"%(propname)s": "%(value)s" '
                                     'not currently in list') % {
-                                    'propname': propname, 'value': entry})
+                                        'propname': propname,
+                                        'value': entry,
+                                    })
                     else:
                         # add - easy, just don't dupe
                         for entry in l:
@@ -583,7 +596,7 @@ class FormParser:
                 'property': ', '.join(map(self.gettext, required))
             })
         if s:
-            raise FormError ('\n'.join(s))
+            raise FormError('\n'.join(s))
 
         # When creating a FileClass node, it should have a non-empty content
         # property to be created. When editing a FileClass node, it should

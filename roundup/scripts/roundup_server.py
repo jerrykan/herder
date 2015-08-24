@@ -427,7 +427,7 @@ def setgid(group):
     try:
         import grp
     except ImportError:
-        raise ValueError, _("Can't change groups - no grp module")
+        raise ValueError(_("Can't change groups - no grp module"))
     try:
         try:
             gid = int(group)
@@ -436,8 +436,9 @@ def setgid(group):
         else:
             grp.getgrgid(gid)
     except KeyError:
-        raise ValueError,_("Group %(group)s doesn't exist")%locals()
+        raise ValueError(_("Group %(group)s doesn't exist") % locals())
     os.setgid(gid)
+
 
 def setuid(user):
     if not hasattr(os, 'getuid'):
@@ -447,7 +448,7 @@ def setuid(user):
     if user is None:
         if os.getuid():
             return
-        raise ValueError, _("Can't run as root!")
+        raise ValueError(_("Can't run as root!"))
 
     if os.getuid():
         print _('WARNING: ignoring "-u" argument, not root')
@@ -456,7 +457,7 @@ def setuid(user):
     try:
         import pwd
     except ImportError:
-        raise ValueError, _("Can't change users - no pwd module")
+        raise ValueError(_("Can't change users - no pwd module"))
     try:
         try:
             uid = int(user)
@@ -465,8 +466,9 @@ def setuid(user):
         else:
             pwd.getpwuid(uid)
     except KeyError:
-        raise ValueError, _("User %(user)s doesn't exist")%locals()
+        raise ValueError(_("User %(user)s doesn't exist") % locals())
     os.setuid(uid)
+
 
 class TrackerHomeOption(configuration.FilePathOption):
 
@@ -667,9 +669,9 @@ class ServerConfig(configuration.Config):
             httpd = server_class(*args, **kwargs)
         except socket.error as e:
             if e[0] == errno.EADDRINUSE:
-                raise socket.error, \
-                    _("Unable to bind to port %s, port already in use.") \
-                    % self["PORT"]
+                raise socket.error(
+                    _("Unable to bind to port %s, port already in use.") %
+                    self["PORT"])
             raise
         # change user and/or group
         setgid(self["GROUP"])
@@ -907,7 +909,7 @@ def run(port=undefined, success_message=None):
             try:
                 name, home = arg.split('=')
             except ValueError:
-                raise ValueError, _("Instances must be name=home")
+                raise ValueError(_("Instances must be name=home"))
             config.add_option(TrackerHomeOption(config, "trackers", name))
             config["TRACKERS_" + name.upper()] = home
 
