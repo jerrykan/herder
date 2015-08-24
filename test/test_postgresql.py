@@ -20,9 +20,9 @@ import unittest
 import pytest
 from roundup.hyperdb import DatabaseError
 
-from db_test_base import DBTest, ROTest, config, SchemaTest, ClassicInitTest
-from db_test_base import ConcurrentDBTest, HTMLItemTest, FilterCacheTest
-from db_test_base import ClassicInitBase, setupTracker
+from .db_test_base import DBTest, ROTest, config, SchemaTest, ClassicInitTest
+from .db_test_base import ConcurrentDBTest, HTMLItemTest, FilterCacheTest
+from .db_test_base import ClassicInitBase, setupTracker
 
 from roundup.backends import get_backend, have_backend
 from roundup.backends.back_postgresql import psycopg
@@ -198,7 +198,7 @@ class postgresqlClassicInitTest(postgresqlOpener, ClassicInitTest,
         postgresqlOpener.tearDown(self)
 
 
-from session_common import RDBMSTest
+from .session_common import RDBMSTest
 @skip_postgresql
 class postgresqlSessionTest(postgresqlOpener, RDBMSTest, unittest.TestCase):
     def setUp(self):

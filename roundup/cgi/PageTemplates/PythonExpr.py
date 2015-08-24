@@ -17,8 +17,9 @@
 """Generic Python Expression Handler
 """
 
-from TALES import CompilerError
+from .TALES import CompilerError
 from sys import exc_info
+
 
 class getSecurityManager:
     '''Null security manager'''

@@ -18,8 +18,9 @@
 import unittest, os, shutil, time
 from roundup.backends import get_backend
 
-from db_test_base import DBTest, ROTest, SchemaTest, ClassicInitTest, config
-from db_test_base import HTMLItemTest
+from .db_test_base import DBTest, ROTest, SchemaTest, ClassicInitTest, config
+from .db_test_base import HTMLItemTest
+
 
 class anydbmOpener:
     module = get_backend('anydbm')
@@ -48,7 +49,7 @@ class anydbmHTMLItemTest(HTMLItemTest, unittest.TestCase):
     backend = 'anydbm'
 
 
-from session_common import DBMTest
+from .session_common import DBMTest
 class anydbmSessionTest(anydbmOpener, DBMTest, unittest.TestCase):
     pass
 

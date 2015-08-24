@@ -20,9 +20,9 @@ from roundup import init, instance, password, hyperdb, date
 # For testing very simple rendering
 from roundup.cgi.engine_zopetal import RoundupPageTemplate
 
-from mocknull import MockNull
+from .mocknull import MockNull
 
-import db_test_base
+from . import db_test_base
 
 class FileUpload:
     def __init__(self, content, filename):

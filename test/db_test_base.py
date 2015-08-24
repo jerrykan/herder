@@ -17,7 +17,7 @@
 
 import unittest, os, shutil, errno, imp, sys, time, pprint, base64, os.path
 import logging
-import gpgmelib
+from . import gpgmelib
 from email.parser import FeedParser
 
 import pytest
@@ -28,7 +28,7 @@ from roundup import date, password, init, instance, configuration, \
     roundupdb, i18n, hyperdb
 from roundup.cgi.templating import HTMLItem
 
-from mocknull import MockNull
+from .mocknull import MockNull
 
 config = configuration.CoreConfig()
 config.DATABASE = "db"

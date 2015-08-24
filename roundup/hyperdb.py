@@ -25,8 +25,8 @@ import os, re, shutil, sys, weakref
 import traceback
 
 # roundup modules
-import date, password
-from support import ensureParentsExist, PrioList
+from . import date, password
+from .support import ensureParentsExist, PrioList
 from roundup.i18n import _
 from roundup.cgi.exceptions import DetectorError
 
