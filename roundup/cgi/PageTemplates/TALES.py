@@ -292,7 +292,9 @@ class SimpleExpr:
     def __init__(self, name, expr, engine):
         self._name = name
         self._expr = expr
+
     def __call__(self, econtext):
         return self._name, self._expr
+
     def __repr__(self):
-        return '<SimpleExpr %s %s>' % (self._name, `self._expr`)
+        return '<SimpleExpr %s %s>' % (self._name, repr(self._expr))
