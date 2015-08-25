@@ -1298,7 +1298,7 @@ class TemplateHtmlRendering(unittest.TestCase):
         self.assertEqual(self.client._error_message, ["this is an error"])
         
         result = self.client.renderContext()
-        print result
+        print(result)
         self.assertNotEqual(-1,
                             result.index('<!-- SHA: 3b7ce7cbf24f77733c9b9f64a569d6429390cc3f -->'))
 

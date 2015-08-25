@@ -1,6 +1,7 @@
 """Implements various support classes and functions used in a number of
 places in Roundup code.
 """
+from __future__ import print_function
 
 __docformat__ = 'restructuredtext'
 
@@ -79,7 +80,7 @@ class Progress:
         self.num += 1
 
         if self.num > self.total:
-            print self.info, 'done', ' '*(75-len(self.info)-6)
+            print(self.info, 'done', ' '*(75-len(self.info)-6))
             sys.stdout.flush()
             return self.sequence.next()
 

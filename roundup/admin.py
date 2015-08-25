@@ -19,6 +19,8 @@
 
 """Administration commands for maintaining Roundup trackers.
 """
+from __future__ import print_function
+
 __docformat__ = 'restructuredtext'
 
 import csv, getopt, getpass, os, re, shutil, sys, UserDict, operator
@@ -233,7 +235,7 @@ Command help:
 """))
         for name, command in self.commands.items():
             print(_('%s:') % name)
-            print '   ', _(command.__doc__)
+            print('   ', _(command.__doc__))
 
     def do_help(self, args, nl_re=re.compile('[\r\n]'),
             indent_re=re.compile(r'^(\s+)\S+')):
@@ -337,10 +339,10 @@ Command help:
 
     def help_initopts(self):
         templates = self.listTemplates()
-        print _('Templates:'), ', '.join(templates)
+        print(_('Templates:'), ', '.join(templates))
         import roundup.backends
         backends = roundup.backends.list_backends()
-        print _('Back ends:'), ', '.join(backends)
+        print(_('Back ends:'), ', '.join(backends))
 
     def do_install(self, tracker_home, args):
         ''"""Usage: install [template [backend [key=val[,key=val]]]]
@@ -1196,8 +1198,8 @@ Erase it? Y/N: """))
                 journals.writerow(row)
             jf.close()
         if max_len > self.db.config.CSV_FIELD_SIZE:
-            print >> sys.stderr, \
-                "Warning: config csv_field_size should be at least %s"%max_len
+            print("Warning: config csv_field_size should be at least %s" %
+                  max_len, file=sys.stderr)
         return 0
 
     def do_exporttables(self, args):
@@ -1279,7 +1281,7 @@ Erase it? Y/N: """))
                 maxid = max(maxid, int(nodeid))
 
             # (print to sys.stdout here to allow tests to squash it .. ugh)
-            print >> sys.stdout
+            print(file=sys.stdout)
 
             f.close()
 
@@ -1290,7 +1292,7 @@ Erase it? Y/N: """))
             f.close()
 
             # (print to sys.stdout here to allow tests to squash it .. ugh)
-            print >> sys.stdout, 'setting', classname, maxid+1
+            print('setting', classname, maxid+1, file=sys.stdout)
 
             # set the id counter
             self.db.setid(classname, str(maxid+1))

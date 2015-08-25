@@ -4,6 +4,7 @@
 # All rights reserved.
 # For license terms see the file COPYING.txt.
 #
+from __future__ import print_function
 
 
 # --- patch sys.path to make sure 'import roundup' finds correct version
@@ -105,7 +106,7 @@ class RequestHandler(SimpleXMLRPCRequestHandler):
             if db:
                 db.close()
             exc, val, tb = sys.exc_info()
-            print exc, val, tb
+            print(exc, val, tb)
             raise
         if db:
             db.close()

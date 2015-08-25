@@ -17,6 +17,8 @@
 
 """Command-line script that runs a server over roundup.cgi.client.
 """
+from __future__ import print_function
+
 __docformat__ = 'restructuredtext'
 
 
@@ -235,7 +237,7 @@ class RoundupRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                     self.wfile.write('''<p>%s: An error occurred. Please check
                     the server log for more information.</p>'''%ts)
                     # out to the logfile
-                    print 'EXCEPTION AT', ts
+                    print('EXCEPTION AT', ts)
                     traceback.print_exc()
 
     do_GET = do_POST = do_HEAD = run_cgi

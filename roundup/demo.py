@@ -3,6 +3,8 @@
 # Copyright (c) 2003 Richard Jones (richard@mechanicalcat.net)
 #
 
+from __future__ import print_function
+
 import errno
 import os
 import shutil
@@ -73,7 +75,7 @@ def install_demo(home, backend, template):
     # pick a fairly odd, random port
     port = 8917
     while 1:
-        print 'Trying to set up web server on port %d ...'%port,
+        print('Trying to set up web server on port %d ...' % port, end=' ')
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         try:
@@ -115,9 +117,10 @@ def install_demo(home, backend, template):
     db.commit()
     db.close()
 
+
 def run_demo(home):
     """Run the demo tracker instance from its ``home`` directory"""
-    print "Demo Tracker Home:", home
+    print("Demo Tracker Home:", home)
 
     cfg = configuration.CoreConfig(home)
     url = cfg["TRACKER_WEB"]
