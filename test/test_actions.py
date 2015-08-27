@@ -14,7 +14,7 @@ def true(*args, **kwargs):
 
 class ActionTestCase(unittest.TestCase):
     def setUp(self):
-        self.form = FieldStorage()
+        self.form = FieldStorage(environ={'QUERY_STRING': ''})
         self.client = MockNull()
         self.client._ok_message = []
         self.client._error_message = []
@@ -340,20 +340,5 @@ class EditItemActionTestCase(ActionTestCase):
         except Redirect, msg:
             pass
         self.assertEqual(expect, self.result)
-
-def test_suite():
-    suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(RetireActionTestCase))
-    suite.addTest(unittest.makeSuite(StandardSearchActionTestCase))
-    suite.addTest(unittest.makeSuite(FakeFilterVarsTestCase))
-    suite.addTest(unittest.makeSuite(ShowActionTestCase))
-    suite.addTest(unittest.makeSuite(CollisionDetectionTestCase))
-    suite.addTest(unittest.makeSuite(LoginTestCase))
-    suite.addTest(unittest.makeSuite(EditItemActionTestCase))
-    return suite
-
-if __name__ == '__main__':
-    runner = unittest.TextTestRunner()
-    unittest.main(testRunner=runner)
 
 # vim: set et sts=4 sw=4 :

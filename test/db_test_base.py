@@ -20,6 +20,7 @@ import logging
 import gpgmelib
 from email.parser import FeedParser
 
+import pytest
 from roundup.hyperdb import String, Password, Link, Multilink, Date, \
     Interval, DatabaseError, Boolean, Number, Node
 from roundup.mailer import Mailer
@@ -121,7 +122,8 @@ def setupSchema(db, create, module):
     # nosy tests require this
     db.security.addPermissionToRole('User', 'View', 'msg')
 
-class MyTestCase(unittest.TestCase):
+
+class MyTestCase(object):
     def tearDown(self):
         if hasattr(self, 'db'):
             self.db.close()
@@ -2018,14 +2020,12 @@ class DBTest(commonDBTest):
             roundupdb._ = old_translate_
             Mailer.smtp_send = backup
 
+    @pytest.mark.skipif(gpgmelib.pyme is None, reason='Skipping PGPNosy test')
     def testPGPNosyMail(self) :
         """Creates one issue with two attachments, one smaller and one larger
            than the set max_attachment_size. Recipients are one with and
            one without encryption enabled via a gpg group.
         """
-        if gpgmelib.pyme is None:
-            print "Skipping PGPNosy test"
-            return
         old_translate_ = roundupdb._
         roundupdb._ = i18n.get_translation(language='C').gettext
         db = self.db
@@ -2463,7 +2463,7 @@ class FilterCacheTest(commonDBTest):
         ae (result, ['4', '5', '6', '7', '8', '1', '2', '3'])
 
 
-class ClassicInitBase(unittest.TestCase):
+class ClassicInitBase(object):
     count = 0
     db = None
 

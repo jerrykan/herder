@@ -15,10 +15,16 @@ import email
 import gpgmelib
 import unittest, tempfile, os, shutil, errno, imp, sys, difflib, time
 
+import pytest
+
 try:
     import pyme, pyme.core
+    SKIP_PGP = False
 except ImportError:
-    pyme = None
+    SKIP_PGP = True
+
+skip_pgp = pytest.mark.skipif(
+    SKIP_PGP, reason="Skipping PGP tests: 'pyme' not installed")
 
 
 from cStringIO import StringIO
@@ -141,7 +147,8 @@ class DiffHelper:
 
 from roundup.hyperdb import String
 
-class MailgwTestAbstractBase(unittest.TestCase, DiffHelper):
+
+class MailgwTestAbstractBase(DiffHelper):
     count = 0
     schema = 'classic'
     def setUp(self):
@@ -233,7 +240,7 @@ Subject: [issue] Testing...
         self.assertEqual(self.db.issue.get(nodeid, 'tx_Source'), 'email')
 
 
-class MailgwTestCase(MailgwTestAbstractBase):
+class MailgwTestCase(MailgwTestAbstractBase, unittest.TestCase):
 
     def testMessageWithFromInIt(self):
         nodeid = self._handle_mail('''Content-Type: text/plain;
@@ -3261,7 +3268,9 @@ Stack trace:
         fileid = self.db.msg.get(msgid, 'files')[0]
         self.assertEqual(self.db.file.get(fileid, 'type'), 'message/rfc822')
 
-class MailgwPGPTestCase(MailgwTestAbstractBase):
+
+@skip_pgp
+class MailgwPGPTestCase(MailgwTestAbstractBase, unittest.TestCase):
     pgphome = gpgmelib.pgphome
     def setUp(self):
         MailgwTestAbstractBase.setUp(self)
@@ -3484,18 +3493,5 @@ zGhS06FLl3V1xx6gBlpqQHjut3efrAGpXGBVpnTJMOcgYAk=
         # check that the message has the right source code
         l = self.db.msg.get(m, 'tx_Source')
         self.assertEqual(l, 'email-sig-openpgp')
-
-def test_suite():
-    suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(MailgwTestCase))
-    if pyme is not None:
-        suite.addTest(unittest.makeSuite(MailgwPGPTestCase))
-    else:
-        print "Skipping PGP tests"
-    return suite
-
-if __name__ == '__main__':
-    runner = unittest.TextTestRunner()
-    unittest.main(testRunner=runner)
 
 # vim: set filetype=python sts=4 sw=4 et si :

@@ -6,6 +6,7 @@
 
 import unittest, os, shutil, errno, sys, difflib, cgi, re
 
+import pytest
 from xmlrpclib import MultiCall
 from roundup.cgi.exceptions import *
 from roundup import init, instance, password, hyperdb, date
@@ -15,10 +16,13 @@ from roundup.hyperdb import String
 from roundup.cgi import TranslationService
 
 import db_test_base
+from .test_mysql import skip_mysql
+from .test_postgresql import skip_postgresql
 
 NEEDS_INSTANCE = 1
 
-class TestCase(unittest.TestCase):
+
+class XmlrpcTest(object):
 
     backend = None
 
@@ -247,14 +251,20 @@ class TestCase(unittest.TestCase):
         for n, r in enumerate(result):
             self.assertEqual(r, results[n])
 
-def test_suite():
-    suite = unittest.TestSuite()
-    for l in list_backends():
-        dct = dict(backend = l)
-        subcls = type(TestCase)('TestCase_%s'%l, (TestCase,), dct)
-        suite.addTest(unittest.makeSuite(subcls))
-    return suite
 
-if __name__ == '__main__':
-    runner = unittest.TextTestRunner()
-    unittest.main(testRunner=runner)
+class anydbmXmlrpcTest(XmlrpcTest, unittest.TestCase):
+    backend = 'anydbm'
+
+
+@skip_mysql
+class mysqlXmlrpcTest(XmlrpcTest, unittest.TestCase):
+    backend = 'mysql'
+
+
+class sqliteXmlrpcTest(XmlrpcTest, unittest.TestCase):
+    backend = 'sqlite'
+
+
+@skip_postgresql
+class postgresqlXmlrpcTest(XmlrpcTest, unittest.TestCase):
+    backend = 'postgresql'

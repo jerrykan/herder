@@ -24,7 +24,8 @@ from roundup import backends
 import roundup.password
 from db_test_base import setupSchema, MyTestCase, config
 
-class PermissionTest(MyTestCase):
+
+class PermissionTest(MyTestCase, unittest.TestCase):
     def setUp(self):
         backend = backends.get_backend('anydbm')
         # remove previous test, ignore errors
@@ -234,14 +235,5 @@ class PermissionTest(MyTestCase):
     # roundup.password has its own built-in test, call it.
     def test_password(self):
         roundup.password.test()
-
-def test_suite():
-    suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(PermissionTest))
-    return suite
-
-if __name__ == '__main__':
-    runner = unittest.TextTestRunner()
-    unittest.main(testRunner=runner)
 
 # vim: set filetype=python sts=4 sw=4 et si :
