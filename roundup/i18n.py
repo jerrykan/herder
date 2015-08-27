@@ -180,7 +180,7 @@ def get_translation(language=None, tracker_home=None,
         for system_locale in LOCALE_DIRS:
             mofiles.append(get_mofile(locales, system_locale, DOMAIN))
     # filter out elements that are not found
-    mofiles = filter(None, mofiles)
+    mofiles = [m for m in mofiles if m]
     translator = None
     for mofile in mofiles:
         try:

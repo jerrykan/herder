@@ -449,7 +449,7 @@ class DBTest(commonDBTest):
 
     def testDateSortMultilink(self):
         d1 = date.Date('.')
-        ae, filter, filter_iter = self.filteringSetup()
+        ae, filter_, filter_iter = self.filteringSetup()
         nid = self.db.issue.create(title="nodeadline", status='1')
         self.db.commit()
         ae(sorted(self.db.issue.get('1','nosy')), [])
@@ -462,11 +462,11 @@ class DBTest(commonDBTest):
         ae(self.db.user.get('3','username'), 'bleep')
         # filter_iter currently doesn't work for Multilink sort
         # so testing only filter
-        ae(filter(None, {}, ('+', 'id'), ('+','nosy')),
+        ae(filter_(None, {}, ('+', 'id'), ('+','nosy')),
             ['1', '2', '5', '4', '3'])
-        ae(filter(None, {}, ('+','deadline'), ('+', 'nosy')),
+        ae(filter_(None, {}, ('+','deadline'), ('+', 'nosy')),
             ['5', '2', '1', '4', '3'])
-        ae(filter(None, {}, ('+','nosy'), ('+', 'deadline')),
+        ae(filter_(None, {}, ('+','nosy'), ('+', 'deadline')),
             ['5', '2', '1', '3', '4'])
 
     # Interval

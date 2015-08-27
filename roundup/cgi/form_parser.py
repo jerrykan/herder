@@ -670,6 +670,6 @@ class FormParser:
         value = [i.strip() for i in values.split(',')]
 
         # filter out the empty bits
-        return filter(None, value)
+        return [v for v in value if v]
 
 # vim: set et sts=4 sw=4 :
