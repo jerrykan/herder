@@ -262,13 +262,13 @@ class Database(back_anydbm.Database):
     #
     def __getattr__(self, classname):
         """A convenient way of calling self.getclass(classname)."""
-        if self.classes.has_key(classname):
+        if classname in self.classes:
             return self.classes[classname]
         raise AttributeError(classname)
 
     def addclass(self, cl):
         cn = cl.classname
-        if self.classes.has_key(cn):
+        if cn in self.classes:
             raise ValueError(cn)
         self.classes[cn] = cl
         if cn not in self.items:
@@ -387,11 +387,12 @@ class Database(back_anydbm.Database):
 class Class(back_anydbm.Class):
     pass
 
+
 class FileClass(back_anydbm.FileClass):
     def __init__(self, db, classname, **properties):
-        if not properties.has_key('content'):
+        if 'content' not in properties:
             properties['content'] = hyperdb.String(indexme='yes')
-        if not properties.has_key('type'):
+        if 'type' not in properties:
             properties['type'] = hyperdb.String()
         back_anydbm.Class.__init__(self, db, classname, **properties)
 
@@ -409,7 +410,7 @@ class FileClass(back_anydbm.FileClass):
         f.close()
         mime_type = None
         props = self.getprops()
-        if props.has_key('type'):
+        if 'type' in props:
             mime_type = self.get(nodeid, 'type')
         if not mime_type:
             mime_type = self.default_mime_type
@@ -426,17 +427,17 @@ class IssueClass(Class, roundupdb.IssueClass):
         dictionary attempts to specify any of these properties or a
         "creation" or "activity" property, a ValueError is raised.
         """
-        if not properties.has_key('title'):
+        if 'title' not in properties:
             properties['title'] = hyperdb.String(indexme='yes')
-        if not properties.has_key('messages'):
+        if 'messages' not in properties:
             properties['messages'] = hyperdb.Multilink("msg")
-        if not properties.has_key('files'):
+        if 'files' not in properties:
             properties['files'] = hyperdb.Multilink("file")
-        if not properties.has_key('nosy'):
+        if 'nosy' not in properties:
             # note: journalling is turned off as it really just wastes
             # space. this behaviour may be overridden in an instance
             properties['nosy'] = hyperdb.Multilink("user", do_journal="no")
-        if not properties.has_key('superseder'):
+        if 'superseder' not in properties:
             properties['superseder'] = hyperdb.Multilink(classname)
         Class.__init__(self, db, classname, **properties)
 

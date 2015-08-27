@@ -289,7 +289,7 @@ class OldStyleTrackers:
                     'File "%s.py" missing from tracker home "%s"' % (
                         reqd, tracker_home))
 
-        if self.trackers.has_key(tracker_home):
+        if tracker_home in self.trackers:
             return imp.load_package(self.trackers[tracker_home],
                 tracker_home)
         # register all available backend modules
