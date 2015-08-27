@@ -42,4 +42,4 @@ before_script:
   - sed -i 's/CREATE DATABASE \%s/CREATE DATABASE \%s COLLATE utf8_general_ci/' roundup/backends/back_mysql.py
 
 script:
-  python run_tests.py
+  python run_tests.py -v
