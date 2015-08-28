@@ -422,7 +422,7 @@ class Proptree(object):
 
     def append_retr_props(self):
         """Append properties for retrieval."""
-        for name, prop in self.cls.getprops(protected=1).iteritems():
+        for name, prop in self.cls.getprops(protected=1).items():
             if isinstance(prop, Multilink):
                 continue
             self.append(name, need_for='retrieve')
@@ -1136,7 +1136,7 @@ class Class:
         can contain NULL values.
         """
         proptree = Proptree(self.db, self, '', self.getprops(), retr=retr)
-        for key, v in filterspec.iteritems():
+        for key, v in filterspec.items():
             keys = key.split('.')
             p = proptree
             mlseen = False
@@ -1166,7 +1166,7 @@ class Class:
                 continue
             p.sort_direction = s[0]
             proptree.sortattr.append (p)
-        for p in multilinks.iterkeys():
+        for p in multilinks.keys():
             sattr = {}
             for c in p:
                 if c.sort_direction:
@@ -1284,7 +1284,7 @@ class Class:
         """
         props = self.getprops(protected = False)
         pdict = dict([(p, props[p]) for p in propnames])
-        pdict.update([(k, v) for k, v in props.iteritems() if v.required])
+        pdict.update([(k, v) for k, v in props.items() if v.required])
         return pdict
 
     def addprop(self, **properties):
@@ -1378,7 +1378,7 @@ class Class:
                 r = []
 
             if action == 'set':
-                for propname, value in params.iteritems():
+                for propname, value in params.items():
                     prop = properties[propname]
                     if value is None:
                         pass
@@ -1550,8 +1550,10 @@ class Node:
     def __init__(self, cl, nodeid, cache=1):
         self.__dict__['cl'] = cl
         self.__dict__['nodeid'] = nodeid
+
     def keys(self, protected=1):
-        return self.cl.getprops(protected=protected).keys()
+        return list(self.cl.getprops(protected=protected).keys())
+
     def values(self, protected=1):
         l = []
         for name in self.cl.getprops(protected=protected).keys():

@@ -132,7 +132,7 @@ class BasicDatabase(dict):
     def set(self, infoid, **newvalues):
         self[infoid].update(newvalues)
     def list(self):
-        return self.keys()
+        return list(self.keys())
     def destroy(self, infoid):
         del self[infoid]
     def commit(self):

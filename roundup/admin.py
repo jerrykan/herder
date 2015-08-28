@@ -139,7 +139,7 @@ Help:
         """
         sys.stdout.write( _('Commands: '))
         commands = ['']
-        for command in self.commands.itervalues():
+        for command in self.commands.values():
             h = _(command.__doc__).split('\n')[0]
             commands.append(' '+h[7:])
         commands.sort()
@@ -693,7 +693,7 @@ Erase it? Y/N: """))
         props = self.props_from_args(args[1:])
 
         # convert the user-input value to a value used for find()
-        for propname, value in props.iteritems():
+        for propname, value in props.items():
             if ',' in value:
                 values = value.split(',')
             else:

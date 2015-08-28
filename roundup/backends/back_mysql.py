@@ -407,7 +407,7 @@ class Database(rdbms_common.Database):
         return 0
 
     def create_class_table(self, spec, create_sequence=1):
-        cols, mls = self.determine_columns(spec.properties.items())
+        cols, mls = self.determine_columns(list(spec.properties.items()))
 
         # add on our special columns
         cols.append(('id', 'INTEGER PRIMARY KEY'))

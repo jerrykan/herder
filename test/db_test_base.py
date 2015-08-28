@@ -1992,7 +1992,7 @@ class DBTest(commonDBTest):
             shutil.rmtree('_test_export')
 
         # compare with snapshot of the database
-        for cn, items in orig.iteritems():
+        for cn, items in orig.items():
             klass = self.db.classes[cn]
             propdefs = klass.getprops(1)
             # ensure retired items are retired :)
@@ -2012,8 +2012,8 @@ class DBTest(commonDBTest):
                             raise
                         # don't get hung up on rounding errors
                         assert not l.__cmp__(value, int_seconds=1)
-        for jc, items in origj.iteritems():
-            for id, oj in items.iteritems():
+        for jc, items in origj.items():
+            for id, oj in items.items():
                 rj = self.db.getjournal(jc, id)
                 # Both mysql and postgresql have some minor issues with
                 # rounded seconds on export/import, so we compare only
@@ -2718,7 +2718,7 @@ class FilterCacheTest(commonDBTest):
             for x in range(4):
                 assert(('user', nodeid) in self.db.cache)
                 n = self.db.user.getnode(nodeid)
-                for k, v in user_result[nodeid].iteritems():
+                for k, v in user_result[nodeid].items():
                     ae((k, n[k]), (k, v))
                 for k in 'creation', 'activity':
                     assert(n[k])
@@ -2735,7 +2735,7 @@ class FilterCacheTest(commonDBTest):
             result.append(id)
             assert(('issue', id) in self.db.cache)
             n = self.db.issue.getnode(id)
-            for k, v in issue_result[id].iteritems():
+            for k, v in issue_result[id].items():
                 ae((k, n[k]), (k, v))
             for k in 'creation', 'activity':
                 assert(n[k])
@@ -2743,7 +2743,7 @@ class FilterCacheTest(commonDBTest):
             for x in range(4):
                 assert(('user', nodeid) in self.db.cache)
                 n = self.db.user.getnode(nodeid)
-                for k, v in user_result[nodeid].iteritems():
+                for k, v in user_result[nodeid].items():
                     ae((k, n[k]), (k, v))
                 for k in 'creation', 'activity':
                     assert(n[k])

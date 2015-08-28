@@ -156,7 +156,7 @@ class RoundupInstance:
         classname, itemid = hyperdb.splitDesignator(designator)
         cl = self.db.getclass(classname)
         props = props_from_args(self.db, cl, args, itemid) # convert types
-        for p in props.iterkeys():
+        for p in props.keys():
             if not self.db.security.hasPermission('Edit', self.db.getuid(),
                                                   classname, p, itemid):
                 raise Unauthorised('Permission to edit %s of %s denied'%
