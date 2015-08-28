@@ -151,8 +151,8 @@ matches only one command, e.g. l == li == lis == list."""))
     def help_commands_html(self, indent_re=re.compile(r'^(\s+)\S+')):
         """ Produce an HTML command list.
         """
-        commands = sorted(self.commands.itervalues(),
-            operator.attrgetter('__name__'))
+        commands = sorted(self.commands.values(),
+                          key=operator.attrgetter('__name__'))
         for command in commands:
             h = _(command.__doc__).split('\n')
             name = command.__name__[3:]
