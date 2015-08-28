@@ -304,10 +304,8 @@ def main():
             'version': __version__
         }, file=outfile)
 
-    msgids = catalog.keys()
     # XXX: You should not sort by msgid, but by filename and position. (SR)
-    msgids.sort()
-    for msgid in msgids:
+    for msgid in sorted(catalog.keys()):
         positions = catalog[msgid]
         for filename, position in positions:
             outfile.write('#: %s:%s\n' % (filename, position[0]))

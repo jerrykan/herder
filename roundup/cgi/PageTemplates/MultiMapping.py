@@ -25,5 +25,5 @@ class MultiMapping:
     def items(self):
         l = []
         for store in self.stores:
-            l = l + store.items()
+            l.extend(store.items())
         return l

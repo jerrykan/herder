@@ -706,9 +706,7 @@ class IssueClass:
 
         # list the values
         m = []
-        prop_items = props.items()
-        prop_items.sort()
-        for propname, prop in prop_items:
+        for propname, prop in sorted(props.items()):
             # Omit quiet properties from history/changelog
             if prop.quiet:
                 continue
@@ -780,9 +778,7 @@ class IssueClass:
 
         # list the changes
         m = []
-        changed_items = changed.items()
-        changed_items.sort()
-        for propname, oldvalue in changed_items:
+        for propname, oldvalue in sorted(changed.items()):
             prop = props[propname]
             # Omit quiet properties from history/changelog
             if prop.quiet:

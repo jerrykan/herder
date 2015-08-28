@@ -285,9 +285,7 @@ class Database(back_anydbm.Database):
 
     def getclasses(self):
         """Return a list of the names of all existing classes."""
-        l = self.classes.keys()
-        l.sort()
-        return l
+        return sorted(self.classes.keys())
 
     def getclass(self, classname):
         """Get the Class object representing a particular class.

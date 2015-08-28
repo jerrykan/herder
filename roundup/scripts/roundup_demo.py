@@ -47,10 +47,9 @@ def run():
             _('Enter directory path to create demo tracker [%s]: ') % home)
         if not home:
             home = DEFAULT_HOME
-        templates = admin.AdminTool().listTemplates().keys()
         template = raw_input(
             _('Enter tracker template to use (one of (%s)) [%s]: ') %
-            (','.join(templates),template))
+            (','.join(admin.AdminTool().listTemplates().keys()), template))
         if not template:
             template = DEFAULT_TEMPLATE
         # install

@@ -1072,9 +1072,7 @@ class Class:
             return 'title'
         if default_to_id:
             return 'id'
-        props = props.keys()
-        props.sort()
-        return props[0]
+        return sorted(props.keys())[0]
 
     def orderprop(self):
         """Return the property name to use for sorting for the given node.
@@ -1345,9 +1343,7 @@ class Class:
     #
     def export_propnames(self):
         """List the property names for export from this Class"""
-        propnames = self.getprops().keys()
-        propnames.sort()
-        return propnames
+        return sorted(self.getprops().keys())
 
     def import_journals(self, entries):
         """Import a class's journal.
@@ -1502,10 +1498,10 @@ class FileClass:
     def export_propnames(self):
         """ Don't export the "content" property
         """
-        propnames = self.getprops().keys()
-        propnames.remove('content')
-        propnames.sort()
-        return propnames
+        return sorted([
+            k for k in self.getprops().keys()
+            if k != 'content'
+        ])
 
     def exportFilename(self, dirname, nodeid):
         """ Returns destination filename for a exported file

@@ -246,8 +246,7 @@ def list_nodes(request):
     cls = request.client.db.getclass(prop)
     items = []
     for nodeid in cls.getnodeids(retired=0):
-        l = cls.getnode(nodeid).items()
-        l = dict([x for x in l if len(x) == 2])
+        l = dict([x for x in cls.getnode(nodeid).items() if len(x) == 2])
         try:
             items.append((l['id'], l['name']))
         except KeyError:

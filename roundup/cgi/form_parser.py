@@ -219,7 +219,6 @@ class FormParser:
         # we should always return something, even empty, for the context
         all_props[(default_cn, default_nodeid)] = {}
 
-        keys = form.keys()
         timezone = db.getUserTimezone()
 
         # sentinels for the :note and :file props
@@ -227,7 +226,7 @@ class FormParser:
 
         # extract the usable form labels from the form
         matches = []
-        for key in keys:
+        for key in form.keys():
             m = self.FV_SPECIAL.match(key)
             if m:
                 matches.append((key, m.groupdict()))

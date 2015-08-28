@@ -329,10 +329,8 @@ class HTMLDatabase:
             raise AttributeError(attr)
 
     def classes(self):
-        l = self._client.db.classes.keys()
-        l.sort()
         m = []
-        for item in l:
+        for item in sorted(self._client.db.classes.keys()):
             m.append(HTMLClass(self._client, item))
         return m
 
@@ -615,9 +613,7 @@ class HTMLClass(HTMLInputMixin, HTMLPermissions):
     def propnames(self):
         """ Return the list of the names of the properties of this class.
         """
-        idlessprops = self._klass.getprops(protected=0).keys()
-        idlessprops.sort()
-        return ['id'] + idlessprops
+        return ['id'] + sorted(self._klass.getprops(protected=0).keys())
 
     def filter(self, request=None, filterspec={}, sort=[], group=[]):
         """ Return a list of items from this class, filtered and sorted
@@ -683,9 +679,9 @@ class HTMLClass(HTMLInputMixin, HTMLPermissions):
         the "property" belongs to.
         """
         if properties is None:
-            properties = self._klass.getprops(protected=0).keys()
-            properties.sort()
-            properties = ','.join(properties)
+            properties = ','.join(
+                sorted(self._klass.getprops(protected=0).keys()))
+
         if sort is None:
             if 'username' in properties.split( ',' ):
                 sort = 'username'

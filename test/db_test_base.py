@@ -1019,9 +1019,7 @@ class DBTest(commonDBTest):
         self.assertEqual(nodeid, '1')
         self.assertEqual(journaltag, self.db.user.lookup('admin'))
         self.assertEqual(action, 'create')
-        keys = params.keys()
-        keys.sort()
-        self.assertEqual(keys, [])
+        self.assertEqual(sorted(params.keys()), [])
 
         # journal entry for link
         journal = self.db.getjournal('user', '1')
@@ -1996,7 +1994,7 @@ class DBTest(commonDBTest):
             klass = self.db.classes[cn]
             propdefs = klass.getprops(1)
             # ensure retired items are retired :)
-            l = items.keys(); l.sort()
+            l = sorted(items.keys())
             m = klass.list(); m.sort()
             ae(l, m, '%s id list wrong %r vs. %r'%(cn, l, m))
             for id, props in items.items():
@@ -2238,11 +2236,11 @@ class DBTest(commonDBTest):
         # force any post-init stuff to happen
         self.db.post_init()
         props = self.db.issue.getprops()
-        keys = props.keys()
-        keys.sort()
-        self.assertEqual(keys, ['activity', 'actor', 'assignedto', 'creation',
-            'creator', 'deadline', 'feedback', 'files', 'fixer', 'foo', 'id', 'messages',
-            'nosy', 'priority', 'spam', 'status', 'superseder', 'title'])
+        self.assertEqual(sorted(props.keys()), [
+            'activity', 'actor', 'assignedto', 'creation', 'creator',
+            'deadline', 'feedback', 'files', 'fixer', 'foo', 'id', 'messages',
+            'nosy', 'priority', 'spam', 'status', 'superseder', 'title',
+        ])
         self.assertEqual(self.db.issue.get('1', "fixer"), None)
 
     def testRemoveProperty(self):
@@ -2252,11 +2250,11 @@ class DBTest(commonDBTest):
         del self.db.issue.properties['title']
         self.db.post_init()
         props = self.db.issue.getprops()
-        keys = props.keys()
-        keys.sort()
-        self.assertEqual(keys, ['activity', 'actor', 'assignedto', 'creation',
-            'creator', 'deadline', 'feedback', 'files', 'foo', 'id', 'messages',
-            'nosy', 'priority', 'spam', 'status', 'superseder'])
+        self.assertEqual(sorted(props.keys()), [
+            'activity', 'actor', 'assignedto', 'creation', 'creator',
+            'deadline', 'feedback', 'files', 'foo', 'id', 'messages', 'nosy',
+            'priority', 'spam', 'status', 'superseder',
+        ])
         self.assertEqual(self.db.issue.list(), ['1'])
 
     def testAddRemoveProperty(self):
@@ -2267,14 +2265,14 @@ class DBTest(commonDBTest):
         del self.db.issue.properties['title']
         self.db.post_init()
         props = self.db.issue.getprops()
-        keys = props.keys()
-        keys.sort()
-        self.assertEqual(keys, ['activity', 'actor', 'assignedto', 'creation',
-            'creator', 'deadline', 'feedback', 'files', 'fixer', 'foo', 'id',
-            'messages', 'nosy', 'priority', 'spam', 'status', 'superseder'])
+        self.assertEqual(sorted(props.keys()), [
+            'activity', 'actor', 'assignedto', 'creation', 'creator',
+            'deadline', 'feedback', 'files', 'fixer', 'foo', 'id', 'messages',
+            'nosy', 'priority', 'spam', 'status', 'superseder',
+        ])
         self.assertEqual(self.db.issue.list(), ['1'])
 
-    def testNosyMail(self) :
+    def testNosyMail(self):
         """Creates one issue with two attachments, one smaller and one larger
            than the set max_attachment_size.
         """
@@ -2429,10 +2427,9 @@ class SchemaTest(MyTestCase):
     def test_fileClassProps(self):
         self.open_database()
         a = self.module.FileClass(self.db, 'a')
-        l = a.getprops().keys()
-        l.sort()
-        self.assert_(l, ['activity', 'actor', 'content', 'created',
-            'creation', 'type'])
+        self.assert_(
+            sorted(a.getprops().keys()),
+            ['activity', 'actor', 'content', 'created', 'creation', 'type'])
 
     def init_ab(self):
         self.open_database()
