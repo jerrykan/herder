@@ -13,6 +13,7 @@ try:
 except ImportError:
     SysCallError = None
 
+from six.moves import http_client
 from six.moves.http_cookies import CookieError, BaseCookie, SimpleCookie
 from six.moves.http_cookies import _getdate as get_cookie_date
 
@@ -28,7 +29,6 @@ from roundup.mailer import Mailer, MessageSendError, encode_quopri
 from roundup.cgi import accept_language
 from roundup import xmlrpc
 
-from roundup.anypy import http_
 from roundup.anypy import urllib_
 
 from email.MIMEBase import MIMEBase
@@ -542,12 +542,12 @@ class Client:
             # authorization, send back a response that will cause the
             # browser to prompt the user again.
             if self.instance.config.WEB_HTTP_AUTH:
-                self.response_code = http_.client.UNAUTHORIZED
+                self.response_code = http_client.UNAUTHORIZED
                 realm = self.instance.config.TRACKER_NAME
                 self.setHeader("WWW-Authenticate",
                                "Basic realm=\"%s\"" % realm)
             else:
-                self.response_code = http_.client.FORBIDDEN
+                self.response_code = http_client.FORBIDDEN
             self.renderFrontPage(str(message))
         except Unauthorised as message:
             # users may always see the front page
@@ -608,8 +608,8 @@ class Client:
         except:
             # Something has gone badly wrong.  Therefore, we should
             # make sure that the response code indicates failure.
-            if self.response_code == http_.client.OK:
-                self.response_code = http_.client.INTERNAL_SERVER_ERROR
+            if self.response_code == http_client.OK:
+                self.response_code = http_client.INTERNAL_SERVER_ERROR
             # Help the administrator work out what went wrong.
             html = ("<h1>Traceback</h1>"
                     + cgitb.html(i18n=self.translator)
@@ -1560,14 +1560,14 @@ class Client:
                 return None
             # Return code 416 with a Content-Range header giving the
             # allowable range.
-            self.response_code = http_.client.REQUESTED_RANGE_NOT_SATISFIABLE
+            self.response_code = http_client.REQUESTED_RANGE_NOT_SATISFIABLE
             self.setHeader("Content-Range", "bytes */%d" % length)
             return None
         # RFC 2616 10.2.7: 206 Partial Content
         #
         # Tell the client that we are honoring the Range request by
         # indicating that we are providing partial content.
-        self.response_code = http_.client.PARTIAL_CONTENT
+        self.response_code = http_client.PARTIAL_CONTENT
         # RFC 2616 14.16: Content-Range
         #
         # Tell the client what data we are providing.
@@ -1620,8 +1620,9 @@ class Client:
             self.header()
         # If the client doesn't actually want the body, or if we are
         # indicating an invalid range.
-        if (self.env['REQUEST_METHOD'] == 'HEAD'
-            or self.response_code == http_.client.REQUESTED_RANGE_NOT_SATISFIABLE):
+        if (self.env['REQUEST_METHOD'] == 'HEAD' or
+                self.response_code ==
+                http_client.REQUESTED_RANGE_NOT_SATISFIABLE):
             return
         # Use the optimized "sendfile" operation, if possible.
         if hasattr(self.request, "sendfile"):
