@@ -399,8 +399,7 @@ This is a test submission of a new issue.
     def doNewIssue(self):
         nodeid = self._handle_mail(self.newmsg)
         assert not os.path.exists(SENDMAILDEBUG)
-        l = self.db.issue.get(nodeid, 'nosy')
-        l.sort()
+        l = sorted(self.db.issue.get(nodeid, 'nosy'))
         self.assertEqual(l, [self.chef_id, self.richard_id])
 
         # check that the message has the right source code
@@ -425,8 +424,7 @@ This is a test submission of a new issue.
         self.instance.config.MESSAGES_TO_AUTHOR = 'nosy'
         nodeid = self._handle_mail(self.newmsg)
         assert not os.path.exists(SENDMAILDEBUG)
-        l = self.db.issue.get(nodeid, 'nosy')
-        l.sort()
+        l = sorted(self.db.issue.get(nodeid, 'nosy'))
         self.assertEqual(l, [self.richard_id])
         m = self.db.issue.get(nodeid, 'messages')
         self.assertEqual(len(m), 1)
@@ -734,8 +732,7 @@ some text in inner email
     def testMultipartKeepAlternatives(self):
         self.doNewIssue()
         self._handle_mail(self.multipart_msg)
-        messages = self.db.issue.get('1', 'messages')
-        messages.sort()
+        messages = sorted(self.db.issue.get('1', 'messages'))
         msg = self.db.msg.getnode (messages[-1])
         assert(len(msg.files) == 5)
         names = {0 : 'first.dvi', 4 : 'second.dvi'}
@@ -751,8 +748,7 @@ some text in inner email
     def testMultipartSeveralAttachmentMessages(self):
         self.doNewIssue()
         self._handle_mail(self.multipart_msg)
-        messages = self.db.issue.get('1', 'messages')
-        messages.sort()
+        messages = sorted(self.db.issue.get('1', 'messages'))
         self.assertEqual(messages[-1], '2')
         msg = self.db.msg.getnode (messages[-1])
         self.assertEqual(len(msg.files), 5)
@@ -783,8 +779,7 @@ some text in inner email
     def testMultipartKeepFiles(self):
         self.doNewIssue()
         self._handle_mail(self.multipart_msg)
-        messages = self.db.issue.get('1', 'messages')
-        messages.sort()
+        messages = sorted(self.db.issue.get('1', 'messages'))
         msg = self.db.msg.getnode (messages[-1])
         self.assertEqual(len(msg.files), 5)
         issue = self.db.issue.getnode ('1')
@@ -814,8 +809,7 @@ This ist a message without attachment
         self.doNewIssue()
         self.db.config.MAILGW_IGNORE_ALTERNATIVES = True
         self._handle_mail(self.multipart_msg)
-        messages = self.db.issue.get('1', 'messages')
-        messages.sort()
+        messages = sorted(self.db.issue.get('1', 'messages'))
         msg = self.db.msg.getnode (messages[-1])
         self.assertEqual(len(msg.files), 2)
         names = {1 : 'second.dvi'}
@@ -833,8 +827,7 @@ This ist a message without attachment
         self.doNewIssue()
         self.db.config.NOSY_MAX_ATTACHMENT_SIZE = 0
         self._handle_mail(self.multipart_msg_latin1)
-        messages = self.db.issue.get('1', 'messages')
-        messages.sort()
+        messages = sorted(self.db.issue.get('1', 'messages'))
         msg = self.db.msg.getnode (messages[-1])
         self.assertEqual(len(msg.files), 1)
         name = 'unnamed'
@@ -884,8 +877,7 @@ _______________________________________________________________________
         self.db.config.NOSY_MAX_ATTACHMENT_SIZE = 0
         self.db.config.MAIL_CHARSET = 'iso-8859-1'
         self._handle_mail(self.multipart_msg_latin1)
-        messages = self.db.issue.get('1', 'messages')
-        messages.sort()
+        messages = sorted(self.db.issue.get('1', 'messages'))
         msg = self.db.msg.getnode (messages[-1])
         self.assertEqual(len(msg.files), 1)
         name = 'unnamed'
@@ -933,8 +925,7 @@ _______________________________________________________________________
         c = 'umlaut \xc3\xa4\xc3\xb6\xc3\xbc\xc3\x84\xc3\x96\xc3\x9c\xc3\x9f'
         self.doNewIssue()
         self._handle_mail(self.multipart_msg_latin1)
-        messages = self.db.issue.get('1', 'messages')
-        messages.sort()
+        messages = sorted(self.db.issue.get('1', 'messages'))
         msg = self.db.msg.getnode (messages[-1])
         self.assertEqual(len(msg.files), 1)
         name = 'unnamed'
@@ -996,8 +987,7 @@ PGh0bWw+dW1sYXV0IMOkw7bDvMOEw5bDnMOfPC9odG1sPgo=
         self.doNewIssue()
         self.db.config.MAIL_CHARSET = 'iso-8859-1'
         self._handle_mail(self.multipart_msg_latin1)
-        messages = self.db.issue.get('1', 'messages')
-        messages.sort()
+        messages = sorted(self.db.issue.get('1', 'messages'))
         msg = self.db.msg.getnode (messages[-1])
         self.assertEqual(len(msg.files), 1)
         name = 'unnamed'
@@ -1057,8 +1047,7 @@ PGh0bWw+dW1sYXV0IMOkw7bDvMOEw5bDnMOfPC9odG1sPgo=
     def testMultipartRFC822(self):
         self.doNewIssue()
         self._handle_mail(self.multipart_msg_rfc822)
-        messages = self.db.issue.get('1', 'messages')
-        messages.sort()
+        messages = sorted(self.db.issue.get('1', 'messages'))
         msg = self.db.msg.getnode (messages[-1])
         self.assertEqual(len(msg.files), 1)
         name = "Fwd: Original email subject.eml"
@@ -1140,8 +1129,7 @@ some text in inner email
         self.doNewIssue()
         self.db.config.MAILGW_UNPACK_RFC822 = True
         self._handle_mail(self.multipart_msg_rfc822)
-        messages = self.db.issue.get('1', 'messages')
-        messages.sort()
+        messages = sorted(self.db.issue.get('1', 'messages'))
         msg = self.db.msg.getnode (messages[-1])
         self.assertEqual(len(msg.files), 2)
         t = 'some text in inner email\n========================\n'
@@ -1209,8 +1197,7 @@ Subject: [issue1] Testing... [assignedto=mary; nosy=+john]
 
 This is a followup
 ''')
-        l = self.db.issue.get('1', 'nosy')
-        l.sort()
+        l = sorted(self.db.issue.get('1', 'nosy'))
         self.assertEqual(l, [self.chef_id, self.richard_id, self.mary_id,
             self.john_id])
 
@@ -1261,8 +1248,7 @@ Subject: [issue1] Wrzlbrmft... [assignedto=mary; nosy=+john]
 
 This is a followup
 ''')
-        l = self.db.issue.get('1', 'nosy')
-        l.sort()
+        l = sorted(self.db.issue.get('1', 'nosy'))
         self.assertEqual(l, [self.chef_id, self.richard_id, self.mary_id,
             self.john_id])
 
@@ -1312,8 +1298,7 @@ Subject: [issue1] Wrzlbrmft... [assignedto=mary; nosy=+john; title=new title]
 
 This is a followup
 ''')
-        l = self.db.issue.get('1', 'nosy')
-        l.sort()
+        l = sorted(self.db.issue.get('1', 'nosy'))
         self.assertEqual(l, [self.chef_id, self.richard_id, self.mary_id,
             self.john_id])
 
@@ -1964,8 +1949,7 @@ In-Reply-To: <dummy_test_message_id>
 Subject: [issue1] Testing... [assignedto=mary; nosy=+john]
 
 ''')
-        l = self.db.issue.get('1', 'nosy')
-        l.sort()
+        l = sorted(self.db.issue.get('1', 'nosy'))
         self.assertEqual(l, [self.chef_id, self.richard_id, self.mary_id,
             self.john_id])
 
@@ -1984,8 +1968,7 @@ In-Reply-To: <dummy_test_message_id>
 Subject: [issue1] [assignedto=mary; nosy=+john]
 
 ''')
-        l = self.db.issue.get('1', 'nosy')
-        l.sort()
+        l = sorted(self.db.issue.get('1', 'nosy'))
         self.assertEqual(l, [self.chef_id, self.richard_id, self.mary_id,
             self.john_id])
 
@@ -2004,8 +1987,7 @@ In-Reply-To: <dummy_test_message_id>
 Subject: [issue1] Testing... [nosy=-richard]
 
 ''')
-        l = self.db.issue.get('1', 'nosy')
-        l.sort()
+        l = sorted(self.db.issue.get('1', 'nosy'))
         self.assertEqual(l, [self.chef_id])
 
         # NO NOSY MESSAGE SHOULD BE SENT!
@@ -2149,8 +2131,7 @@ _______________________________________________________________________
 
     def testNewUserAuthor(self):
         self.db.commit()
-        l = self.db.user.list()
-        l.sort()
+        l = sorted(self.db.user.list())
         message = '''Content-Type: text/plain;
   charset="iso-8859-1"
 From: fubar <fubar@bork.bork.bork>
@@ -2522,8 +2503,7 @@ SnVzdCBhIHRlc3QgAQo=
 
 --bCsyhTFzCvuiizWE--
 ''')
-        messages = self.db.issue.get('1', 'messages')
-        messages.sort()
+        messages = sorted(self.db.issue.get('1', 'messages'))
         file = self.db.file.getnode (self.db.msg.get(messages[-1], 'files')[0])
         self.assertEqual(file.name, 'main.dvi')
         self.assertEqual(file.content, 'Just a test \001\n')
@@ -2942,8 +2922,7 @@ Subject: [issue] Testing...
 This is a test submission of a new issue.
 ''')
         assert not os.path.exists(SENDMAILDEBUG)
-        l = self.db.issue.get(nodeid, 'nosy')
-        l.sort()
+        l = sorted(self.db.issue.get(nodeid, 'nosy'))
         self.assertEqual(l, [self.richard_id, self.mary_id])
         return nodeid
 

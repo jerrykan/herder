@@ -1244,8 +1244,7 @@ class DBTest(commonDBTest):
 
     def testFindLink(self):
         one, two, three, four = self._find_test_setup()
-        got = self.db.issue.find(status='1')
-        got.sort()
+        got = sorted(self.db.issue.find(status='1'))
         self.assertEqual(got, [one, three])
         got = self.db.issue.find(status={'1':1})
         got.sort()
@@ -1258,8 +1257,7 @@ class DBTest(commonDBTest):
 
     def testFindLinkUnset(self):
         one, two, three, four = self._find_test_setup()
-        got = self.db.issue.find(assignedto=None)
-        got.sort()
+        got = sorted(self.db.issue.find(assignedto=None))
         self.assertEqual(got, [one, three])
         got = self.db.issue.find(assignedto={None:1})
         got.sort()
@@ -1267,8 +1265,7 @@ class DBTest(commonDBTest):
 
     def testFindMultipleLink(self):
         one, two, three, four = self._find_test_setup()
-        l = self.db.issue.find(status={'1':1, '3':1})
-        l.sort()
+        l = sorted(self.db.issue.find(status={'1': 1, '3': 1}))
         self.assertEqual(l, [one, three, four])
         l = self.db.issue.find(assignedto={None:1, '1':1})
         l.sort()
@@ -1276,8 +1273,7 @@ class DBTest(commonDBTest):
 
     def testFindMultilink(self):
         one, two, three, four = self._find_test_setup()
-        got = self.db.issue.find(nosy='2')
-        got.sort()
+        got = sorted(self.db.issue.find(nosy='2'))
         self.assertEqual(got, [two, three])
         got = self.db.issue.find(nosy={'2':1})
         got.sort()
@@ -1288,8 +1284,7 @@ class DBTest(commonDBTest):
 
     def testFindMultiMultilink(self):
         one, two, three, four = self._find_test_setup()
-        got = self.db.issue.find(nosy='2', files='1')
-        got.sort()
+        got = sorted(self.db.issue.find(nosy='2', files='1'))
         self.assertEqual(got, [two, three, four])
         got = self.db.issue.find(nosy={'2':1}, files={'1':1})
         got.sort()
@@ -1306,8 +1301,7 @@ class DBTest(commonDBTest):
 
     def testFindLinkAndMultilink(self):
         one, two, three, four = self._find_test_setup()
-        got = self.db.issue.find(status='1', nosy='2')
-        got.sort()
+        got = sorted(self.db.issue.find(status='1', nosy='2'))
         self.assertEqual(got, [one, two, three])
         got = self.db.issue.find(status={'1':1}, nosy={'2':1})
         got.sort()
@@ -1327,8 +1321,7 @@ class DBTest(commonDBTest):
         self.db.issue.create(title="not spam")
         ids.append(self.db.issue.create(title="spam"))
         ids.sort()
-        got = self.db.issue.stringFind(title='spam')
-        got.sort()
+        got = sorted(self.db.issue.stringFind(title='spam'))
         self.assertEqual(got, ids)
         self.assertEqual(self.db.issue.stringFind(title='fubar'), [])
 
@@ -2779,8 +2772,7 @@ class ClassicInitTest(ClassicInitBase):
         db = self.db = tracker.open('test')
 
         # check the basics of the schema and initial data set
-        l = db.priority.list()
-        l.sort()
+        l = sorted(db.priority.list())
         ae(l, ['1', '2', '3', '4', '5'])
         l = db.status.list()
         l.sort()

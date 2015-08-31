@@ -146,7 +146,7 @@ class Session:
 
     def _gen_sid(self):
         """ generate a unique session key """
-        while 1:
+        while True:
             s = '%s%s'%(time.time(), random.random())
             s = binascii.b2a_base64(s).strip()
             if not self.session_db.exists(s):

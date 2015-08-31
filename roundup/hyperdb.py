@@ -274,8 +274,7 @@ class Multilink(_Pointer):
 
         # TODO: one day, we'll switch to numeric ids and this will be
         # unnecessary :(
-        value = [int(x) for x in value]
-        value.sort()
+        value = sorted([int(x) for x in value])
         value = [str(x) for x in value]
         return value
 

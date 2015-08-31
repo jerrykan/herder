@@ -222,7 +222,7 @@ class Message(mimetools.Message):
         boundary = self.getparam('boundary')
         mid, end = '--'+boundary, '--'+boundary+'--'
         s = cStringIO.StringIO()
-        while 1:
+        while True:
             line = self.fp.readline()
             if not line:
                 break
@@ -253,7 +253,7 @@ class Message(mimetools.Message):
 
         # accumulate the other parts
         parts = []
-        while 1:
+        while True:
             part = self.getpart()
             if part is None:
                 break
@@ -1761,7 +1761,7 @@ def uidFromAddress(db, address, create=1, **user_props):
             username = address
         trying = username
         n = 0
-        while 1:
+        while True:
             try:
                 # does this username exist already?
                 db.user.lookup(trying)

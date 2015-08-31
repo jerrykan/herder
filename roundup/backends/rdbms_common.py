@@ -1115,8 +1115,7 @@ class Database(FileStorage, hyperdb.Database, roundupdb.Database):
             self.sql(sql, (nodeid,))
             # extract the first column from the result
             # XXX numeric ids
-            items = [int(x[0]) for x in self.cursor.fetchall()]
-            items.sort ()
+            items = sorted([int(x[0]) for x in self.cursor.fetchall()])
             node[propname] = [str(x) for x in items]
 
     def _materialize_multilinks(self, classname, nodeid, node, props=None):

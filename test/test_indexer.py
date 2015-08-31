@@ -73,8 +73,7 @@ class IndexerTest(unittest.TestCase):
         # have to work around that.
         # Also work around some dbs not returning items in the expected
         # order.
-        s1 = list([tuple([r[n] for n in range(len(r))]) for r in s1])
-        s1.sort()
+        s1 = sorted([tuple([r[n] for n in range(len(r))]) for r in s1])
         if s1 != s2:
             self.fail('contents of %r != %r'%(s1, s2))
 

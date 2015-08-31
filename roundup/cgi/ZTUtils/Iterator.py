@@ -65,7 +65,7 @@ class Iterator:
     def letter(self, base=ord('a'), radix=26):
         index = self.index
         s = ''
-        while 1:
+        while True:
             index, off = divmod(index, radix)
             s = chr(base + off) + s
             if not index: return s

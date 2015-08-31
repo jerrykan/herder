@@ -1527,7 +1527,7 @@ Erase it? Y/N: """))
         except ImportError:
             print(_('Note: command history and editing not available'))
 
-        while 1:
+        while True:
             try:
                 command = raw_input(_('roundup> '))
             except EOFError:

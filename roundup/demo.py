@@ -74,7 +74,7 @@ def install_demo(home, backend, template):
     hostname = 'localhost'
     # pick a fairly odd, random port
     port = 8917
-    while 1:
+    while True:
         print('Trying to set up web server on port %d ...' % port, end=' ')
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)

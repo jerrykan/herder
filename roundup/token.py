@@ -51,7 +51,7 @@ def token_split(s, whitespace=' \r\n\t', quotes='\'"',
     length = len(s)
     finish = 0
     token = ''
-    while 1:
+    while True:
         # end of string, finish off the current token
         if pos == length:
             if state == QUOTE:

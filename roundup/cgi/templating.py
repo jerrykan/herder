@@ -905,8 +905,7 @@ class _HTMLItem(HTMLInputMixin, HTMLPermissions):
                         classname, id, current[prop_n])
 
         # get the journal, sort and reverse
-        history = self._klass.history(self._nodeid)
-        history.sort()
+        history = sorted(self._klass.history(self._nodeid))
         history.reverse()
 
         # restrict the volume

@@ -466,11 +466,10 @@ class EditCSVAction(Action):
 
         # figure the properties list for the class
         cl = self.db.classes[self.classname]
-        props_without_id = list(cl.getprops(protected=0))
-
         # the incoming CSV data will always have the properties in colums
         # sorted and starting with the "id" column
-        props_without_id.sort()
+        props_without_id = sorted(cl.getprops(protected=0))
+
         props = ['id'] + props_without_id
 
         # do the edit

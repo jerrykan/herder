@@ -16,11 +16,11 @@ def translate(value):
 
     if isinstance(value, (Date, Range, Interval)):
         return repr(value)
-    elif type(value) is list:
+    elif isinstance(value, list):
         return [translate(v) for v in value]
-    elif type(value) is tuple:
+    elif isinstance(value, tuple):
         return tuple([translate(v) for v in value])
-    elif type(value) is dict:
+    elif isinstance(value, dict):
         return dict([[translate(k), translate(value[k])] for k in value])
     else:
         return value
@@ -112,8 +112,7 @@ class RoundupInstance:
     def display(self, designator, *properties):
         classname, itemid = hyperdb.splitDesignator(designator)
         cl = self.db.getclass(classname)
-        props = properties and list(properties) or cl.properties.keys()
-        props.sort()
+        props = sorted(properties and list(properties) or cl.properties.keys())
         for p in props:
             if not self.db.security.hasPermission('View', self.db.getuid(),
                                                   classname, p, itemid):
