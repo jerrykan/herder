@@ -1277,6 +1277,11 @@ class HTMLProperty(HTMLInputMixin, HTMLPermissions):
             return cmp(self._value, other._value)
         return cmp(self._value, other)
 
+    # python 3
+    def __bool__(self):
+        return not not self._value
+
+    # python 2
     def __nonzero__(self):
         return not not self._value
 
@@ -3155,7 +3160,15 @@ class MissingValue(object):
         return getattr(self, name)
 
     def __getitem__(self, key): return self
-    def __nonzero__(self): return 0
+
+    # python 3
+    def __bool__(self):
+        return False
+
+    # python 2
+    def __nonzero__(self):
+        return False
+
     def __str__(self): return '[%s]'%self.__description
     def __repr__(self): return '<MissingValue 0x%x "%s">'%(id(self),
         self.__description)
