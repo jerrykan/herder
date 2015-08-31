@@ -1,4 +1,6 @@
 import operator
+from functools import reduce
+
 
 class MultiMapping:
     def __init__(self, *stores):
