@@ -13,6 +13,9 @@ try:
 except ImportError:
     SysCallError = None
 
+from six.moves.http_cookies import CookieError, BaseCookie, SimpleCookie
+from six.moves.http_cookies import _getdate as get_cookie_date
+
 from roundup import roundupdb, date, hyperdb, password
 from roundup.cgi import templating, cgitb, TranslationService
 from roundup.cgi import actions
@@ -25,8 +28,6 @@ from roundup.mailer import Mailer, MessageSendError, encode_quopri
 from roundup.cgi import accept_language
 from roundup import xmlrpc
 
-from roundup.anypy.cookie_ import CookieError, BaseCookie, SimpleCookie, \
-    get_cookie_date
 from roundup.anypy import http_
 from roundup.anypy import urllib_
 
