@@ -1,13 +1,14 @@
 import re, cgi, time, random, csv, codecs
 from io import BytesIO
 
+from six.moves import urllib
+
 from roundup import hyperdb, token, date, password
 from roundup.actions import Action as BaseAction
 from roundup.i18n import _
 from roundup.cgi import exceptions, templating
 from roundup.mailgw import uidFromAddress
 from roundup.exceptions import Reject, RejectRaw
-from roundup.anypy import urllib_
 
 # Also add action to client.py::Client.actions property
 __all__ = ['Action', 'ShowAction', 'RetireAction', 'RestoreAction', 'SearchAction',
@@ -75,15 +76,15 @@ class Action:
 
         Checks all parts with a regexp that matches any run of 0 or
         more allowed characters. If the component doesn't validate,
-        raise ValueError. Don't attempt to urllib_.quote it. Either
+        raise ValueError. Don't attempt to urllib.parse.quote it. Either
         it's correct as it comes in or it's a ValueError.
 
         Finally paste the whole thing together and return the new url.
         '''
 
-        parsed_url_tuple = urllib_.urlparse(url)
+        parsed_url_tuple = urllib.parse.urlparse(url)
         if self.base:
-            parsed_base_url_tuple = urllib_.urlparse(self.base)
+            parsed_base_url_tuple = urllib.parse.urlparse(self.base)
         else:
             raise ValueError(self._("Base url not set. Check configuration."))
 
@@ -134,7 +135,7 @@ class Action:
         if not allowed_pattern.match(parsed_url_tuple.fragment):
             raise ValueError(self._("Fragment component (%(url_fragment)s) in %(url)s is not properly escaped")%info)
 
-        return(urllib_.urlunparse(parsed_url_tuple))
+        return(urllib.parse.urlunparse(parsed_url_tuple))
 
     name = ''
     permissionType = None
@@ -814,8 +815,8 @@ class EditItemAction(EditCommon):
         # we will want to include index-page args in this URL too
         if self.nodeid is not None:
             url += self.nodeid
-        url += '?@ok_message=%s&@template=%s'%(urllib_.quote(message),
-            urllib_.quote(self.template))
+        url += '?@ok_message=%s&@template=%s' % (
+            urllib.parse.quote(message), urllib.parse.quote(self.template))
         if self.nodeid is None:
             req = templating.HTMLRequest(self.client)
             url += '&' + req.indexargs_url('', {})[1:]
@@ -858,12 +859,13 @@ class NewItemAction(EditCommon):
         if '__redirect_to' in self.form:
             raise exceptions.Redirect('%s&@ok_message=%s'%(
                 self.examine_url(self.form['__redirect_to'].value),
-                urllib_.quote(messages)))
+                urllib.parse.quote(messages)))
 
         # otherwise redirect to the new item's page
         raise exceptions.Redirect('%s%s%s?@ok_message=%s&@template=%s' % (
-            self.base, self.classname, self.nodeid, urllib_.quote(messages),
-            urllib_.quote(self.template)))
+            self.base, self.classname, self.nodeid,
+            urllib.parse.quote(messages), urllib.parse.quote(self.template)))
+
 
 class PassResetAction(Action):
     def handle(self):
@@ -990,8 +992,8 @@ class RegoCommon(Action):
 
         # nice message
         message = self._('You are now registered, welcome!')
-        url = '%suser%s?@ok_message=%s'%(self.base, self.userid,
-            urllib_.quote(message))
+        url = '%suser%s?@ok_message=%s' % (self.base, self.userid,
+                                           urllib.parse.quote(message))
 
         # redirect to the user's page (but not 302, as some email clients seem
         # to want to reload the page, or something)
@@ -1177,10 +1179,10 @@ class LoginAction(Action):
             #      a new error message
 
             clean_url = self.examine_url(self.form['__came_from'].value)
-            redirect_url_tuple = urllib_.urlparse(clean_url)
+            redirect_url_tuple = urllib.parse.urlparse(clean_url)
             # now I have a tuple form for the __came_from url
             try:
-                query=urllib_.parse_qs(redirect_url_tuple.query)
+                query = urllib.parse.parse_qs(redirect_url_tuple.query)
                 if "@error_message" in query:
                     del query["@error_message"]
                 if "@ok_message" in query:
@@ -1195,13 +1197,13 @@ class LoginAction(Action):
                 query = {}
                 pass
 
-            redirect_url = urllib_.urlunparse( (redirect_url_tuple.scheme,
-                                                redirect_url_tuple.netloc,
-                                                redirect_url_tuple.path,
-                                                redirect_url_tuple.params,
-                                                urllib_.urlencode(query, doseq=True),
-                                                redirect_url_tuple.fragment)
-                                           )
+            redirect_url = urllib.parse.urlunparse((
+                redirect_url_tuple.scheme,
+                redirect_url_tuple.netloc,
+                redirect_url_tuple.path,
+                redirect_url_tuple.params,
+                urllib.parse.urlencode(query, doseq=True),
+                redirect_url_tuple.fragment))
 
         try:
             self.verifyLogin(self.client.user, password)
@@ -1213,13 +1215,13 @@ class LoginAction(Action):
             if '__came_from' in self.form:
                 # set a new error
                 query['@error_message'] = err.args
-                redirect_url = urllib_.urlunparse( (redirect_url_tuple.scheme,
-                                                    redirect_url_tuple.netloc,
-                                                    redirect_url_tuple.path,
-                                                    redirect_url_tuple.params,
-                                                    urllib_.urlencode(query, doseq=True),
-                                                    redirect_url_tuple.fragment )
-                                               )
+                redirect_url = urllib.parse.urlunparse((
+                    redirect_url_tuple.scheme,
+                    redirect_url_tuple.netloc,
+                    redirect_url_tuple.path,
+                    redirect_url_tuple.params,
+                    urllib.parse.urlencode(query, doseq=True),
+                    redirect_url_tuple.fragment))
                 raise exceptions.Redirect(redirect_url)
             # if no __came_from, send back to base url with error
             return

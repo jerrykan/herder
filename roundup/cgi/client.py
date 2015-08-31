@@ -14,6 +14,7 @@ except ImportError:
     SysCallError = None
 
 from six.moves import http_client
+from six.moves import urllib
 from six.moves.http_cookies import CookieError, BaseCookie, SimpleCookie
 from six.moves.http_cookies import _getdate as get_cookie_date
 
@@ -28,8 +29,6 @@ from roundup.cgi.form_parser import FormParser
 from roundup.mailer import Mailer, MessageSendError, encode_quopri
 from roundup.cgi import accept_language
 from roundup import xmlrpc
-
-from roundup.anypy import urllib_
 
 from email.MIMEBase import MIMEBase
 from email.MIMEText import MIMEText
@@ -316,7 +315,7 @@ class Client:
 
         # this is the "cookie path" for this tracker (ie. the path part of
         # the "base" url)
-        self.cookie_path = urllib_.urlparse(self.base)[2]
+        self.cookie_path = urllib.parse.urlparse(self.base)[2]
         # cookies to set in http responce
         # {(path, name): (value, expire)}
         self._cookies = {}
