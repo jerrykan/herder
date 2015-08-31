@@ -30,7 +30,7 @@ before_install:
 
 install:
   - if [ $TRAVIS_PYTHON_VERSION != "3.4" ]; then pip install MySQL-python psycopg2 pytz pyme whoosh; fi
-  - pip install pytest-cov codecov
+  - pip install six pytest-cov codecov
 
   # includes a patch for python 2.6 support
   - if [ $TRAVIS_PYTHON_VERSION != "3.4" ]; then pip install git+https://bitbucket.org/malb/pyme.git@459f3eca65#egg=pyme; fi

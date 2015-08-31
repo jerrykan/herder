@@ -153,6 +153,7 @@ def main():
                      },
           packages=packages,
           scripts=scripts,
+          install_requires=['six>=1.9.0'],
           data_files=data_files)
 
 if __name__ == '__main__':
