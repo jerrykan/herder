@@ -32,7 +32,7 @@ class PythonExpr:
         self.expr = expr = expr.strip().replace('\n', ' ')
         try:
             d = {}
-            exec 'def f():\n return %s\n' % expr.strip() in d
+            exec('def f():\n return %s\n' % expr.strip(), d)
             self._f = d['f']
         except:
             raise CompilerError('Python expression error:\n%s: %s' %
