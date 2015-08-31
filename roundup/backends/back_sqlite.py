@@ -434,8 +434,8 @@ class Database(rdbms_common.Database):
             unpacked"""
             l = rdbms_common.Database.load_journal(self,
                 classname, cols, nodeid)
-            cols = range(5)
-            return [[row[col] for col in cols] for row in l]
+            return [[row[col] for col in range(5)] for row in l]
+
 
 class sqliteClass:
     def filter(self, search_matches, filterspec, sort=(None,None),
