@@ -768,7 +768,7 @@ class IssueClass:
             # this happens when property was added
             try:
                 old_value = oldvalues[key]
-                if type(new_value) is type([]):
+                if isinstance(new_value, list):
                     new_value.sort()
                     old_value.sort()
                 if new_value != old_value:

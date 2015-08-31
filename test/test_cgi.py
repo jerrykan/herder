@@ -40,7 +40,7 @@ class FileList:
 def makeForm(args):
     form = cgi.FieldStorage()
     for k,v in args.items():
-        if type(v) is type([]):
+        if isinstance(v, list):
             [form.list.append(cgi.MiniFieldStorage(k, x)) for x in v]
         elif isinstance(v, FileUpload):
             x = cgi.MiniFieldStorage(k, v.content)

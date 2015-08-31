@@ -2167,7 +2167,7 @@ class Class(hyperdb.Class):
         for prop, values in propspec.items():
             if not isinstance(props[prop], hyperdb.Link):
                 continue
-            if type(values) is type({}) and len(values) == 1:
+            if isinstance(values, dict) and len(values) == 1:
                 values = list(values)[0]
             if type(values) is type(''):
                 allvalues += (values,)
@@ -2593,7 +2593,7 @@ class Class(hyperdb.Class):
             elif isinstance(propclass, Boolean) and 'search' in p.need_for:
                 if type(v) == type(""):
                     v = v.split(',')
-                if type(v) != type([]):
+                if not isinstance(v, list):
                     v = [v]
                 bv = []
                 for val in v:

@@ -1562,7 +1562,7 @@ class Class(hyperdb.Class):
                 if self.db.RETIRED_FLAG in item:
                     continue
                 for propname, itemids in propspec.items():
-                    if type(itemids) is not type({}):
+                    if not isinstance(itemids, dict):
                         itemids = {itemids:1}
 
                     # special case if the item doesn't have this property
@@ -1715,7 +1715,7 @@ class Class(hyperdb.Class):
         for k, v in filterspec.items():
             propclass = props[k]
             if isinstance(propclass, hyperdb.Link):
-                if type(v) is not type([]):
+                if not isinstance(v, list):
                     v = [v]
                 u = []
                 for entry in v:
@@ -1728,11 +1728,11 @@ class Class(hyperdb.Class):
                 # the value -1 is a special "not set" sentinel
                 if v in ('-1', ['-1']):
                     v = []
-                elif type(v) is not type([]):
+                elif not isinstance(v, list):
                     v = [v]
                 l.append((MULTILINK, k, v))
             elif isinstance(propclass, hyperdb.String) and k != 'id':
-                if type(v) is not type([]):
+                if not isinstance(v, list):
                     v = [v]
                 for v in v:
                     # simple glob searching
@@ -1758,7 +1758,7 @@ class Class(hyperdb.Class):
             elif isinstance(propclass, hyperdb.Boolean):
                 if type(v) == type(""):
                     v = v.split(',')
-                if type(v) != type([]):
+                if not isinstance(v, list):
                     v = [v]
                 bv = []
                 for val in v:
@@ -1769,12 +1769,12 @@ class Class(hyperdb.Class):
                 l.append((OTHER, k, bv))
 
             elif k == 'id':
-                if type(v) != type([]):
+                if not isinstance(v, list):
                     v = v.split(',')
                 l.append((OTHER, k, [str(int(val)) for val in v]))
 
             elif isinstance(propclass, hyperdb.Number):
-                if type(v) != type([]):
+                if not isinstance(v, list):
                     try :
                         v = v.split(',')
                     except AttributeError :

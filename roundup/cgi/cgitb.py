@@ -109,7 +109,7 @@ def pt_html(context=5, i18n=None):
 def html(context=5, i18n=None):
     _ = get_translator(i18n)
     etype, evalue = sys.exc_info()[0], sys.exc_info()[1]
-    if type(etype) is type:
+    if isinstance(etype, type):
         etype = etype.__name__
     pyver = 'Python ' + string.split(sys.version)[0] + '<br>' + sys.executable
     head = pydoc.html.heading(
@@ -205,7 +205,7 @@ def html(context=5, i18n=None):
 
     exception = '<p><strong>%s</strong>: %s' % (str(etype), str(evalue))
     attribs = []
-    if type(evalue) is types.InstanceType:
+    if isinstance(evalue, types.InstanceType):
         for name in dir(evalue):
             value = pydoc.html.repr(getattr(evalue, name))
             attribs.append('<br>%s%s&nbsp;= %s' % (indent, name, value))
