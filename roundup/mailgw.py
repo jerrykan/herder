@@ -1330,11 +1330,11 @@ class MailGW:
             from mailbox import UnixMailbox
             mailbox = UnixMailbox(f, factory=Message)
             # grab one message
-            message = mailbox.next()
+            message = next(mailbox)
             while message:
                 # handle this message
                 self.handle_Message(message)
-                message = mailbox.next()
+                message = next(mailbox)
             # nuke the file contents
             os.ftruncate(f.fileno(), 0)
         except:

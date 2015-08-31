@@ -7,6 +7,9 @@ __docformat__ = 'restructuredtext'
 
 import os, time, sys, re
 
+import six
+
+
 class TruthDict:
     '''Returns True for valid keys, False for others.
     '''
@@ -60,7 +63,8 @@ class PrioList:
             self.sorted = True
         return iter(self.list)
 
-class Progress:
+
+class Progress(six.Iterator):
     '''Progress display for console applications.
 
     See __main__ block at end of file for sample usage.
@@ -77,19 +81,19 @@ class Progress:
 
     def __iter__(self): return self
 
-    def next(self):
+    def __next__(self):
         self.num += 1
 
         if self.num > self.total:
             print(self.info, 'done', ' '*(75-len(self.info)-6))
             sys.stdout.flush()
-            return self.sequence.next()
+            return next(self.sequence)
 
         if self.num % self.stepsize:
-            return self.sequence.next()
+            return next(self.sequence)
 
         self.display()
-        return self.sequence.next()
+        return next(self.sequence)
 
     def display(self):
         # figure how long we've spent - guess how long to go
