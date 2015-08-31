@@ -1246,8 +1246,7 @@ class DBTest(commonDBTest):
         one, two, three, four = self._find_test_setup()
         got = sorted(self.db.issue.find(status='1'))
         self.assertEqual(got, [one, three])
-        got = self.db.issue.find(status={'1':1})
-        got.sort()
+        got = sorted(self.db.issue.find(status={'1': 1}))
         self.assertEqual(got, [one, three])
 
     def testFindLinkFail(self):
@@ -1259,24 +1258,21 @@ class DBTest(commonDBTest):
         one, two, three, four = self._find_test_setup()
         got = sorted(self.db.issue.find(assignedto=None))
         self.assertEqual(got, [one, three])
-        got = self.db.issue.find(assignedto={None:1})
-        got.sort()
+        got = sorted(self.db.issue.find(assignedto={None: 1}))
         self.assertEqual(got, [one, three])
 
     def testFindMultipleLink(self):
         one, two, three, four = self._find_test_setup()
         l = sorted(self.db.issue.find(status={'1': 1, '3': 1}))
         self.assertEqual(l, [one, three, four])
-        l = self.db.issue.find(assignedto={None:1, '1':1})
-        l.sort()
+        l = sorted(self.db.issue.find(assignedto={None: 1, '1': 1}))
         self.assertEqual(l, [one, three, four])
 
     def testFindMultilink(self):
         one, two, three, four = self._find_test_setup()
         got = sorted(self.db.issue.find(nosy='2'))
         self.assertEqual(got, [two, three])
-        got = self.db.issue.find(nosy={'2':1})
-        got.sort()
+        got = sorted(self.db.issue.find(nosy={'2': 1}))
         self.assertEqual(got, [two, three])
         got = self.db.issue.find(nosy={'2':1}, files={})
         got.sort()
@@ -1286,8 +1282,7 @@ class DBTest(commonDBTest):
         one, two, three, four = self._find_test_setup()
         got = sorted(self.db.issue.find(nosy='2', files='1'))
         self.assertEqual(got, [two, three, four])
-        got = self.db.issue.find(nosy={'2':1}, files={'1':1})
-        got.sort()
+        got = sorted(self.db.issue.find(nosy={'2': 1}, files={'1': 1}))
         self.assertEqual(got, [two, three, four])
 
     def testFindMultilinkFail(self):
@@ -1303,8 +1298,7 @@ class DBTest(commonDBTest):
         one, two, three, four = self._find_test_setup()
         got = sorted(self.db.issue.find(status='1', nosy='2'))
         self.assertEqual(got, [one, two, three])
-        got = self.db.issue.find(status={'1':1}, nosy={'2':1})
-        got.sort()
+        got = sorted(self.db.issue.find(status={'1': 1}, nosy={'2': 1}))
         self.assertEqual(got, [one, two, three])
 
     def testFindRetired(self):
@@ -2774,8 +2768,7 @@ class ClassicInitTest(ClassicInitBase):
         # check the basics of the schema and initial data set
         l = sorted(db.priority.list())
         ae(l, ['1', '2', '3', '4', '5'])
-        l = db.status.list()
-        l.sort()
+        l = sorted(db.status.list())
         ae(l, ['1', '2', '3', '4', '5', '6', '7', '8'])
         l = db.keyword.list()
         ae(l, [])

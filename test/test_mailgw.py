@@ -428,8 +428,7 @@ This is a test submission of a new issue.
         self.assertEqual(l, [self.richard_id])
         m = self.db.issue.get(nodeid, 'messages')
         self.assertEqual(len(m), 1)
-        recv = self.db.msg.get(m[0], 'recipients')
-        recv.sort()
+        recv = sorted(self.db.msg.get(m[0], 'recipients'))
         self.assertEqual(recv, [self.richard_id])
 
     def testAlternateAddress(self):
@@ -769,8 +768,7 @@ some text in inner email
         self._handle_mail(self.multipart_msg)
         issue = self.db.issue.getnode ('1')
         self.assertEqual(len(issue.files), 10)
-        messages = self.db.issue.get('1', 'messages')
-        messages.sort()
+        messages = sorted(self.db.issue.get('1', 'messages'))
         self.assertEqual(messages[-1], '3')
         msg = self.db.msg.getnode (messages[-1])
         self.assertEqual(issue.files, [str(i+1) for i in range(10)])
@@ -2180,8 +2178,7 @@ Unknown address: fubar@bork.bork.bork
             raise AssertionError("Unauthorized not raised when handling mail")
 
         # Make sure list of users is the same as before.
-        m = self.db.user.list()
-        m.sort()
+        m = sorted(self.db.user.list())
         self.assertEqual(l, m)
 
         # now with the permission
