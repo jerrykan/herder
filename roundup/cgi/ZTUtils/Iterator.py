@@ -21,7 +21,6 @@ true if it succeeds.
 '''
 __docformat__ = 'restructuredtext'
 
-import string
 
 class Iterator:
     '''Simple Iterator class'''
@@ -84,7 +83,7 @@ class Iterator:
             s = s + r * rct
         return s
 
-    def roman(self, lower=string.lower):
+    def roman(self, lower=str.lower):
         return lower(self.Roman())
 
     def first(self, name=None):
