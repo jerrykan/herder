@@ -22,8 +22,10 @@ import getopt
 import re
 from types import ListType
 from cgi import escape
+
 # Do not use cStringIO here!  It's not unicode aware. :(
-from StringIO import StringIO
+from six import StringIO
+
 #from DocumentTemplate.DT_Util import ustr
 ustr = str
 

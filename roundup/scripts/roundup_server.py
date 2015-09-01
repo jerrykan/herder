@@ -34,9 +34,10 @@ if (osp.exists(thisdir + '/__init__.py') and
     sys.path.insert(0, rootdir)
 # --/
 
+from six import StringIO
 
 import errno, cgi, getopt, os, socket, sys, traceback, urllib, time
-import BaseHTTPServer, SocketServer, StringIO
+import BaseHTTPServer, SocketServer
 
 try:
     from OpenSSL import SSL
@@ -225,7 +226,7 @@ class RoundupRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                         self.wfile.write(cgitb.breaker())
                         self.wfile.write(cgitb.html())
                     except:
-                        s = StringIO.StringIO()
+                        s = StringIO()
                         traceback.print_exc(None, s)
                         self.wfile.write("<pre>")
                         self.wfile.write(cgi.escape(s.getvalue()))
@@ -296,7 +297,7 @@ class RoundupRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
 
             if favicon_fileobj is None:
-                favicon_fileobj = StringIO.StringIO(favico)
+                favicon_fileobj = StringIO(favico)
 
             self.send_response(200)
             self.send_header('Content-Type', 'image/x-icon')

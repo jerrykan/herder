@@ -8,7 +8,9 @@ import mimetypes
 import os
 import os.path
 
-from roundup.cgi.templating import StringIO, context, translationService, TALLoaderBase
+from six import StringIO
+
+from roundup.cgi.templating import context, translationService, TALLoaderBase
 from roundup.cgi.PageTemplates import PageTemplate, GlobalTranslationService
 from roundup.cgi.PageTemplates.Expressions import getEngine
 from roundup.cgi.TAL import TALInterpreter
@@ -86,7 +88,7 @@ class RoundupPageTemplate(PageTemplate.PageTemplate):
         c.update({'options': options})
 
         # and go
-        output = StringIO.StringIO()
+        output = StringIO()
         TALInterpreter.TALInterpreter(self._v_program, self.macros,
             getEngine().getContext(c), output, tal=1, strictinsert=0)()
         return output.getvalue()

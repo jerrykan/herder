@@ -24,6 +24,8 @@ import cgi, urllib, re, os.path, mimetypes, csv, string
 import calendar
 import textwrap
 
+from six.moves import cStringIO
+
 from roundup import hyperdb, date, support
 from roundup import i18n
 from roundup.i18n import _
@@ -34,10 +36,7 @@ try:
     import cPickle as pickle
 except ImportError:
     import pickle
-try:
-    import cStringIO as StringIO
-except ImportError:
-    import StringIO
+
 try:
     from StructuredText.StructuredText import HTML as StructuredText
 except ImportError:
@@ -585,7 +584,7 @@ class HTMLClass(HTMLInputMixin, HTMLPermissions):
         """ Return the items of this class as a chunk of CSV text.
         """
         props = self.propnames()
-        s = StringIO.StringIO()
+        s = cStringIO()
         writer = csv.writer(s)
         writer.writerow(props)
         check = self._client.db.security.hasPermission

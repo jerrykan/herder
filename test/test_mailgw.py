@@ -16,6 +16,7 @@ from . import gpgmelib
 import unittest, tempfile, os, shutil, errno, imp, sys, difflib, time
 
 import pytest
+from six.moves import cStringIO
 
 try:
     import pyme, pyme.core
@@ -26,9 +27,6 @@ except ImportError:
     from .pytest_patcher import mark_class
     skip_pgp = mark_class(pytest.mark.skip(
         reason="Skipping PGP tests: 'pyme' not installed"))
-
-
-from cStringIO import StringIO
 
 if 'SENDMAILDEBUG' not in os.environ:
     os.environ['SENDMAILDEBUG'] = 'mail-test.log'
@@ -240,7 +238,7 @@ class MailgwTestAbstractBase(DiffHelper):
     def _handle_mail(self, message, args=(), trap_exc=0):
         handler = self._create_mailgw(message, args)
         handler.trapExceptions = trap_exc
-        return handler.main(StringIO(message))
+        return handler.main(cStringIO(message))
 
     def _get_mail(self):
         """Reads an email that has been written to file via debug output.

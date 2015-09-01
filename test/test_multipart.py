@@ -16,7 +16,8 @@
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 import unittest
-from cStringIO import StringIO
+
+from six.moves import cStringIO
 
 from roundup.mailgw import Message
 
@@ -61,7 +62,7 @@ class ExampleMessage(Message):
             parts.append('Content-type: %s;\n' % content_type)
             parts.append(self.table[content_type] % {'indent': indent + 1})
 
-        Message.__init__(self, StringIO(''.join(parts)))
+        Message.__init__(self, cStringIO(''.join(parts)))
 
     def getIndent(self, line):
         """Get the current line's indentation, using four-space indents."""
@@ -72,9 +73,10 @@ class ExampleMessage(Message):
             count += 1
         return count / 4
 
+
 class MultipartTestCase(unittest.TestCase):
     def setUp(self):
-        self.fp = StringIO()
+        self.fp = cStringIO()
         w = self.fp.write
         w('Content-Type: multipart/mixed; boundary="foo"\r\n\r\n')
         w('This is a multipart message. Ignore this bit.\r\n')

@@ -8,7 +8,9 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-import unittest, os, shutil, errno, sys, difflib, cgi, re, StringIO
+import unittest, os, shutil, errno, sys, difflib, cgi, re
+
+from six import StringIO
 
 from roundup.cgi import client, actions, exceptions
 from roundup.cgi.exceptions import FormError
@@ -1139,7 +1141,7 @@ class FormTestCase(unittest.TestCase):
         cl = self._make_client({'@columns': 'id,name'}, nodeid=None,
             userid='1')
         cl.classname = 'status'
-        output = StringIO.StringIO()
+        output = StringIO()
         cl.request = MockNull()
         cl.request.wfile = output
         actions.ExportCSVAction(cl).handle()
@@ -1152,7 +1154,7 @@ class FormTestCase(unittest.TestCase):
         cl = self._make_client({'@columns': 'falseid,name'}, nodeid=None,
             userid='1')
         cl.classname = 'status'
-        output = StringIO.StringIO()
+        output = StringIO()
         cl.request = MockNull()
         cl.request.wfile = output
         self.assertRaises(exceptions.NotFound,
@@ -1162,7 +1164,7 @@ class FormTestCase(unittest.TestCase):
         cl = self._make_client({'@columns': 'id,email,password'}, nodeid=None,
             userid='2')
         cl.classname = 'user'
-        output = StringIO.StringIO()
+        output = StringIO()
         cl.request = MockNull()
         cl.request.wfile = output
         # used to be self.assertRaises(exceptions.Unauthorised,
@@ -1177,7 +1179,7 @@ class FormTestCase(unittest.TestCase):
         cl = self._make_client({'@columns': 'id,address,password'}, nodeid=None,
             userid='2')
         cl.classname = 'user'
-        output = StringIO.StringIO()
+        output = StringIO()
         cl.request = MockNull()
         cl.request.wfile = output
         # used to be self.assertRaises(exceptions.Unauthorised,
