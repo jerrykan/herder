@@ -17,8 +17,6 @@
 Common definitions used by TAL and METAL compilation an transformation.
 """
 
-from types import ListType, TupleType
-
 #from ITALES import ITALESErrorInfo
 
 TAL_VERSION = "1.4"
@@ -157,18 +155,20 @@ def isCurrentVersion(program):
     version = getProgramVersion(program)
     return version == TAL_VERSION
 
+
 def getProgramMode(program):
     version = getProgramVersion(program)
-    if (version == TAL_VERSION and isinstance(program[1], TupleType) and
+    if (version == TAL_VERSION and isinstance(program[1], tuple) and
         len(program[1]) == 2):
         opcode, mode = program[1]
         if opcode == "mode":
             return mode
     return None
 
+
 def getProgramVersion(program):
-    if (len(program) >= 2 and
-        isinstance(program[0], TupleType) and len(program[0]) == 2):
+    if (len(program) >= 2 and isinstance(program[0], tuple) and
+            len(program[0]) == 2):
         opcode, version = program[0]
         if opcode == "version":
             return version

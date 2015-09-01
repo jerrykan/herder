@@ -20,7 +20,6 @@ Interpreter for a pre-compiled TAL program.
 import sys
 import getopt
 import re
-from types import ListType
 from cgi import escape
 
 # Do not use cStringIO here!  It's not unicode aware. :(
