@@ -30,10 +30,11 @@ from roundup.mailer import Mailer, MessageSendError, encode_quopri
 from roundup.cgi import accept_language
 from roundup import xmlrpc
 
-from email.MIMEBase import MIMEBase
-from email.MIMEText import MIMEText
-from email.MIMEMultipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 import roundup.anypy.email_
+
 
 def initialiseSecurity(security):
     '''Create some Permissions and Roles on the security object

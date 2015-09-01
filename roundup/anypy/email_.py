@@ -1,6 +1,5 @@
 import re
 import binascii
-import email
 from email import quoprimime, base64mime
 
 ## please import this file if you are using the email module
@@ -9,12 +8,16 @@ from email import quoprimime, base64mime
 # when generating header files, see http://bugs.python.org/issue1974
 # and https://hg.python.org/cpython/rev/5deb27042e5a/
 # can go away once the minimum requirement is python 2.7
-_oldheaderinit = email.Header.Header.__init__
-def _unifiedheaderinit(self, *args, **kw):
-    # override continuation_ws
-    kw['continuation_ws'] = ' '
-    _oldheaderinit(self, *args, **kw)
-email.Header.Header.__dict__['__init__'] = _unifiedheaderinit
+import sys
+if sys.version_info[:2] < (2, 7):
+    import email
+    _oldheaderinit = email.Header.Header.__init__
+
+    def _unifiedheaderinit(self, *args, **kw):
+        # override continuation_ws
+        kw['continuation_ws'] = ' '
+        _oldheaderinit(self, *args, **kw)
+    email.Header.Header.__dict__['__init__'] = _unifiedheaderinit
 ##
 
 # Match encoded-word strings in the form =?charset?q?Hello_World?=
