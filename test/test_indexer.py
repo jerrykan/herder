@@ -115,21 +115,22 @@ class IndexerTest(unittest.TestCase):
     def test_extremewords(self):
         """Testing too short or too long words."""
         short = "b"
-        long = "abcdefghijklmnopqrstuvwxyz"
+        longword = "abcdefghijklmnopqrstuvwxyz"
         self.dex.add_text(('test', '1', 'a'), '%s hello world' % short)
         self.dex.add_text(('test', '2', 'a'), 'blah a %s world' % short)
         self.dex.add_text(('test', '3', 'a'), 'blah Blub river')
         self.dex.add_text(('test', '4', 'a'), 'blah river %s %s'
-                                                        % (short, long))
-        self.assertSeqEqual(self.dex.find([short,'world', long, short]),
-                                                    [('test', '1', 'a'),
-                                                     ('test', '2', 'a')])
-        self.assertSeqEqual(self.dex.find([long]),[])
+                                                        % (short, longword))
+        self.assertSeqEqual(
+            self.dex.find([short,'world', longword, short]),
+            [('test', '1', 'a'), ('test', '2', 'a')])
+        self.assertSeqEqual(self.dex.find([longword]), [])
 
         # special test because some faulty code indexed length(word)>=2
         # but only considered length(word)>=3 to be significant
-        self.dex.add_text(('test', '5', 'a'), 'blah py %s %s'
-                                                        % (short, long))
+        self.dex.add_text(
+            ('test', '5', 'a'),
+            'blah py %s %s' % (short, longword))
         self.assertSeqEqual(self.dex.find(["py"]), [('test', '5', 'a')])
 
     def test_casesensitity(self):

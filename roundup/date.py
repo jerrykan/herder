@@ -29,6 +29,8 @@ try:
 except ImportError:
     pytz = None
 
+import six
+
 from roundup import i18n
 
 # no, I don't know why we must anchor the date RE when we only ever use it
@@ -739,7 +741,7 @@ class Interval:
     ):
         """Construct an interval given a specification."""
         self.setTranslator(translator)
-        if isinstance(spec, (int, float, long)):
+        if isinstance(spec, (six.integer_types, float)):
             self.from_seconds(spec)
         elif isinstance(spec, basestring):
             self.set(spec, allowdate=allowdate, add_granularity=add_granularity)
