@@ -4,12 +4,14 @@
 # For license terms see the file COPYING.txt.
 #
 
+from six.moves.xmlrpc_client import Binary
+from six.moves.xmlrpc_server import SimpleXMLRPCDispatcher
+
 from roundup import hyperdb
 from roundup.exceptions import Unauthorised, UsageError
 from roundup.date import Date, Range, Interval
 from roundup import actions
-from SimpleXMLRPCServer import SimpleXMLRPCDispatcher
-from xmlrpclib import Binary
+
 
 def translate(value):
     """Translate value to becomes valid for XMLRPC transmission."""

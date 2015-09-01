@@ -6,7 +6,8 @@
 
 import unittest, os, shutil, errno, sys, difflib, cgi, re
 
-from xmlrpclib import MultiCall
+from six.moves.xmlrpc_client import MultiCall
+
 from roundup.cgi.exceptions import *
 from roundup import init, instance, password, hyperdb, date
 from roundup.xmlrpc import RoundupInstance, RoundupDispatcher
