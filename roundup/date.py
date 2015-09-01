@@ -743,7 +743,7 @@ class Interval:
         self.setTranslator(translator)
         if isinstance(spec, (six.integer_types, float)):
             self.from_seconds(spec)
-        elif isinstance(spec, basestring):
+        elif isinstance(spec, six.string_types):
             self.set(spec, allowdate=allowdate, add_granularity=add_granularity)
         elif isinstance(spec, Interval):
             (self.sign, self.year, self.month, self.day, self.hour,

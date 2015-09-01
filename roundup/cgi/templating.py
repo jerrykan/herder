@@ -24,6 +24,7 @@ import cgi, urllib, re, os.path, mimetypes, csv, string
 import calendar
 import textwrap
 
+import six
 from six.moves import cStringIO
 
 from roundup import hyperdb, date, support
@@ -1779,7 +1780,7 @@ class DateHTMLProperty(HTMLProperty):
 
         ret = date.Date('.', translator=self._client)
 
-        if isinstance(str_interval, basestring):
+        if isinstance(str_interval, six.string_types):
             sign = 1
             if str_interval[0] == '-':
                 sign = -1
@@ -1816,7 +1817,7 @@ class DateHTMLProperty(HTMLProperty):
             if default is None:
                 raw_value = None
             else:
-                if isinstance(default, basestring):
+                if isinstance(default, six.string_types):
                     raw_value = date.Date(default, translator=self._client)
                 elif isinstance(default, date.Date):
                     raw_value = default
