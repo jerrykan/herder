@@ -2,7 +2,6 @@
 #
 __docformat__ = "restructuredtext"
 
-import ConfigParser
 import getopt
 import imp
 import logging, logging.config
@@ -11,6 +10,8 @@ import re
 import sys
 import time
 import smtplib
+
+from six.moves import configparser
 
 import roundup.date
 
@@ -1218,7 +1219,7 @@ class Config:
         config_defaults = {"HOME": home_dir}
         if defaults:
             config_defaults.update(defaults)
-        config = ConfigParser.ConfigParser(config_defaults)
+        config = configparser.ConfigParser(config_defaults)
         config.read([config_path])
         # .ini file loaded ok.
         self.HOME = home_dir
