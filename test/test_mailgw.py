@@ -2110,8 +2110,7 @@ This is a test submission of a new issue.
             realname='\xe4\xf6\xfc\xc4\xd6\xdc\xdf, Mary'.decode
             ('latin-1').encode('utf-8'))
         self.doNewIssue()
-        self._handle_mail('''Content-Type: text/plain;
-  charset="iso-8859-1"
+        self._handle_mail('''\
 From: mary <mary@test.test>
 To: issue_tracker@your.tracker.email.domain.example
 Message-Id: <followup_dummy_id>
@@ -2205,11 +2204,9 @@ Roundup issue tracker <issue_tracker@your.tracker.email.domain.example>
 _______________________________________________________________________
 ''')
 
-
     def testMultipartEnc01(self):
         self.doNewIssue()
-        self._handle_mail('''Content-Type: text/plain;
-  charset="iso-8859-1"
+        self._handle_mail('''\
 From: mary <mary@test.test>
 To: issue_tracker@your.tracker.email.domain.example
 Message-Id: <followup_dummy_id>
@@ -2262,8 +2259,7 @@ _______________________________________________________________________
 
     def testContentDisposition(self):
         self.doNewIssue()
-        self._handle_mail('''Content-Type: text/plain;
-  charset="iso-8859-1"
+        self._handle_mail('''\
 From: mary <mary@test.test>
 To: issue_tracker@your.tracker.email.domain.example
 Message-Id: <followup_dummy_id>
@@ -3218,7 +3214,7 @@ minute, so we get to </FONT>
     def testForwardedMessageAttachment(self):
         message = '''Return-Path: <rgg@test.test>
 Received: from localhost(127.0.0.1), claiming to be "[115.130.26.69]"
-via SMTP by localhost, id smtpdAAApLaWrq; Tue Apr 13 23:10:05 2010
+    via SMTP by localhost, id smtpdAAApLaWrq; Tue Apr 13 23:10:05 2010
 Message-ID: <4BC4F9C7.50409@test.test>
 Date: Wed, 14 Apr 2010 09:09:59 +1000
 From: Rupert Goldie <rgg@test.test>
@@ -3242,7 +3238,7 @@ Content-Disposition: inline; filename="PHP ERROR (fb).eml"
 
 Return-Path: <ektravj@test.test>
 X-Sieve: CMU Sieve 2.2
-via SMTP by crown.off.ekorp.com, id smtpdAAA1JaW1o; Tue Apr 13 23:01:04 2010
+    via SMTP by off.ekorp.com, id smtpdAAA1JaW1o; Tue Apr 13 23:01:04 2010
 X-Virus-Scanned: by amavisd-new at ekit.com
 To: facebook-errors@test.test
 From: ektravj@test.test
