@@ -148,7 +148,7 @@ class Mailer:
         """Bounce a message, attaching the failed submission.
 
         Arguments:
-        - bounced_message: an RFC822 Message object.
+        - bounced_message: an mailgw.RoundupMessage object.
         - to: a list of addresses usable by rfc822.parseaddr(). Might be
           extended or overridden according to the config
           ERROR_MESSAGES_TO setting.
@@ -183,18 +183,7 @@ class Mailer:
         message.attach(part)
 
         # attach the original message to the returned message
-        body = []
-        for header in bounced_message.headers:
-            body.append(header)
-        try:
-            bounced_message.rewindbody()
-        except IOError, errmessage:
-            body.append("*** couldn't include message body: %s ***" %
-                errmessage)
-        else:
-            body.append('\n')
-            body.append(bounced_message.fp.read())
-        part = MIMEText(''.join(body))
+        part = MIMEText(bounced_message.flatten())
         message.attach(part)
 
         if to:
