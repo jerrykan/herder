@@ -802,16 +802,16 @@ class parsedMessage:
         self.config = mailgw.instance.config
         self.db = mailgw.db
         self.message = message
-        self.subject = message.getheader('subject', '')
+        self.subject = message.get_header('subject', '')
         self.has_prefix = False
         self.matches = dict.fromkeys(['refwd', 'quote', 'classname',
                                  'nodeid', 'title', 'args', 'argswhole'])
         self.keep_real_from = self.config['EMAIL_KEEP_REAL_FROM']
         if self.keep_real_from:
-            self.from_list = message.getaddrlist('from')
+            self.from_list = message.get_address_list('from')
         else:
-            self.from_list = message.getaddrlist('resent-from') \
-                          or message.getaddrlist('from')
+            self.from_list = (message.get_address_list('resent-from') or
+                              message.get_address_list('from'))
         self.pfxmode = self.config['MAILGW_SUBJECT_PREFIX_PARSING']
         self.sfxmode = self.config['MAILGW_SUBJECT_SUFFIX_PARSING']
         # these are filled in by subsequent parsing steps
@@ -832,9 +832,9 @@ class parsedMessage:
             detect loops and
             Precedence: Bulk, or Microsoft Outlook autoreplies
         '''
-        if self.message.getheader('x-roundup-loop', ''):
+        if self.message.get_header('x-roundup-loop', ''):
             raise IgnoreLoop
-        if (self.message.getheader('precedence', '') == 'bulk'
+        if (self.message.get_header('precedence', '') == 'bulk'
                 or self.subject.lower().find("autoreply") > 0):
             raise IgnoreBulk
 
@@ -1032,7 +1032,7 @@ Subject was: '%(subject)s'
             nodeid = self.matches['nodeid']
 
         # try in-reply-to to match the message if there's no nodeid
-        inreplyto = self.message.getheader('in-reply-to') or ''
+        inreplyto = self.message.get_header('in-reply-to', '')
         if nodeid is None and inreplyto:
             l = self.db.getclass('msg').stringFind(messageid=inreplyto)
             if l:
@@ -1178,8 +1178,8 @@ Unknown address: %(from_address)s
         # now update the recipients list
         recipients = []
         tracker_email = self.config['TRACKER_EMAIL'].lower()
-        msg_to = self.message.getaddrlist('to')
-        msg_cc = self.message.getaddrlist('cc')
+        msg_to = self.message.get_address_list('to')
+        msg_cc = self.message.get_address_list('cc')
         for recipient in msg_to + msg_cc:
             r = recipient[1].strip().lower()
             if r == tracker_email or not r:
@@ -1326,7 +1326,6 @@ encrypted."""))
         self.content, self.attachments = self.message.extract_content(
             ignore_alternatives=ig,
             unpack_rfc822=self.config.MAILGW_UNPACK_RFC822)
-        
 
     def create_files(self):
         ''' Create a file for each attachment in the message
@@ -1376,8 +1375,8 @@ encrypted."""))
         self.msg_props.update (msg_props)
         
         # Get the message ids
-        inreplyto = self.message.getheader('in-reply-to') or ''
-        messageid = self.message.getheader('message-id')
+        inreplyto = self.message.get_header('in-reply-to', '')
+        messageid = self.message.get_header('message-id')
         # generate a messageid if there isn't one
         if not messageid:
             messageid = "<%s.%s.%s%s@%s>"%(time.time(), random.random(),
@@ -1582,8 +1581,9 @@ class MailGW:
             message = next(mailbox)
             while message:
                 # handle this message
-                self.handle_Message(message)
-                message = next(mailbox)
+                message.fp.seek(0)
+                self.handle_Message(email.message_from_file(message.fp))
+                message = mailbox.next()
             # nuke the file contents
             os.ftruncate(f.fileno(), 0)
         except:
@@ -1650,9 +1650,8 @@ class MailGW:
                 server.store(str(i), '+FLAGS', r'(\Deleted)')
 
                 # process the message
-                s = cStringIO(data[0][1])
-                s.seek(0)
-                self.handle_Message(Message(s))
+                self.handle_Message(
+                    email.message_from_string(data[0][1], RoundupMessage))
             server.close()
         finally:
             try:
@@ -1710,9 +1709,8 @@ class MailGW:
             #   [ array of message lines ],
             #   number of octets ]
             lines = server.retr(i)[1]
-            s = cStringIO('\n'.join(lines))
-            s.seek(0)
-            self.handle_Message(Message(s))
+            self.handle_Message(
+                email.message_from_string('\n'.join(lines), RoundupMessage))
             # delete the message
             server.dele(i)
 
@@ -1723,7 +1721,7 @@ class MailGW:
     def main(self, fp):
         ''' fp - the file from which to read the Message.
         '''
-        return self.handle_Message(Message(fp))
+        return self.handle_Message(email.message_from_file(fp, RoundupMessage))
 
     def handle_Message(self, message):
         """Handle an RFC822 Message
@@ -1739,20 +1737,20 @@ class MailGW:
 
         self.parsed_message = None
         crypt = False
-        sendto = message.getaddrlist('resent-from')
+        sendto = message.get_address_list('resent-from')
         if not sendto or self.instance.config['EMAIL_KEEP_REAL_FROM']:
-            sendto = message.getaddrlist('from')
+            sendto = message.get_address_list('from')
         if not sendto:
             # very bad-looking message - we don't even know who sent it
             msg = ['Badly formed message from mail gateway. Headers:']
-            msg.extend(message.headers)
+            msg.extend([': '.join(args) for args in message.items()])
             msg = '\n'.join(map(str, msg))
             self.logger.error(msg)
             return
 
         msg = 'Handling message'
-        if message.getheader('message-id'):
-            msg += ' (Message-id=%r)'%message.getheader('message-id')
+        if message.get('message-id'):
+            msg += ' (Message-id=%r)' % message.get('message-id')
         self.logger.info(msg)
 
         # try normal message-handling
@@ -1799,14 +1797,14 @@ class MailGW:
             # do not take any action
             # this exception is thrown when email should be ignored
             msg = 'IgnoreMessage raised'
-            if message.getheader('message-id'):
-                msg += ' (Message-id=%r)'%message.getheader('message-id')
+            if message.get('message-id'):
+                msg += ' (Message-id=%r)' % message.get('message-id')
             self.logger.info(msg)
             return
         except:
             msg = 'Exception handling message'
-            if message.getheader('message-id'):
-                msg += ' (Message-id=%r)'%message.getheader('message-id')
+            if message.get('message-id'):
+                msg += ' (Message-id=%r)' % message.get('message-id')
             self.logger.exception(msg)
 
             # bounce the message back to the sender with the error message
