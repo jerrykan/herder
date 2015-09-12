@@ -97,7 +97,9 @@ __docformat__ = 'restructuredtext'
 import string, re, os, mimetools, smtplib, socket, binascii, quopri
 import time, random, sys, logging
 import traceback
+import email
 import email.utils
+from email.generator import Generator
 
 from six.moves import cStringIO
 
@@ -545,6 +547,253 @@ class Message(mimetools.Message):
         # check all signatures for validity
         result = context.op_verify_result()
         check_pgp_sigs(result.signatures, context, author)
+
+
+class RoundupMessage(email.message.Message):
+    def _decode_header_to_utf8(self, hdr):
+        parts = []
+        for part, encoding in decode_header(hdr):
+            if encoding:
+                part = part.decode(encoding)
+            # RFC 2047 specifies that between encoded parts spaces are
+            # swallowed while at the borders from encoded to non-encoded
+            # or vice-versa we must preserve a space. Multiple adjacent
+            # non-encoded parts should not occur. This is now
+            # implemented in our patched decode_header method in anypy
+            parts.append(part)
+
+        return ''.join([p.encode('utf-8') for p in parts])
+
+    def flatten(self):
+        fp = cStringIO()
+        generator = Generator(fp, mangle_from_=False)
+        generator.flatten(self)
+        return fp.getvalue()
+
+    def get_header(self, header, default=None):
+        value = self.get(header, default)
+
+        if value:
+            return self._decode_header_to_utf8(value.replace('\n', ''))
+
+        return value
+
+    def get_address_list(self, header):
+        addresses = []
+
+        for name, addr in email.utils.getaddresses(self.get_all(header, [])):
+            addresses.append((self._decode_header_to_utf8(name), addr))
+
+        return addresses
+
+    def get_body(self):
+        content = self.get_payload(decode=True)
+
+        charset = self.get_content_charset()
+        if charset:
+            content = content.decode(charset, 'replace') \
+                .encode('utf8', 'replace')
+
+        return content
+
+    def as_attachment(self):
+        filename = self.get_filename()
+        content_type = self.get_content_type()
+        content = self.get_body()
+
+        if content is None and self.get_content_type() == 'message/rfc822':
+            # handle message/rfc822 specially - the name should be
+            # the subject of the actual e-mail embedded here
+            # we add a '.eml' extension like other email software does it
+            subject = self.get_payload(0).get('subject')
+            if subject:
+                filename = '{0}.eml'.format(subject)
+
+            content = self.get_payload(0).flatten()
+
+        return (filename, content_type, content)
+
+    # General multipart handling:
+    #   Take the first text/plain part, anything else is considered an
+    #   attachment.
+    # multipart/mixed:
+    #   Multiple "unrelated" parts.
+    # multipart/Alternative (rfc 1521):
+    #   Like multipart/mixed, except that we'd only want one of the
+    #   alternatives. Generally a top-level part from MUAs sending HTML
+    #   mail - there will be a text/plain version.
+    # multipart/signed (rfc 1847):
+    #   The control information is carried in the second of the two
+    #   required body parts.
+    #   ACTION: Default, so if content is text/plain we get it.
+    # multipart/encrypted (rfc 1847):
+    #   The control information is carried in the first of the two
+    #   required body parts.
+    #   ACTION: Not handleable as the content is encrypted.
+    # multipart/related (rfc 1872, 2112, 2387):
+    #   The Multipart/Related content-type addresses the MIME
+    #   representation of compound objects, usually HTML mail with embedded
+    #   images. Usually appears as an alternative.
+    #   ACTION: Default, if we must.
+    # multipart/report (rfc 1892):
+    #   e.g. mail system delivery status reports.
+    #   ACTION: Default. Could be ignored or used for Delivery Notification
+    #   flagging.
+    # multipart/form-data:
+    #   For web forms only.
+    # message/rfc822:
+    #   Only if configured in [mailgw] unpack_rfc822
+    def extract_content(self, parent_type=None, ignore_alternatives=False,
+                        unpack_rfc822=False):
+        """
+        Extract the body and the attachments recursively.
+
+        If the content is hidden inside a multipart/alternative part, we use
+        the *last* text/plain part of the *first* multipart/alternative in
+        the whole message.
+
+        If ignore_alteratives is True then only the alternative parts in the
+        same multipart/alternative part as where the content is found are
+        ignored.
+        """
+        content = None
+        attachments = []
+        content_type = self.get_content_type()
+
+        if content_type == 'text/plain':
+            content = self
+        elif content_type == 'message/rfc822' and not unpack_rfc822:
+            attachments.append(self)
+        elif (parent_type == 'multipart/signed' and
+                content_type == 'application/pgp-signature'):
+            # Don't save signatures for signed messages as attachments
+            pass
+        elif self.is_multipart():
+            for part in self.get_payload():
+                # Only ignore alternative parts in the same part that the
+                # content is found
+                ignore = (ignore_alternatives and content is None)
+
+                p_content, p_attachments = part.extract_content(
+                    parent_type=content_type,
+                    ignore_alternatives=ignore,
+                    unpack_rfc822=unpack_rfc822)
+
+                if p_content:
+                    if content_type == 'multipart/alternative':
+                        # if we have found a text/plain in the current
+                        # multipart/alternative and find another one, we use
+                        # the first as an attachment (if configured) and use
+                        # the second one because rfc 2046, sec.  5.1.4.
+                        # specifies that later parts are better (thanks to
+                        # Philipp Gortan for pointing this out)
+                        if content is not None:
+                            attachments.append(content)
+                        content = p_content
+                    elif content is None:
+                        content = p_content
+                    else:
+                        attachments.append(p_content)
+
+                if (part.get_content_type() == 'multipart/alternative' and
+                        ignore):
+                    p_attachments = []
+
+                attachments.extend(p_attachments)
+        else:
+            attachments.append(self)
+
+        if parent_type is not None:
+            return (content, attachments)
+
+        if content is not None:
+            content = content.get_body()
+
+        return (content, [a.as_attachment() for a in attachments])
+
+    def pgp_signed(self):
+        """
+        RFC 3156 requires OpenPGP MIME mail to have the protocol parameter
+        """
+        return (self.get_content_type() == 'multipart/signed' and
+                self.get_param('protocol') == 'application/pgp-signature')
+
+    def pgp_encrypted(self):
+        """
+        RFC 3156 requires OpenPGP MIME mail to have the protocol parameter
+        """
+        return (self.get_content_type() == 'multipart/encrypted' and
+                self.get_param('protocol') == 'application/pgp-encrypted')
+
+    def verify_signature(self, author):
+        """
+        Verify the signature of an OpenPGP MIME message
+
+        This only handles detached signatures. Old style PGP mail (i.e.
+        '-----BEGIN PGP SIGNED MESSAGE----') is archaic and not supported :)
+        """
+        # we don't check the micalg parameter...gpgme seems to
+        # figure things out on its own
+        (msg, sig) = self.get_payload()
+
+        if sig.get_content_type() != 'application/pgp-signature':
+            raise MailUsageError(_("No PGP signature found in message."))
+
+        # according to rfc 3156 the data "MUST first be converted
+        # to its content-type specific canonical form. For
+        # text/plain this means conversion to an appropriate
+        # character set and conversion of line endings to the
+        # canonical <CR><LF> sequence."
+        # TODO: what about character set conversion?
+        canonical_msg = re.sub('(?<!\r)\n', '\r\n', msg.flatten())
+        msg_data = pyme.core.Data(canonical_msg)
+        sig_data = pyme.core.Data(sig.get_payload())
+
+        context = pyme.core.Context()
+        context.op_verify(sig_data, msg_data, None)
+
+        # check all signatures for validity
+        result = context.op_verify_result()
+        check_pgp_sigs(result.signatures, context, author)
+
+    def decrypt(self, author, may_be_unsigned=False):
+        '''
+        Decrypt an OpenPGP MIME message
+
+        This message must be signed as well as encrypted using the "combined"
+        method if incoming signatures are configured.  The decrypted contents
+        are returned as a new message.
+        '''
+        (hdr, msg) = self.get_payload()
+        # According to the RFC 3156 encrypted mail must have exactly two parts.
+        # The first part contains the control information. Let's verify that
+        # the message meets the RFC before we try to decrypt it.
+        if (hdr.get_payload().strip() != 'Version: 1' or
+                hdr.get_content_type() != 'application/pgp-encrypted'):
+            raise MailUsageError(_("Unknown multipart/encrypted version."))
+
+        context = pyme.core.Context()
+        ciphertext = pyme.core.Data(msg.get_payload())
+        plaintext = pyme.core.Data()
+
+        result = context.op_decrypt_verify(ciphertext, plaintext)
+
+        if result:
+            raise MailUsageError(_("Unable to decrypt your message."))
+
+        # we've decrypted it but that just means they used our public
+        # key to send it to us. now check the signatures to see if it
+        # was signed by someone we trust
+        result = context.op_verify_result()
+        check_pgp_sigs(result.signatures, context, author,
+                       may_be_unsigned=may_be_unsigned)
+
+        plaintext.seek(0, 0)
+        # pyme.core.Data implements a seek method with a different signature
+        # than roundup can handle. So we'll put the data in a container that
+        # the Message class can work with.
+        return email.message_from_string(plaintext.read(), RoundupMessage)
+
 
 class parsedMessage:
 
