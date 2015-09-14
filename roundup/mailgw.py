@@ -1209,34 +1209,32 @@ class MailGW:
         """ Read a series of messages from the specified unix mailbox file and
             pass each to the mail handler.
         """
-        # open the spool file and lock it
-        import fcntl
-        # FCNTL is deprecated in py2.3 and fcntl takes over all the symbols
-        if hasattr(fcntl, 'LOCK_EX'):
-            FCNTL = fcntl
-        else:
-            import FCNTL
-        f = open(filename, 'r+')
-        fcntl.flock(f.fileno(), FCNTL.LOCK_EX)
+        import mailbox
 
-        # handle and clear the mailbox
+        class mboxRoundupMessage(mailbox.mboxMessage, RoundupMessage):
+            pass
+
         try:
-            from mailbox import UnixMailbox
-            mailbox = UnixMailbox(f, factory=Message)
-            # grab one message
-            message = next(mailbox)
-            while message:
-                # handle this message
-                message.fp.seek(0)
-                self.handle_Message(email.message_from_file(message.fp))
-                message = mailbox.next()
-            # nuke the file contents
-            os.ftruncate(f.fileno(), 0)
-        except:
-            import traceback
+            mbox = mailbox.mbox(filename, factory=mboxRoundupMessage,
+                                create=False)
+            mbox.lock()
+        except (mailbox.NoSuchMailboxError, mailbox.ExternalClashError) as e:
+            if isinstance(e, mailbox.ExternalClashError):
+                mbox.close()
             traceback.print_exc()
             return 1
-        fcntl.flock(f.fileno(), FCNTL.LOCK_UN)
+
+        try:
+            for key in mbox.keys():
+                self.handle_Message(mbox.get(key))
+                mbox.remove(key)
+        except:
+            traceback.print_exc()
+            return 1
+        finally:
+            mbox.unlock()
+            mbox.close()
+
         return 0
 
     def do_imap(self, server, user='', password='', mailbox='', ssl=0,
