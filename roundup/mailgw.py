@@ -27,7 +27,7 @@ Incoming messages are examined for multiple parts:
    and given "file" class nodes that are linked to the "msg" node.
  . In a multipart/alternative message or part, we look for a text/plain
    subpart and ignore the other parts.
- . A message/rfc822 is treated similar tomultipart/mixed (except for
+ . A message/rfc822 is treated similar to multipart/mixed (except for
    special handling of the first text part) if unpack_rfc822 is set in
    the mailgw config section.
 

@@ -130,7 +130,7 @@ class Mailer:
         """Send a standard message.
 
         Arguments:
-        - to: a list of addresses usable by rfc822.parseaddr().
+        - to: a list of addresses usable by email.utils.parseaddr().
         - subject: the subject as a string.
         - content: the body of the message as a string.
         - author: the sender as a (name, address) tuple
@@ -149,7 +149,7 @@ class Mailer:
 
         Arguments:
         - bounced_message: an mailgw.RoundupMessage object.
-        - to: a list of addresses usable by rfc822.parseaddr(). Might be
+        - to: a list of addresses usable by email.utils.parseaddr(). Might be
           extended or overridden according to the config
           ERROR_MESSAGES_TO setting.
         - error: the reason of failure as a string.
@@ -248,7 +248,7 @@ class Mailer:
         """Send a message over SMTP, using roundup's config.
 
         Arguments:
-        - to: a list of addresses usable by rfc822.parseaddr().
+        - to: a list of addresses usable by email.utils.parseaddr().
         - message: a StringIO instance with a full message.
         - sender: if not 'None', the email address to use as the
         envelope sender.  If 'None', the admin email is used.
