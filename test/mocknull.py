@@ -21,6 +21,10 @@ class MockNull:
     def __bool__(self):
         return False
 
+    # need with python 3
+    def __contains__(self, value):
+        return False
+
     # python 2
     def __nonzero__(self):
         return False
