@@ -11,6 +11,7 @@ import sys
 import time
 import smtplib
 
+import six
 from six.moves import configparser
 
 import roundup.date
@@ -472,7 +473,7 @@ class RegExpOption(Option):
         return value.pattern
 
     def str2value(self, value):
-        if not isinstance(value, unicode):
+        if not isinstance(value, six.text_type):
             value = str(value)
             # if it is 7-bit ascii, use it as string,
             # otherwise convert to unicode.
