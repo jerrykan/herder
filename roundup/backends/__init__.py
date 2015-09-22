@@ -27,7 +27,7 @@ import sys
 # Otherwise the error is reraised.
 _modules = {
     'mysql': ('MySQLdb',),
-    'postgresql': ('psycopg',),
+    'postgresql': ('psycopg', 'psycopg2'),
     'sqlite': ('pysqlite', 'pysqlite2', 'sqlite3', '_sqlite3', 'sqlite'),
 }
 
@@ -39,7 +39,7 @@ def get_backend(name):
         return vars[name]
     # import the backend module
     module_name = 'back_%s' % name
-    module = __import__(module_name, vars)
+    module = __import__(module_name, vars, level=1)
     vars[name] = module
     return module
 
@@ -49,8 +49,11 @@ def have_backend(name):
         get_backend(name)
         return 1
     except ImportError as e:
+        msg = str(e)
         for name in _modules.get(name, (name,)):
-            if str(e).startswith('No module named %s'%name):
+            # Python 3 includes 's around the module name
+            if (msg.startswith('No module named %s' % name) or
+                    msg.startswith("No module named '%s'" % name)):
                 return 0
         raise
     return 0
