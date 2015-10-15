@@ -13,6 +13,8 @@ import sys
 # --- patch sys.path to make sure 'import roundup' finds correct version
 import os.path as osp
 
+from six.moves import input
+
 thisdir = osp.dirname(osp.abspath(__file__))
 rootdir = osp.dirname(osp.dirname(thisdir))
 if (osp.exists(thisdir + '/__init__.py') and
@@ -43,11 +45,11 @@ def run():
         # FIXME: i'd like to have an option to abort the tracker creation
         #   say, by entering a single dot.  but i cannot think of
         #   appropriate prompt for that.
-        home = raw_input(
+        home = input(
             _('Enter directory path to create demo tracker [%s]: ') % home)
         if not home:
             home = DEFAULT_HOME
-        template = raw_input(
+        template = input(
             _('Enter tracker template to use (one of (%s)) [%s]: ') %
             (','.join(admin.AdminTool().listTemplates().keys()), template))
         if not template:

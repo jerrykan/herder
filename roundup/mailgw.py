@@ -101,7 +101,7 @@ import email
 import email.utils
 from email.generator import Generator
 
-from six.moves import cStringIO
+from six.moves import cStringIO, input
 
 from .anypy.email_ import decode_header
 
@@ -1244,7 +1244,7 @@ class MailGW:
         import getpass, imaplib, socket
         try:
             if not user:
-                user = raw_input('User: ')
+                user = input('User: ')
             if not password:
                 password = getpass.getpass()
         except (KeyboardInterrupt, EOFError):
@@ -1323,7 +1323,7 @@ class MailGW:
         import getpass, poplib, socket
         try:
             if not user:
-                user = raw_input('User: ')
+                user = input('User: ')
             if not password:
                 password = getpass.getpass()
         except (KeyboardInterrupt, EOFError):

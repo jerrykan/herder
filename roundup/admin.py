@@ -25,6 +25,8 @@ __docformat__ = 'restructuredtext'
 
 import csv, getopt, getpass, os, re, shutil, sys, UserDict, operator
 
+from six.moves import input
+
 from roundup import date, hyperdb, roundupdb, init, password, token
 from roundup import __version__ as roundup_version
 import roundup.instance
@@ -382,7 +384,7 @@ Command help:
         if list(filter(os.path.exists, [config_ini_file,
                 os.path.join(tracker_home, 'config.py')])):
             if not self.force:
-                ok = raw_input(_(
+                ok = input(_(
 """WARNING: There appears to be a tracker in "%(tracker_home)s"!
 If you re-install it, you will lose all the data!
 Erase it? Y/N: """) % locals())
@@ -467,7 +469,7 @@ Erase it? Y/N: """) % locals())
             return default
         sys.stdout.write('%s: %s\n' % (list_name, ', '.join(options)))
         while argument not in options:
-            argument = raw_input('%s [%s]: ' % (prompt, default))
+            argument = input('%s [%s]: ' % (prompt, default))
             if not argument:
                 return default
         return argument
@@ -511,7 +513,7 @@ Erase it? Y/N: """) % locals())
         # is there already a database?
         if tracker.exists():
             if not self.force:
-                ok = raw_input(_(
+                ok = input(_(
 """WARNING: The database is already initialised!
 If you re-initialise it, you will lose all the data!
 Erase it? Y/N: """))
@@ -823,7 +825,7 @@ Erase it? Y/N: """))
                     if value:
                         props[key] = value
                 else:
-                    value = raw_input(_('%(propname)s (%(proptype)s): ')%{
+                    value = input(_('%(propname)s (%(proptype)s): ') % {
                         'propname': key.capitalize(), 'proptype': name})
                     if value:
                         props[key] = value
@@ -1471,7 +1473,7 @@ Erase it? Y/N: """))
         # make sure we have a tracker_home
         while not self.tracker_home:
             if not self.force:
-                self.tracker_home = raw_input(_('Enter tracker home: ')).strip()
+                self.tracker_home = input(_('Enter tracker home: ')).strip()
             else:
                 self.tracker_home = os.curdir
 
@@ -1529,7 +1531,7 @@ Erase it? Y/N: """))
 
         while True:
             try:
-                command = raw_input(_('roundup> '))
+                command = input(_('roundup> '))
             except EOFError:
                 print(_('exit...'))
                 break
@@ -1541,7 +1543,7 @@ Erase it? Y/N: """))
 
         # exit.. check for transactions
         if self.db and self.db_uncommitted:
-            commit = raw_input(_('There are unsaved changes. Commit them (y/N)? '))
+            commit = input(_('There are unsaved changes. Commit them (y/N)? '))
             if commit and commit[0].lower() == 'y':
                 self.db.commit()
         return 0
