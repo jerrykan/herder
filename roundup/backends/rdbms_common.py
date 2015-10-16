@@ -54,6 +54,8 @@ __docformat__ = 'restructuredtext'
 # standard python modules
 import sys, os, time, re, errno, weakref, copy, logging, datetime
 
+import six
+
 # roundup modules
 from roundup import hyperdb, date, password, roundupdb, security, support
 from roundup.hyperdb import String, Password, Date, Interval, Link, \
@@ -2914,7 +2916,7 @@ class Class(hyperdb.Class):
             elif isinstance(prop, hyperdb.Password):
                 value = password.Password(encrypted=value)
             elif isinstance(prop, String):
-                if isinstance(value, unicode):
+                if isinstance(value, six.text_type):
                     value = value.encode('utf8')
                 if not isinstance(value, str):
                     raise TypeError('new property "%(propname)s" not a '

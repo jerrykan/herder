@@ -474,7 +474,7 @@ class RegExpOption(Option):
 
     def str2value(self, value):
         if not isinstance(value, six.text_type):
-            value = str(value)
+            value = six.binary_type(value)
             # if it is 7-bit ascii, use it as string,
             # otherwise convert to unicode.
             try:

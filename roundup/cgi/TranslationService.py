@@ -13,6 +13,8 @@
 #   translate(domain, msgid, mapping, context, target_language, default)
 #
 
+import six
+
 from roundup import i18n
 from roundup.cgi.PageTemplates import Expressions, PathIterator, TALES
 from roundup.cgi.TAL import TALInterpreter
@@ -32,16 +34,16 @@ class TranslationServiceMixin:
         return _msg
 
     def gettext(self, msgid):
-        if not isinstance(msgid, unicode):
-            msgid = unicode(msgid, 'utf8')
+        if not isinstance(msgid, six.text_type):
+            msgid = six.text_type(msgid, 'utf8')
         msgtrans=self.ugettext(msgid)
         return msgtrans.encode(self.OUTPUT_ENCODING)
 
     def ngettext(self, singular, plural, number):
-        if not isinstance(singular, unicode):
-            singular = unicode(singular, 'utf8')
-        if not isinstance(plural, unicode):
-            plural = unicode(plural, 'utf8')
+        if not isinstance(singular, six.text_type):
+            singular = six.text_type(singular, 'utf8')
+        if not isinstance(plural, six.text_type):
+            plural = six.text_type(plural, 'utf8')
         msgtrans=self.ungettext(singular, plural, number)
         return msgtrans.encode(self.OUTPUT_ENCODING)
 
@@ -55,8 +57,8 @@ class NullTranslationService(TranslationServiceMixin,
             return self._fallback.ugettext(message)
         # Sometimes the untranslatable message is a UTF-8 encoded string
         # (thanks to PageTemplate's internals).
-        if not isinstance(message, unicode):
-            return unicode(message, 'utf8')
+        if not isinstance(message, six.text_type):
+            return six.text_type(message, 'utf8')
         return message
 
 ### TAL patching

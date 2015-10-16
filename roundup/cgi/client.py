@@ -13,6 +13,7 @@ try:
 except ImportError:
     SysCallError = None
 
+import six
 from six.moves import http_client
 from six.moves import urllib
 from six.moves.http_cookies import CookieError, BaseCookie, SimpleCookie
@@ -700,7 +701,7 @@ class Client:
                     uc = int(num[1:], 16)
                 else:
                     uc = int(num)
-                return unichr(uc)
+                return six.unichr(uc)
 
             for field_name in self.form:
                 field = self.form[field_name]

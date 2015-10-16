@@ -32,6 +32,8 @@ from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 
+import six
+
 from roundup import password, date, hyperdb
 from roundup.i18n import _
 from roundup.hyperdb import iter_roles
@@ -491,7 +493,7 @@ class IssueClass:
         charset = getattr(self.db.config, 'EMAIL_CHARSET', 'utf-8')
 
         # construct the content and convert to unicode object
-        body = unicode('\n'.join(m), 'utf-8').encode(charset)
+        body = six.text_type('\n'.join(m), 'utf-8').encode(charset)
 
         # make sure the To line is always the same (for testing mostly)
         sendto.sort()
@@ -517,7 +519,7 @@ class IssueClass:
             sendto = [sendto]
 
         # tracker sender info
-        tracker_name = unicode(self.db.config.TRACKER_NAME, 'utf-8')
+        tracker_name = six.text_type(self.db.config.TRACKER_NAME, 'utf-8')
         tracker_name = nice_sender_header(tracker_name, from_address,
             charset)
 

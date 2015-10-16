@@ -3,7 +3,9 @@
 __docformat__ = 'restructuredtext'
 
 import os.path
+
 import chameleon
+import six
 
 from roundup.cgi.templating import context, TALLoaderBase
 
@@ -28,7 +30,7 @@ class RoundupPageTemplate(object):
         def translate(msgid, domain=None, mapping=None, default=None):
             result = client.translator.translate(domain, msgid,
                          mapping=mapping, default=default)
-            return unicode(result, client.translator.OUTPUT_ENCODING)
+            return six.text_type(result, client.translator.OUTPUT_ENCODING)
 
         output = self._pt.render(None, translate, **c)
         return output.encode(client.charset)

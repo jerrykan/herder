@@ -2887,7 +2887,7 @@ function help_window(helpurl, width, height) {
             matches = self.client.db.indexer.search(
                 [w.upper().encode("utf-8", "replace") for w in re.findall(
                     r'(?u)\b\w{2,25}\b',
-                    unicode(self.search_text, "utf-8", "replace")
+                    six.text_type(self.search_text, "utf-8", "replace")
                 )], klass)
         else:
             matches = None

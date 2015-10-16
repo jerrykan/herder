@@ -4,6 +4,8 @@ propname, itemid) instances.
 """
 import re
 
+import six
+
 from roundup.backends.indexer_common import Indexer as IndexerBase
 
 class Indexer(IndexerBase):
@@ -61,8 +63,8 @@ class Indexer(IndexerBase):
             self.db.cursor.execute(sql, (id, ))
 
         # ok, find all the unique words in the text
-        if not isinstance(text, unicode):
-            text = unicode(text, "utf-8", "replace")
+        if not isinstance(text, six.text_type):
+            text = six.text_type(text, "utf-8", "replace")
         text = text.upper()
         wordlist = [w.encode("utf-8")
                     for w in re.findall(r'(?u)\b\w{%d,%d}\b'

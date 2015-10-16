@@ -24,6 +24,8 @@ import os
 from base64 import b64encode, b64decode
 from hashlib import md5, sha1
 
+import six
+
 try:
     import crypt
 except ImportError:
@@ -106,9 +108,9 @@ def pbkdf2(password, salt, rounds, keylen):
     :returns:
         raw bytes of generated key
     """
-    if isinstance(password, unicode):
+    if isinstance(password, six.text_type):
         password = password.encode("utf-8")
-    if isinstance(salt, unicode):
+    if isinstance(salt, six.text_type):
         salt = salt.encode("utf-8")
     if keylen > 40:
         #NOTE: pbkdf2 allows up to (2**31-1)*20 bytes,
@@ -128,7 +130,7 @@ def pbkdf2_unpack(pbkdf2):
     """ unpack pbkdf2 encrypted password into parts,
         assume it has format "{rounds}${salt}${digest}
     """
-    if isinstance(pbkdf2, unicode):
+    if isinstance(pbkdf2, six.text_type):
         pbkdf2 = pbkdf2.encode("ascii")
     try:
         rounds, salt, digest = pbkdf2.split("$")

@@ -21,6 +21,9 @@ An implementation of a generic TALES engine
 """
 
 import re, sys
+
+import six
+
 from roundup.cgi import ZTUtils
 from weakref import ref
 from .MultiMapping import MultiMapping
@@ -231,7 +234,7 @@ class Context:
         text = self.evaluate(expr)
         if text is Default or text is None:
             return text
-        if isinstance(text, unicode):
+        if isinstance(text, six.text_type):
             return text
         else:
             return ustr(text)

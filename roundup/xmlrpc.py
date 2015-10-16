@@ -4,6 +4,7 @@
 # For license terms see the file COPYING.txt.
 #
 
+import six
 from six.moves.xmlrpc_client import Binary
 from six.moves.xmlrpc_server import SimpleXMLRPCDispatcher
 
@@ -40,12 +41,12 @@ def props_from_args(db, cl, args, itemid=None):
             key, value = arg.split('=', 1)
         except ValueError :
             raise UsageError('argument "%s" not propname=value' % arg)
-        if isinstance(key, unicode):
+        if isinstance(key, six.text_type):
             try:
                 key = key.encode ('ascii')
             except UnicodeEncodeError:
                 raise UsageError('argument %r is no valid ascii keyword' % key)
-        if isinstance(value, unicode):
+        if isinstance(value, six.text_type):
             value = value.encode('utf-8')
         if value:
             try:

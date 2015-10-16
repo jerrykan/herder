@@ -4,6 +4,8 @@ __docformat__ = 'restructuredtext'
 
 import time, quopri, os, socket, smtplib, re, sys, traceback, email
 
+import six
+
 from roundup import __version__
 from roundup.date import get_timezone, Date
 
@@ -82,12 +84,12 @@ class Mailer:
         '''
         # encode header values if they need to be
         charset = getattr(self.config, 'EMAIL_CHARSET', 'utf-8')
-        tracker_name = unicode(self.config.TRACKER_NAME, 'utf-8')
+        tracker_name = six.text_type(self.config.TRACKER_NAME, 'utf-8')
         if not author:
             author = (tracker_name, self.config.ADMIN_EMAIL)
             name = author[0]
         else:
-            name = unicode(author[0], 'utf-8')
+            name = six.text_type(author[0], 'utf-8')
         author = nice_sender_header(name, author[1], charset)
         try:
             message['Subject'] = subject.encode('ascii')

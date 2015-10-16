@@ -10,6 +10,8 @@ __docformat__ = 'restructuredtext'
 
 import os, base64, marshal, shutil, time, logging
 
+import six
+
 from roundup import hyperdb, date, password
 from roundup.backends import rdbms_common
 sqlite_version = None
@@ -83,7 +85,7 @@ class Database(rdbms_common.Database):
         hyperdb.Multilink : lambda x: x,    # used in journal marshalling
     }
     sql_to_hyperdb_value = {
-        hyperdb.String : lambda x: isinstance(x, unicode) and x.encode('utf8') or str(x),
+        hyperdb.String : lambda x: isinstance(x, six.text_type) and x.encode('utf8') or str(x),
         hyperdb.Date   : lambda x: date.Date(str(x)),
         hyperdb.Link   : str, # XXX numeric ids
         hyperdb.Interval  : date.Interval,
