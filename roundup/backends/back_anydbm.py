@@ -24,6 +24,8 @@ __docformat__ = 'restructuredtext'
 
 import os, marshal, re, weakref, string, copy, time, shutil, logging
 
+import six
+
 from roundup.anypy.dbm_ import anydbm, whichdb
 
 from roundup import hyperdb, date, password, roundupdb, security, support
@@ -985,7 +987,7 @@ class Class(hyperdb.Class):
                             (self.classname, newid, key))
 
             elif isinstance(prop, hyperdb.String):
-                if type(value) != type('') and type(value) != type(u''):
+                if not isinstance(value, six.string_types):
                     raise TypeError('new property "%s" not a string'%key)
                 if prop.indexme:
                     self.db.indexer.add_text((self.classname, newid, key),
@@ -1325,7 +1327,8 @@ class Class(hyperdb.Class):
                     journalvalues[propname] = tuple(l)
 
             elif isinstance(prop, hyperdb.String):
-                if value is not None and type(value) != type('') and type(value) != type(u''):
+                if value is not None and not isinstance(value,
+                                                        six.string_types):
                     raise TypeError('new property "%s" not a '
                         'string'%propname)
                 if prop.indexme:

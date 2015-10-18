@@ -1691,7 +1691,7 @@ class BooleanHTMLProperty(HTMLProperty):
             return self.plain(escape=1)
 
         value = self._value
-        if isinstance(value, str) or isinstance(value, unicode):
+        if isinstance(value, six.string_types):
             value = value.strip().lower() in ('checked', 'yes', 'true',
                 'on', '1')
 
@@ -1744,8 +1744,7 @@ class DateHTMLProperty(HTMLProperty):
             anonymous=0, offset=None):
         HTMLProperty.__init__(self, client, classname, nodeid, prop, name,
                 value, anonymous=anonymous)
-        if self._value and not (isinstance(self._value, str) or
-                isinstance(self._value, unicode)):
+        if self._value and not isinstance(self._value, six.string_types):
             self._value.setTranslator(self._client.translator)
         self._offset = offset
         if self._offset is None :
@@ -1828,9 +1827,9 @@ class DateHTMLProperty(HTMLProperty):
                         'default value for ' +
                         'DateHTMLProperty must be either DateHTMLProperty ' +
                         'or string date representation.'))
-        elif isinstance(value, str) or isinstance(value, unicode):
+        elif isinstance(value, six.string_types):
             # most likely erroneous input to be passed back to user
-            if isinstance(value, unicode): value = value.encode('utf8')
+            if isinstance(value, six.text_type): value = value.encode('utf8')
             s = self.input(name=self._formname, value=value, size=size,
                               **kwargs)
             if popcal:
@@ -1841,7 +1840,7 @@ class DateHTMLProperty(HTMLProperty):
 
         if raw_value is None:
             value = ''
-        elif isinstance(raw_value, str) or isinstance(raw_value, unicode):
+        elif isinstance(raw_value, six.string_types):
             if format is self._marker:
                 value = raw_value
             else:
@@ -1930,7 +1929,7 @@ class IntervalHTMLProperty(HTMLProperty):
             anonymous=0):
         HTMLProperty.__init__(self, client, classname, nodeid, prop,
             name, value, anonymous)
-        if self._value and not isinstance(self._value, (str, unicode)):
+        if self._value and not isinstance(self._value, six.string_types):
             self._value.setTranslator(self._client.translator)
 
     def plain(self, escape=0):
