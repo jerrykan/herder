@@ -31,18 +31,16 @@ try:
 except ImportError:
     crypt = None
 
-_bempty = ""
-_bjoin = _bempty.join
-
 
 def getrandbytes(count):
-    return _bjoin(chr(random.randint(0, 255)) for i in range(count))
+    return b''.join(six.int2byte(random.randint(0, 255)) for i in range(count))
 
 #NOTE: PBKDF2 hash is using this variant of base64 to minimize encoding size,
 #      and have charset that's compatible w/ unix crypt variants
 def h64encode(data):
     """encode using variant of base64"""
-    return b64encode(data, "./").strip("=\n")
+    return b64encode(data, b'./').strip(b'=\n')
+
 
 def h64decode(data):
     """decode using variant of base64"""
@@ -65,13 +63,17 @@ except ImportError:
 
     def xor_bytes(left, right):
         "perform bitwise-xor of two byte-strings"
-        return _bjoin(chr(ord(l) ^ ord(r)) for l, r in zip(left, right))
+        return b''.join(
+            six.int2byte(l ^ r)
+            for l, r
+            in zip(bytearray(left), bytearray(right)))
 
     def _pbkdf2(password, salt, rounds, keylen):
         digest_size = 20 # sha1 generates 20-byte blocks
         total_blocks = int((keylen+digest_size-1)/digest_size)
         hmac_template = HMAC(password, None, sha1)
-        out = _bempty
+        out = b''
+
         for i in range(1, total_blocks + 1):
             hmac = hmac_template.copy()
             hmac.update(salt + pack(">L",i))
