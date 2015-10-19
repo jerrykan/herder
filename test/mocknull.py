@@ -17,6 +17,12 @@ class MockNull:
 
     def __getitem__(self, key): return self
 
+    def __eq__(self, other):
+        return False
+
+    def __ne__(self, other):
+        return False
+
     # python 3
     def __bool__(self):
         return False
