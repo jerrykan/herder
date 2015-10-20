@@ -100,16 +100,32 @@ class Permission:
         return '<Permission 0x%x %r,%r,%r,%r>'%(id(self), self.name,
             self.klass, self.properties, self.check)
 
-    def __cmp__(self, other):
+    def __eq__(self, other):
+        return (self.name == other.name and
+                self.klass == other.klass and
+                self.properties == other.properties and
+                self.check == other.check)
+
+    def __ne__(self, other):
+        return not self == other
+
+    def __lt__(self, other):
         if self.name != other.name:
-            return cmp(self.name, other.name)
+            return self.name < other.name
 
-        if self.klass != other.klass: return 1
-        if self.properties != other.properties: return 1
-        if self.check != other.check: return 1
+        return (self.klass == other.klass and
+                self.properties == other.properties and
+                self.check == other.check)
 
-        # match
-        return 0
+    def __gt__(self, other):
+        return not (self < other or self == other)
+
+    def __le__(self, other):
+        return self < other or self == other
+
+    def __ge__(self, other):
+        return not self < other
+
 
 class Role:
     ''' Defines a Role with the attributes
