@@ -574,20 +574,50 @@ class Date:
         return Interval((0, 0, d, H, M, S), sign=sign,
             translator=self.translator)
 
-    def __cmp__(self, other, int_seconds=0):
-        """Compare this date to another date."""
+    def __eq__(self, other):
         if other is None:
-            return 1
-        for attr in ('year', 'month', 'day', 'hour', 'minute'):
-            if not hasattr(other, attr):
-                return 1
-            r = cmp(getattr(self, attr), getattr(other, attr))
-            if r: return r
-        if not hasattr(other, 'second'):
-            return 1
-        if int_seconds:
-            return cmp(int(self.second), int(other.second))
-        return cmp(self.second, other.second)
+            return False
+
+        for attr in ('year', 'month', 'day', 'hour', 'minute', 'second'):
+            try:
+                if getattr(self, attr) != getattr(other, attr):
+                    return False
+            except AttributeError:
+                return False
+
+        return True
+
+    def __ne__(self, other):
+        return not self == other
+
+    def __lt__(self, other):
+        if other is None:
+            return False
+
+        for attr in ('year', 'month', 'day', 'hour', 'minute', 'second'):
+            this = getattr(self, attr)
+            try:
+                that = getattr(other, attr)
+            except AttributeError:
+                return False
+
+            if this == that:
+                continue
+            elif this < that:
+                return True
+            else:
+                return False
+
+        return False
+
+    def __gt__(self, other):
+        return not (self < other or self == other)
+
+    def __le__(self, other):
+        return self < other or self == other
+
+    def __ge__(self, other):
+        return not self < other
 
     def __str__(self):
         """Return this date as a string in the yyyy-mm-dd.hh:mm:ss format."""
