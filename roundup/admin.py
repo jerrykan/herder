@@ -23,9 +23,9 @@ from __future__ import print_function
 
 __docformat__ = 'restructuredtext'
 
-import csv, getopt, getpass, os, re, shutil, sys, UserDict, operator
+import csv, getopt, getpass, os, re, shutil, sys, operator
 
-from six.moves import input
+from six.moves import input, UserDict
 
 from roundup import date, hyperdb, roundupdb, init, password, token
 from roundup import __version__ as roundup_version
@@ -34,7 +34,7 @@ from roundup.configuration import CoreConfig
 from roundup.i18n import _
 from roundup.exceptions import UsageError
 
-class CommandDict(UserDict.UserDict):
+class CommandDict(UserDict):
     """Simple dictionary that lets us do lookups using partial keys.
 
     Original code submitted by Engelbert Gruber.
