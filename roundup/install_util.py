@@ -85,7 +85,7 @@ class DigestFile:
         if fingerprint is not None:
             data = '\n'.join(lines[:-1]) + '\n'
         self.file.write(data)
-        self.digest.update(data)
+        self.digest.update(data.encode())
 
     def close(self):
         file, ext = os.path.splitext(self.filename)
