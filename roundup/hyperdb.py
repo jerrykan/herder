@@ -323,8 +323,9 @@ class Integer(_Type):
         try:
             value = int(value)
         except ValueError:
-            raise HyperdbValueError, _('property %s: %r is not an integer')%(
-                kw['propname'], value)
+            raise HyperdbValueError(
+                _('property %s: %r is not an integer') % (
+                    kw['propname'], value))
         return value
 #
 # Support for splitting designators

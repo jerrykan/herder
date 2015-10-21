@@ -413,7 +413,8 @@ class SearchAction(Action):
                     try:
                         float(self.form[key].value)
                     except ValueError:
-                        raise exceptions.FormError, "Invalid number: "+self.form[key].value
+                        raise exceptions.FormError(
+                            "Invalid number: " + self.form[key].value)
                 elif isinstance(prop, hyperdb.Integer):
                     try:
                         val=self.form[key].value
@@ -422,7 +423,7 @@ class SearchAction(Action):
                         else:
                             raise ValueError
                     except ValueError:
-                        raise exceptions.FormError, "Invalid integer: "+val
+                        raise exceptions.FormError("Invalid integer: " + val)
 
             self.form.value.append(cgi.MiniFieldStorage('@filter', key))
 

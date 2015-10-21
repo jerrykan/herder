@@ -13,10 +13,11 @@ class Timestamped:
         try:
             created = unpack_timestamp(self.form['opaque'].value)
         except KeyError:
-            raise FormError, "somebody tampered with the form"
+            raise FormError("somebody tampered with the form")
         if time.time() - created < 4:
-            raise FormError, "responding to the form too quickly"
+            raise FormError("responding to the form too quickly")
         return True
+
 
 class TimestampedRegister(Timestamped, RegisterAction):
     def permission(self):

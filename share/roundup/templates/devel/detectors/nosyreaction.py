@@ -20,7 +20,7 @@ def nosyreaction(db, cl, nodeid, oldvalues):
         try:
             cl.nosymessage(nodeid, msgid, oldvalues)
         except roundupdb.MessageSendError as message:
-            raise roundupdb.DetectorError, message
+            raise roundupdb.DetectorError(message)
 
 
 def determineNewMessages(cl, nodeid, oldvalues):
