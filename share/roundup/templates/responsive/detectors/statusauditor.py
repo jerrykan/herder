@@ -1,7 +1,7 @@
 def preset_new(db, cl, nodeid, newvalues):
     """ Make sure the status is set on new bugs"""
 
-    if newvalues.has_key('status') and newvalues['status']:
+    if newvalues.get('status'):
         return
 
     new = db.status.lookup('new')

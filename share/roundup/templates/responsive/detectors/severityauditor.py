@@ -1,7 +1,7 @@
 
 def init_severity(db, cl, nodeid, newvalues):
     """Make sure severity is set on new bugs"""
-    if newvalues.has_key('severity') and newvalues['severity']:
+    if newvalues.get('severity'):
         return
 
     normal = db.severity.lookup('normal')
