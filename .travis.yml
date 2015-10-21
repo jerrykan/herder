@@ -47,7 +47,7 @@ before_script:
   - sed -i 's/CREATE DATABASE \%s/CREATE DATABASE \%s COLLATE utf8_general_ci/' roundup/backends/back_mysql.py
 
 script:
-  - py.test -v test/ --cov=roundup
+  - py.test --tb=short -v test/ --cov=roundup
 
 after_success:
   - codecov
