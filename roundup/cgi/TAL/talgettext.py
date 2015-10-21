@@ -287,7 +287,7 @@ def main():
     if (outfile is None):
         outfile = sys.stdout
     else:
-        outfile = file(outfile, update_mode and "a" or "w")
+        outfile = open(outfile, update_mode and 'a' or 'w')
 
     catalog = {}
     for domain in engine.catalog.keys():

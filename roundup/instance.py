@@ -32,6 +32,11 @@ import os
 import sys
 import warnings
 
+try:
+    from builtins import open as _open
+except ImportError:
+    from __builtin__ import open as _open
+
 from roundup import configuration, mailgw
 from roundup import hyperdb, backends, actions
 from roundup.cgi import client, templating
@@ -80,7 +85,7 @@ used for the tracker.  Please read 'doc/upgrading.txt' to find out how to
 update your config.ini
 """
             try:
-                with file(filename) as backend_file:
+                with _open(filename) as backend_file:
                     rdbms_backend = backend_file.readline().strip()
 
                 with warnings.catch_warnings():
@@ -224,7 +229,8 @@ update your config.ini
 
     def _compile(self, fname):
         fname = os.path.join(self.tracker_home, fname)
-        return compile(file(fname).read(), fname, 'exec')
+        with _open(fname) as fh:
+            return compile(fh.read(), fname, 'exec')
 
     def _exec(self, obj, env):
         if self.libdir:
