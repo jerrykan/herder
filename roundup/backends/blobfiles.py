@@ -22,6 +22,9 @@ __docformat__ = 'restructuredtext'
 
 import os
 
+import six
+
+
 def files_in_dir(dir):
     if not os.path.exists(dir):
         return 0
@@ -332,7 +335,11 @@ class FileStorage:
         # in multi-tracker (i.e. multi-umask) or modpython scenarios
         # the umask may have changed since last we set it.
         os.umask(self.umask)
-        open(name, 'wb').write(content)
+        with open(name, 'wb') as fh:
+            if isinstance(content, six.text_type):
+                fh.write(content.encode())
+            else:
+                fh.write(content)
 
     def getfile(self, classname, nodeid, property):
         """Get the content of the file in the database.
