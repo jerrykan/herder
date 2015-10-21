@@ -41,7 +41,7 @@ class Jinja2Test(object):
         self.db.close()
         try:
             shutil.rmtree(self.dirname)
-        except OSError, error:
+        except OSError as error:
             if error.errno not in (errno.ENOENT, errno.ESRCH): raise
 
     def test_zero(self):

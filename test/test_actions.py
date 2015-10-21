@@ -249,7 +249,7 @@ class LoginTestCase(ActionTestCase):
         """
         try:
             callable(*args, **kwargs)
-        except exception, msg:
+        except exception as msg:
             self.assertEqual(str(msg), message)
         else:
             if hasattr(exception, '__name__'):

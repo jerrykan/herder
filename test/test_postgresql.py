@@ -104,7 +104,7 @@ class postgresqlJournalTest(postgresqlOpener, ClassicInitBase,
         try:
             self.db1.close()
             self.db2.close()
-        except psycopg.InterfaceError, exc:
+        except psycopg.InterfaceError as exc:
             if 'connection already closed' in str(exc): pass
             else: raise
         ClassicInitBase.tearDown(self)
