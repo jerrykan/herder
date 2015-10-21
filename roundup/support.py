@@ -17,11 +17,14 @@ class TruthDict:
         if keys:
             self.keys = {}
             for col in keys:
-                self.keys[col] = 1
+                self.keys[col] = True
         else:
-            self.__getitem__ = lambda name: 1
+            self.keys = None
 
     def __getitem__(self, name):
+        if self.keys is None:
+            return True
+
         return name in self.keys
 
 
