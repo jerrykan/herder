@@ -864,13 +864,29 @@ class Interval:
                 y = now - (date + self)
                 self.__init__(y.get_tuple())
 
-    def __cmp__(self, other):
-        """Compare this interval to another interval."""
+    def __eq__(self, other):
+        if not isinstance(other, Interval):
+            return False
 
-        if other is None:
-            # we are always larger than None
-            return 1
-        return cmp(self.as_seconds(), other.as_seconds())
+        return self.as_seconds() == other.as_seconds()
+
+    def __ne__(self, other):
+        return not self == other
+
+    def __lt__(self, other):
+        if not isinstance(other, Interval):
+            return False
+
+        return self.as_seconds() < other.as_seconds()
+
+    def __gt__(self, other):
+        return not (self < other or self == other)
+
+    def __le__(self, other):
+        return self < other or self == other
+
+    def __ge__(self, other):
+        return not self < other
 
     def __str__(self):
         """Return this interval as a string."""
