@@ -50,9 +50,9 @@ def h64decode(data):
     elif off == 1:
         raise ValueError("Invalid base64 input")
     elif off == 2:
-        return b64decode(data + "==", "./")
+        return b64decode(data + b'==', b"./")
     else:
-        return b64decode(data + "=", "./")
+        return b64decode(data + b'=', "./")
 
 try:
     from M2Crypto.EVP import pbkdf2 as _pbkdf2
@@ -135,11 +135,11 @@ def pbkdf2_unpack(pbkdf2):
     if isinstance(pbkdf2, six.text_type):
         pbkdf2 = pbkdf2.encode("ascii")
     try:
-        rounds, salt, digest = pbkdf2.split("$")
+        rounds, salt, digest = pbkdf2.split(b'$')
     except ValueError:
         raise PasswordValueError(
             "invalid PBKDF2 hash (wrong number of separators)")
-    if rounds.startswith("0"):
+    if rounds.startswith(b'0'):
         raise PasswordValueError("invalid PBKDF2 hash (zero-padded rounds)")
     try:
         rounds = int(rounds)
@@ -165,8 +165,8 @@ def encodePassword(plaintext, scheme, other=None, config=None):
                 rounds = 10000
         if rounds < 1000:
             raise PasswordValueError("invalid PBKDF2 hash (rounds too low)")
-        raw_digest = pbkdf2(plaintext, raw_salt, rounds, 20)
-        return "%d$%s$%s" % (rounds, salt, h64encode(raw_digest))
+        digest = h64encode(pbkdf2(plaintext, raw_salt, rounds, 20))
+        return "%d$%s$%s" % (rounds, salt.decode(), digest.decode())
     elif scheme == 'SSHA':
         if other:
             raw_other = b64decode(other)
