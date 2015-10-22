@@ -1679,7 +1679,7 @@ class Class(hyperdb.Class):
         finally:
             if must_close:
                 db.close()
-        return res
+        return [str(int(r)) for r in res]
 
     def _filter(self, search_matches, filterspec, proptree,
             num_re = re.compile('^\d+$')):
