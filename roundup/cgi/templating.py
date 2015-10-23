@@ -1272,10 +1272,30 @@ class HTMLProperty(HTMLInputMixin, HTMLPermissions):
                                       self._prop, self._value)
     def __str__(self):
         return self.plain()
-    def __cmp__(self, other):
+
+    def __eq__(self, other):
         if isinstance(other, HTMLProperty):
-            return cmp(self._value, other._value)
-        return cmp(self._value, other)
+            return self._value == other._value
+
+        return self._value == other
+
+    def __ne__(self, other):
+        return not self == other
+
+    def __lt__(self, other):
+        if isinstance(other, HTMLProperty):
+            return self._value < other._value
+
+        return self._value < other
+
+    def __gt__(self, other):
+        return not (self < other or self == other)
+
+    def __le__(self, other):
+        return self < other or self == other
+
+    def __ge__(self, other):
+        return not self < other
 
     # python 3
     def __bool__(self):
