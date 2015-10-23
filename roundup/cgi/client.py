@@ -150,7 +150,7 @@ class Session:
         """ generate a unique session key """
         while True:
             s = '%s%s'%(time.time(), random.random())
-            s = binascii.b2a_base64(s).strip()
+            s = binascii.b2a_base64(s.encode('utf-8')).strip()
             if not self.session_db.exists(s):
                 break
 
