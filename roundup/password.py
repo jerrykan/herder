@@ -178,14 +178,14 @@ def encodePassword(plaintext, scheme, other=None, config=None):
             salt = os.urandom(salt_len)
         s = ssha(plaintext, salt)
     elif scheme == 'SHA':
-        s = sha1(plaintext).hexdigest()
+        s = sha1(plaintext.encode('utf-8')).hexdigest()
     elif scheme == 'MD5':
-        s = md5(plaintext).hexdigest()
+        s = md5(plaintext.encode('utf-8')).hexdigest()
     elif scheme == 'crypt' and crypt is not None:
         if other is not None:
             salt = other
         else:
-            saltchars = './0123456789'+string.letters
+            saltchars = './0123456789' + string.ascii_letters
             salt = random.choice(saltchars) + random.choice(saltchars)
         s = crypt.crypt(plaintext, salt)
     elif scheme == 'plaintext':
