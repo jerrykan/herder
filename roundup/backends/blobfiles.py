@@ -337,7 +337,7 @@ class FileStorage:
         os.umask(self.umask)
         with open(name, 'wb') as fh:
             if isinstance(content, six.text_type):
-                fh.write(content.encode())
+                fh.write(content.encode('utf-8'))
             else:
                 fh.write(content)
 
@@ -346,12 +346,15 @@ class FileStorage:
         """
         filename = self.filename(classname, nodeid, property)
 
-        f = open(filename, 'rb')
+        with open(filename, 'rb') as f:
+            data = f.read()
+
         try:
-            # snarf the contents and make sure we close the file
-            return f.read()
-        finally:
-            f.close()
+            return data.decode('utf-8')
+        except UnicodeDecodeError:
+            pass
+
+        return data
 
     def numfiles(self):
         """Get number of files in storage, even across subdirectories.
