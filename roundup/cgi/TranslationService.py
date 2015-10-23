@@ -44,8 +44,16 @@ class TranslationServiceMixin:
             singular = six.text_type(singular, 'utf8')
         if not isinstance(plural, six.text_type):
             plural = six.text_type(plural, 'utf8')
-        msgtrans=self.ungettext(singular, plural, number)
-        return msgtrans.encode(self.OUTPUT_ENCODING)
+        try:
+            # python 2
+            msgtrans = self.ungettext(singular, plural, number)
+        except AttributeError:
+            # python 3
+            msgtrans = super(TranslationServiceMixin, self)\
+                .ngettext(singular, plural, number)
+
+        return msgtrans
+
 
 class TranslationService(TranslationServiceMixin, i18n.RoundupTranslations):
     pass
