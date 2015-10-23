@@ -37,7 +37,7 @@ class TranslationServiceMixin:
         if not isinstance(msgid, six.text_type):
             msgid = six.text_type(msgid, 'utf8')
         msgtrans=self.ugettext(msgid)
-        return msgtrans.encode(self.OUTPUT_ENCODING)
+        return msgtrans
 
     def ngettext(self, singular, plural, number):
         if not isinstance(singular, six.text_type):
