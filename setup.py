@@ -29,10 +29,10 @@ from roundup.dist.command.install_lib import install_lib
 # doesn't seem to generate a MANIFEST file. Since I'm not familiar with
 # the way setuptools handles the files to include I'm commenting this
 # for now -- Ralf Schlatterbeck
-#try:
-#    from setuptools import setup
-#except ImportError:
-from distutils.core import setup
+try:
+    from setuptools import setup
+except ImportError:
+    from distutils.core import setup
 
 import sys, os
 from glob import glob
@@ -52,6 +52,12 @@ def include(d, e):
 
     return (d, [f for f in glob('%s/%s'%(d, e)) if os.path.isfile(f)])
 
+def scriptname(path):
+    """ Helper for building a list of script names from a list of
+        module files.
+    """
+    script = os.path.splitext(os.path.basename(path))[0]
+    return script.replace('_', '-')
 
 def mapscript(path):
     """ Helper for building a list of script names from a list of
@@ -76,7 +82,10 @@ def main():
     ]
 
     # build list of scripts from their implementation modules
-    scripts = [mapscript(f) for f in glob('roundup/scripts/[!_]*.py')]
+    scripts = [scriptname(f) for f in glob('roundup/scripts/[!_]*.py')]
+    scripts = glob('roundup/scripts/[!_]*.py')
+    entry_points = [mapscript(f) for f in glob('roundup/scripts/[!_]*.py')]
+    import pdb; pdb.set_trace()
 
     data_files = [
         ('share/roundup/cgi-bin', ['frontends/roundup.cgi']),
@@ -157,8 +166,9 @@ def main():
                      'install_lib': install_lib,
                      },
           packages=packages,
+          scripts=scripts,
           entry_points={
-              'console_scripts': scripts
+              'console_scripts': entry_points,
           },
           data_files=data_files)
 
