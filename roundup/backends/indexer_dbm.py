@@ -242,7 +242,8 @@ class Indexer(IndexerBase):
             segdicts[segment] = {}
         for word, entry in self.words.items():  # Split into segment dicts
             initchar = word[0].upper()
-            segdicts[initchar][word] = entry
+            if initchar in segdicts:
+                segdicts[initchar][word] = entry
 
         # save
         for initchar in letters:
