@@ -493,7 +493,9 @@ class IssueClass:
         charset = getattr(self.db.config, 'EMAIL_CHARSET', 'utf-8')
 
         # construct the content and convert to unicode object
-        body = six.text_type('\n'.join(m), 'utf-8').encode(charset)
+        body = '\n'.join(
+            [p if isinstance(p, six.text_type) else six.text_type(p, 'utf-8') for p in m]
+        ).encode(charset)
 
         # make sure the To line is always the same (for testing mostly)
         sendto.sort()
