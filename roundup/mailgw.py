@@ -208,7 +208,7 @@ class RoundupMessage(email.message.Message):
             # implemented in our patched decode_header method in anypy
             parts.append(part)
 
-        return ''.join([p.encode('utf-8') for p in parts])
+        return b''.join([p.encode('utf-8') for p in parts])
 
     def flatten(self):
         fp = cStringIO()
