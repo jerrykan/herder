@@ -25,7 +25,6 @@ from .db_test_base import ConcurrentDBTest, HTMLItemTest, FilterCacheTest
 from .db_test_base import ClassicInitBase, setupTracker
 
 from roundup.backends import get_backend, have_backend
-from roundup.backends.back_postgresql import psycopg
 
 if not have_backend('postgresql'):
     # FIX: workaround for a bug in pytest.mark.skip():
@@ -35,6 +34,7 @@ if not have_backend('postgresql'):
         reason='Skipping PostgreSQL tests: backend not available'))
 else:
     skip_postgresql = lambda func, *args, **kwargs: func
+    from roundup.backends.back_postgresql import psycopg
 
 
 class postgresqlOpener:
